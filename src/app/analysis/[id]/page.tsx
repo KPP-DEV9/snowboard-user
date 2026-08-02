@@ -59,7 +59,7 @@ export default function AnalysisPage() {
   useEffect(() => {
     if (params.id) {
       handleGetAnalysisBookingById()
-      
+
       const fetchRating = async () => {
         try {
           const userClassesRes = await getUserClassesById(params.id)
@@ -67,7 +67,11 @@ export default function AnalysisPage() {
             const instructorId = userClassesRes.data.classes?.course?.instructor_id
             const userId = userClassesRes.data.user_id
             if (instructorId && userId) {
-              const ratingRes = await api.ratings.checkExisting<Rating>(instructorId, userId, params.id)
+              const ratingRes = await api.ratings.checkExisting<Rating>(
+                instructorId,
+                userId,
+                params.id,
+              )
               if (ratingRes.success && ratingRes.data?.id) {
                 setRatingData(ratingRes.data)
               }
@@ -196,7 +200,7 @@ export default function AnalysisPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-tight">
-                Student Golf Swing Analysis
+                Student SNOWVIBES TOURS Swing Analysis
               </h1>
               <p className="text-gray-400 text-sm mt-1">
                 Student: John Doe • Recorded: 15 Jun 2026
@@ -227,7 +231,7 @@ export default function AnalysisPage() {
                 <iframe
                   src={analyticData.video_url}
                   className="absolute inset-0 w-full h-full border-0 z-10"
-                  title="Student Golf Swing Analysis"
+                  title="Student SNOWVIBES TOURS Swing Analysis"
                   allow="autoplay;"
                   allowFullScreen
                 />

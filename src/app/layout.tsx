@@ -10,8 +10,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Singha Golf Academy",
-  description: "ระบบจองและบริหารการเรียนสำหรับสมาชิกของ Academy",
+  title: "SNOWVIBES TOURS",
+  description: "จองทริปสโนว์บอร์ดและสกี",
 }
 
 export default async function RootLayout({
@@ -24,7 +24,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
-        <main className="max-w-[480px] lg:max-w-[700px] mx-auto min-h-screen relative bg-background shadow-[0_0_20px_rgba(0,0,0,0.5)] overflow-x-hidden">
+        <main className="w-full mx-auto min-h-screen relative bg-background shadow-2xl overflow-x-hidden">
           <WebSocketProvider userId={user?.id}>{children}</WebSocketProvider>
         </main>
       </body>

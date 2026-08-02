@@ -81,7 +81,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen px-6 py-10 relative items-center justify-center text-center">
       <div className="absolute top-[20%] left-1/2 -translate-x-1/2 text-[120px] font-black text-gold/5 z-0 tracking-[-2px]">
-        GOLF
+        SNOWVIBES TOURS
       </div>
 
       <div className="w-20 h-20 rounded-full border border-gold flex items-center justify-center mb-6 z-10 relative text-gold">
@@ -107,9 +107,9 @@ export default function LoginPage() {
       </div>
 
       <h1 className="text-[32px] font-bold leading-[1.2] mb-6 z-10 relative">
-        Singha Golf
+        SNOWVIBES
         <br />
-        <span className="text-gold">Academy</span>
+        <span className="text-gold">TOURS</span>
       </h1>
 
       <div className="w-10 h-[2px] bg-gold mb-8 z-10 relative" />
@@ -117,7 +117,7 @@ export default function LoginPage() {
       <p className="text-text-muted text-sm leading-[1.6] mb-auto max-w-[260px] z-10 relative">
         ระบบจองและบริหารการเรียน
         <br />
-        สำหรับสมาชิกของ Academy
+        สำหรับสมาชิกของ TOURS
       </p>
 
       <div className="w-full mt-16 z-10 relative flex flex-col items-center">

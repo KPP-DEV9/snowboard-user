@@ -73,7 +73,7 @@ export default async function InstructorsPage({ searchParams }: InstructorsPageP
                           {proName}
                         </h3>
                         <p className="text-[12px] text-gold mt-0.5">
-                          {instructor.speciality || "General Golf Instruction"}
+                          {instructor.speciality || "General SNOWVIBES TOURS Instruction"}
                         </p>
                       </div>
                     </div>
