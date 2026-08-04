@@ -1,16 +1,18 @@
 import { getCourseById } from "@/app/actions/course"
 import { notFound } from "next/navigation"
 import numeral from "numeral"
-import { MapPin, CalendarDays, ArrowLeft } from "lucide-react"
+import { MapPin, CalendarDays, ArrowLeft, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { RenderDate } from "@/lib/date"
+import { getSession } from "@/app/actions/auth"
 
 interface CourseDetailsPageProps {
   params: Promise<{ id: string }>
 }
 
 export default async function CourseDetailsPage({ params }: CourseDetailsPageProps) {
+  const session = await getSession()
   const resolvedParams = await params
   const { id } = resolvedParams
 
@@ -76,84 +78,65 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                 {course.description || "ไม่มีรายละเอียดเพิ่มเติม"}
               </div>
             </div>
-
-            {/* {course.classes && course.classes.length > 0 && (
-              <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-xl">
-                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-1.5 h-6 bg-[#4F7354] rounded-full"></div>
-                  คลาสเรียนที่รวมในแพ็กเกจ
-                </h2>
-                <div className="space-y-4">
-                  {course.classes
-                    .sort((a, b) => a.order - b.order)
-                    .map((phase, index) => (
-                      <div
-                        key={phase.id || index}
-                        className="p-4 bg-gray-50 rounded-xl border border-gray-100"
-                      >
-                        <h3 className="font-bold text-gray-800 text-lg mb-2">{phase.title}</h3>
-                        <p className="text-gray-600 text-sm">{phase.description}</p>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )} */}
           </div>
 
           {/* Sidebar / Booking */}
           <div className="lg:col-span-4 space-y-6">
             <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-xl sticky top-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">สรุปการจอง</h3>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">ข้อมูลการจอง</h3>
 
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+              <div className="space-y-3 mb-8">
+                <div className="flex justify-between items-center text-[15px]">
                   <span className="text-gray-500">ระดับผู้เรียน</span>
-                  <span className="font-semibold text-gray-800">{course.course_level || "-"}</span>
+                  <span className="text-gray-600">{course.course_level || "-"}</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <div className="flex justify-between items-center text-[15px]">
                   <span className="text-gray-500">ระยะเวลา (วัน)</span>
-                  <span className="font-semibold text-gray-800">
-                    {course.total_days || "-"} วัน
-                  </span>
+                  <span className="text-gray-600">{course.total_days || "-"} วัน</span>
                 </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <div className="flex justify-between items-center text-[15px]">
                   <span className="text-gray-500">รับจำนวน</span>
-                  <span className="font-semibold text-gray-800">
-                    {course.max_students || "-"} คน
-                  </span>
+                  <span className="text-gray-600">{course.max_students || "-"} คน</span>
                 </div>
               </div>
 
-              <div className="mb-6">
-                <div className="text-sm text-gray-500 mb-1">ราคาผู้ใหญ่ / ท่าน</div>
-                <div className="flex items-end gap-3">
-                  <div className="text-3xl font-extrabold text-[#E03131]">
+              <div className="font-bold text-lg text-gray-900 mb-4">
+                ราคาทริป <span className="text-sm font-normal text-gray-900">/ ท่าน</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <div className="text-[13px] text-gray-500 mb-1">ราคาผู้ใหญ่</div>
+                  <div className="text-[26px] font-bold text-[#D94C2B] leading-none mb-1">
                     ฿ {numeral(course.adult_price - (course.discount || 0)).format("0,0")}
                   </div>
                   {(course.discount || 0) > 0 && (
-                    <div className="text-gray-400 line-through font-medium text-lg mb-1">
+                    <div className="text-gray-400 line-through font-medium text-sm">
                       ฿ {numeral(course.adult_price).format("0,0")}
                     </div>
                   )}
                 </div>
-              </div>
 
-              {course.child_price > 0 && (
-                <div className="mb-6">
-                  <div className="text-sm text-gray-500 mb-1">ราคาเด็ก / ท่าน</div>
-                  <div className="flex items-end gap-3">
-                    <div className="text-2xl font-bold text-gray-800">
-                      ฿ {numeral(course.child_price).format("0,0")}
+                {course.child_price > 0 && (
+                  <div>
+                    <div className="text-[13px] text-gray-500 mb-1">ราคาเด็ก</div>
+                    <div className="text-[26px] font-bold text-gray-900 leading-none">
+                      <span className="text-[#4F7354]">฿</span>{" "}
+                      {numeral(course.child_price).format("0,0")}
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               <Link
-                href={`/course/${course.id}/rounds`}
-                className="w-full block text-center bg-gray-900 hover:bg-[#4F7354] text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-md"
+                href={
+                  !session?.user
+                    ? `/signin?pathname=/course/${course.id}/rounds`
+                    : `/course/${course.id}/rounds`
+                }
+                className="w-full flex items-center justify-center gap-2 bg-[#D94C2B] hover:bg-[#b03c20] text-white py-3.5 rounded-[12px] font-bold text-[17px] transition-colors shadow-sm mt-4"
               >
-                จองทริปนี้
+                จองทริป <ArrowRight size={20} className="stroke-[3]" />
               </Link>
             </div>
           </div>

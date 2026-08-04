@@ -6,7 +6,6 @@ import { getCredit } from "./credit"
 
 export async function setSession(token: string, user: any) {
   const cookieStore = await cookies()
-
   cookieStore.set("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -15,7 +14,30 @@ export async function setSession(token: string, user: any) {
   })
 
   if (user) {
-    cookieStore.set("user", JSON.stringify(user), {
+    const minimalUser = {
+      id: user.id,
+      username: user.username,
+      line_user_id: user.line_user_id,
+      nickname: user.nickname || user.nick_name || user.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      telephone: user.telephone,
+      email: user.email,
+      role_id: user.role_id,
+      role: user.role ? { id: user.role.id, name: user.role.name } : undefined,
+      is_active: user.is_active,
+      profile_image: user.profile_image,
+      sex: user.sex,
+      student_profile: user.student_profile
+        ? {
+            ...user.student_profile,
+            user: undefined,
+          }
+        : undefined,
+    }
+
+    const userString = JSON.stringify(minimalUser)
+    cookieStore.set("user", userString, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 7, // 1 week

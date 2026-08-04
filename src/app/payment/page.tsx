@@ -1,7 +1,7 @@
 import { getCourseById } from "@/app/actions/course"
 import { getSession } from "@/app/actions/auth"
 import Breadcrumbs from "@/components/Breadcrumbs"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { Card } from "@/components/Ui/Card/Card"
 
 import { PaymentButton } from "@/components/Button/PaymentButton"
@@ -29,16 +29,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
   }
 
   const session = await getSession()
-  if (!session?.user) return notFound()
-
-  // let userCredit = 0
-  // if (method === "credit") {
-  //   const creditRes = await getCredit(session.user.id)
-  //   const credit = creditRes.data as Credit
-  //   if (credit?.user_id) {
-  //     userCredit = credit?.balance || 0
-  //   }
-  // }
+  if (!session?.user) return redirect("/signin")
 
   const renderPaymentMethods = () => {
     switch (method.toLowerCase()) {

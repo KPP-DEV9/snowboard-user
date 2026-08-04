@@ -7,6 +7,7 @@ import { api } from "@/lib/api"
 import { useRouter } from "next/navigation"
 import { setSession } from "@/app/actions/auth"
 import { Toast } from "@/components/Ui/Toast/Toast"
+import Logo from "@/components/Logo"
 
 export default function LoginPage() {
   const { liff, isReady, liffError } = useLiff()
@@ -32,22 +33,21 @@ export default function LoginPage() {
               email: liff.getDecodedIDToken()?.email || "",
               profile_image: profile.pictureUrl || "",
             })
-
             if (response.success && response.data?.token) {
               const userData = (response.data as any).user
 
-              if (userData?.role?.name === "instructor") {
-                setToast({
-                  message: "บัญชี Instructor ไม่สามารถเข้าสู่ระบบผ่านช่องทางนี้ได้",
-                  type: "error",
-                })
-                setIsLoading(false)
-                liff.logout()
-                return
-              }
+              // if (userData?.role?.name === "instructor") {
+              //   setToast({
+              //     message: "บัญชี Instructor ไม่สามารถเข้าสู่ระบบผ่านช่องทางนี้ได้",
+              //     type: "error",
+              //   })
+              //   setIsLoading(false)
+              //   liff.logout()
+              //   return
+              // }
 
               await setSession(response.data.token, userData)
-              router.push("/dashboard")
+              router.push("/")
             } else {
               console.error("Login failed:", response.message)
               setToast({ message: response.message || "เข้าสู่ระบบล้มเหลว", type: "error" })
@@ -71,7 +71,7 @@ export default function LoginPage() {
 
     if (!liff.isLoggedIn()) {
       if (process.env.NODE_ENV === "development") {
-        liff.login({ redirectUri: "http://localhost:3000" })
+        liff.login({ redirectUri: "https://localhost:3000/signin" })
       } else {
         liff.login()
       }
@@ -80,37 +80,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col min-h-screen px-6 py-10 relative items-center justify-center text-center">
-      <div className="absolute top-[20%] left-1/2 -translate-x-1/2 text-[120px] font-black text-gold/5 z-0 tracking-[-2px]">
-        SNOWVIBES TOURS
-      </div>
-
-      <div className="w-20 h-20 rounded-full border border-gold flex items-center justify-center mb-6 z-10 relative text-gold">
-        <svg
-          width="32"
-          height="32"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M16 8L21 3M21 3H16.5M21 3V7.5M10.5 21C14.6421 21 18 17.6421 18 13.5C18 9.35786 14.6421 6 10.5 6C6.35786 6 3 9.35786 3 13.5C3 17.6421 6.35786 21 10.5 21Z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
-
-      <div className="text-gold text-[10px] font-bold tracking-[2px] mb-4 z-10 relative">
-        MEMBERS ONLY
-      </div>
-
-      <h1 className="text-[32px] font-bold leading-[1.2] mb-6 z-10 relative">
-        SNOWVIBES
-        <br />
-        <span className="text-gold">TOURS</span>
-      </h1>
+      <Logo />
 
       <div className="w-10 h-[2px] bg-gold mb-8 z-10 relative" />
 

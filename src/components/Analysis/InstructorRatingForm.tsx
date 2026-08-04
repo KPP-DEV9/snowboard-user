@@ -78,7 +78,7 @@ export function InstructorRatingForm({
         setIsSubmitted(true)
         setIsReadOnly(true)
       } else {
-        console.log("Failed to submit rating:", res.message)
+        // console.log("Failed to submit rating:", res.message)
         setToast({ message: "เกิดข้อผิดพลาดในการส่งผลประเมิน กรุณาลองใหม่อีกครั้ง", type: "error" })
       }
     }

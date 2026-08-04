@@ -5,17 +5,17 @@ export function proxy(request: NextRequest) {
   const token = request.cookies.get("token")?.value
   const { pathname } = request.nextUrl
 
-  const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTERNANCE === "TRUE"
+  // const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTERNANCE === "TRUE"
 
-  if (isMaintenanceMode) {
-    if (!request.nextUrl.pathname.startsWith("/maintenance")) {
-      return NextResponse.redirect(new URL("/maintenance", request.url))
-    }
-  } else {
-    if (request.nextUrl.pathname.startsWith("/maintenance")) {
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-  }
+  // if (isMaintenanceMode) {
+  //   if (!request.nextUrl.pathname.startsWith("/maintenance")) {
+  //     return NextResponse.redirect(new URL("/maintenance", request.url))
+  //   }
+  // } else {
+  //   if (request.nextUrl.pathname.startsWith("/maintenance")) {
+  //     return NextResponse.redirect(new URL("/", request.url))
+  //   }
+  // }
 
   // if (pathname.startsWith("/analysis/")) {
   //   return NextResponse.redirect(new URL("/dashboard", request.url))

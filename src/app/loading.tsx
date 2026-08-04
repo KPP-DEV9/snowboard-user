@@ -47,6 +47,7 @@ export default function Loading() {
         <div className="flex flex-col items-center justify-center mt-2 relative">
           <Logo />
         </div>
+        <p>กำลังโหลดข้อมูล....</p>
       </div>
 
       {/* Bottom Wavy Overlay */}
