@@ -33,9 +33,6 @@ export default async function Recent({ userId, limit = 10 }: Props) {
           >
             <div>
               <div className="text-[14px] font-semibold text-foreground">
-                <p className="uppercase">
-                  จองเรียนกับโปร {item?.course?.instructor?.user?.first_name}
-                </p>
                 <p className="text-[10px] text-text-muted/50 truncate w-[280px] ">
                   คอร์สเรียน : {item?.course?.title}
                 </p>

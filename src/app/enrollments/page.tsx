@@ -2,15 +2,12 @@ import { getSession } from "@/app/actions/auth"
 import { getEnrollmentByUserID } from "@/app/actions/enrollment"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import { Card } from "@/components/Ui/Card/Card"
-import { format, addHours } from "date-fns"
-import numeral from "numeral"
 import { notFound } from "next/navigation"
 import { Pagination } from "@/components/Ui/Pagination"
-import { th } from "date-fns/locale"
+
 import Link from "next/link"
 import { RenderDate } from "@/lib/date"
 import { PaymentMethodRender } from "@/utils/PaymentMethodRender"
-import { Inv } from "@/utils/Inv"
 
 interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -58,17 +55,9 @@ export default async function EnrollmentsHistoryPage({ searchParams }: Props) {
 
         {paginatedEnrollments.map((enrollment) => {
           const course = enrollment.course
-          const instructorUser = course?.instructor?.user
-          const proName = instructorUser?.first_name
-            ? `${instructorUser.first_name} ${instructorUser.last_name}`
-            : instructorUser?.nickname || ""
-
-          // Identify payment method if available
           const firstPayment =
             enrollment.payments && enrollment.payments.length > 0 ? enrollment.payments[0] : null
           const paymentMethod = firstPayment?.payment_method
-
-          console.log("paymentMethod ==============> ", enrollment)
 
           // Status Badge Styles
           let statusBadge = null
@@ -105,7 +94,6 @@ export default async function EnrollmentsHistoryPage({ searchParams }: Props) {
                   <div className="text-[14px] font-bold text-foreground leading-snug">
                     {course?.title || "ไม่ทราบชื่อคอร์ส"}
                   </div>
-                  <div className="text-[12px] text-gold">โปร {proName}</div>
                 </div>
                 <div className="flex-shrink-0">{statusBadge}</div>
               </div>
@@ -124,7 +112,7 @@ export default async function EnrollmentsHistoryPage({ searchParams }: Props) {
                     ยอดชำระ
                   </span>
                   <span className="text-[16px] font-bold text-gold">
-                    {`${Inv(course?.price!)} บาท`}
+                    {/* {`${Inv(course?.price!)} บาท`} */}
                   </span>
                 </div>
               </div>

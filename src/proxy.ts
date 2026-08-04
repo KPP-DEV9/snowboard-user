@@ -23,18 +23,19 @@ export function proxy(request: NextRequest) {
 
   // Define public routes
   const isPublicRoute = pathname === "/"
+  const isCourseRoute = pathname.startsWith("/course/") || pathname.startsWith("/book/")
 
-  if (isPublicRoute) {
-    // If user is on a public route (e.g., login page) and already has a token, redirect to dashboard
-    if (token) {
-      return NextResponse.redirect(new URL("/dashboard", request.url))
-    }
-  } else {
-    // If user is on a protected route and doesn't have a token, redirect to login
-    if (!token) {
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-  }
+  // if (isPublicRoute) {
+  //   // If user is on a public route (e.g., login page) and already has a token, redirect to dashboard
+  //   if (token) {
+  //     return NextResponse.redirect(new URL("/dashboard", request.url))
+  //   }
+  // } else if (!isCourseRoute) {
+  //   // If user is on a protected route and doesn't have a token, redirect to login
+  //   if (!token) {
+  //     return NextResponse.redirect(new URL("/", request.url))
+  //   }
+  // }
 
   // Allow the request to proceed if no redirect conditions were met
   return NextResponse.next()

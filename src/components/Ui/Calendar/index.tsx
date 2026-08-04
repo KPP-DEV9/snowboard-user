@@ -23,7 +23,7 @@ export default function MyCalendar({
   rounds,
 }: Props) {
   return (
-    <Card className="py-5 px-4">
+    <Card className="py-5 px-4 text-black">
       <div className="flex justify-between items-center mb-6">
         <button onClick={prevMonth} className="w-6 h-6 flex items-center justify-center text-gold">
           <svg
@@ -84,27 +84,31 @@ export default function MyCalendar({
 
           const isSelected = selectedDate ? isSameDay(day, selectedDate) : false
 
-          let btnClass =
-            "aspect-square flex items-center justify-center text-[14px] rounded-lg text-foreground transition-colors "
-
-          if (isUnavailable) btnClass += "text-text-subtle opacity-50 "
-
-          if (isSelected) btnClass += "bg-gold text-[#111] font-bold "
-          else if (isToday(day)) btnClass += "border border-gold text-gold "
-
           return (
             <button
               key={idx}
               disabled={isUnavailable}
               onClick={() => handleDateSelect(day)}
-              className={btnClass}
+              className="flex flex-col items-center justify-center aspect-square transition-all"
             >
-              <div className="flex flex-col items-center">
+              <div
+                className={`w-8 h-8 flex items-center justify-center rounded-full text-[14px] transition-colors ${
+                  isSelected
+                    ? "bg-[#4F7354] text-white font-bold shadow-sm"
+                    : isUnavailable
+                    ? "text-gray-400"
+                    : isToday(day)
+                    ? "border border-gold text-gold"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
                 <span className={isFullyBooked ? "line-through opacity-50" : ""}>
                   {format(day, "d")}
                 </span>
+              </div>
+              <div className="h-1.5 mt-1 flex items-center justify-center">
                 {isAvailable && !isFullyBooked && (
-                  <span className="w-1 h-1 bg-gold rounded-full mt-1"></span>
+                  <span className="w-1.5 h-1.5 bg-[#4F7354] rounded-full"></span>
                 )}
               </div>
             </button>

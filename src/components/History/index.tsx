@@ -12,10 +12,6 @@ export default function History({ summary }: { summary: SumaryCourse[] }) {
       {sumCountPast?.map((item) => {
         return (
           <div key={item?.course?.id} className="bg-black/20 p-3 rounded-lg">
-            <div className="text-[12px] text-text-muted mb-1">
-              Pro {item?.course?.instructor?.user?.first_name}{" "}
-              {item?.course?.instructor?.user?.last_name}
-            </div>
             <div className="text-[16px] font-bold text-gold">
               {item?.count_past}{" "}
               <span className="text-[12px] text-text-muted font-normal ml-1">ครั้ง</span>

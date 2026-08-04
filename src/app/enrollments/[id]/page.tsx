@@ -27,32 +27,20 @@ export default async function EnrollmentDetailsPage({ params }: PageProps) {
     return notFound()
   }
 
-  const courseClasses = course.classes || []
+  const courseClasses = course.rounds || []
 
   const { data: allBookings } = await getUserClassesByUserID(session.user.id)
 
   const userBookings = Array.isArray(allBookings) ? allBookings : []
-
-  const instructor = course.instructor?.user
-  const proName = instructor?.first_name
-    ? `${instructor.first_name} ${instructor.last_name}`
-    : instructor?.nickname || ""
 
   return (
     <div className="p-6 flex flex-col min-h-screen animate-fade-in pb-[100px]">
       <Breadcrumbs title={"รายละเอียดคอร์ส"} step={"DETAILS"} urlBack={`/enrollments`} />
 
       <h1 className="text-[24px] font-bold text-foreground mb-2">{course.title}</h1>
-      <p className="text-[14px] text-text-muted mb-6 uppercase">สอนโดยโปร {proName}</p>
 
       <div className="flex flex-col gap-4">
-        {(!courseClasses || courseClasses.length === 0) && (
-          <div className="text-center py-10 text-text-muted text-[14px]">
-            ไม่มีข้อมูลคลาสเรียนสำหรับคอร์สนี้
-          </div>
-        )}
-
-        {courseClasses.map((cls: any) => {
+        {courseClasses?.map((cls: any) => {
           const booking = userBookings.find((b: any) => b.classes_id === cls.id)
           const hasBooking = !!booking
           const isComplete = booking?.status.toUpperCase() === "COMPLETE"

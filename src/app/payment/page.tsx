@@ -1,14 +1,10 @@
 import { getCourseById } from "@/app/actions/course"
 import { getSession } from "@/app/actions/auth"
-// import { getCredit } from "@/app/actions/credit"
 import Breadcrumbs from "@/components/Breadcrumbs"
 import { notFound } from "next/navigation"
 import { Card } from "@/components/Ui/Card/Card"
 
 import { PaymentButton } from "@/components/Button/PaymentButton"
-import numeral from "numeral"
-import { Inv } from "@/utils/Inv"
-// import { Credit } from "@/types/credit"
 
 interface PaymentPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -43,11 +39,6 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
   //     userCredit = credit?.balance || 0
   //   }
   // }
-
-  const instructor = course.instructor
-  const user = instructor?.user
-  const id = instructor?.id || ""
-  const proName = user?.first_name ? `${user.first_name} ${user.last_name}` : user?.nickname || ""
 
   const renderPaymentMethods = () => {
     switch (method.toLowerCase()) {
@@ -182,7 +173,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
       <Breadcrumbs
         title={"ชำระเงิน"}
         step={"PAYMENT"}
-        urlBack={`/instructors/${id}/courses/${courseId}`}
+        urlBack={`/instructors/${123}/courses/${courseId}`}
       />
 
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto">
@@ -199,7 +190,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <span className="text-[14px] text-gray-500 block mb-1">ยอดชำระเงิน</span>
               <span className="text-[28px] font-bold text-gray-900 tracking-tight">
-                {`${Inv(course.price)}`}
+                {/* {`${Inv(course.price)}`} */}
               </span>
             </div>
           </div>
@@ -215,7 +206,6 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
             </div>
             <div className="flex flex-col text-right">
               <span className="text-[12px] text-text-muted">ผู้สอน</span>
-              <span className="text-[14px] font-medium text-foreground uppercase">{proName}</span>
             </div>
           </div>
         </div>

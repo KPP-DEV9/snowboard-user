@@ -75,11 +75,11 @@ export default function BookingListAll({ summary }: Props) {
                         </>
                       )}
                     </div>
-                    <div className="text-[12px] font-bold text-foreground leading-tight mb-0.5">
+                    {/* <div className="text-[12px] font-bold text-foreground leading-tight mb-0.5">
                       โปร{item?.classes?.course?.instructor?.user?.first_name}{" "}
                       {item?.classes?.course?.instructor?.user?.last_name}
                       <span className="text-gold mx-1">•</span>
-                    </div>
+                    </div> */}
                     <div className="text-[12px] font-bold text-foreground leading-tight truncate max-w-[200px] mb-0.5">
                       {item?.classes?.title}
                     </div>
