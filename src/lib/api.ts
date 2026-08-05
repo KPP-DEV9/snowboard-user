@@ -133,7 +133,7 @@ export const api = {
         cache: "no-store",
       })
     },
-    getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
+    getCourseById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
       fetchWrapper<T>(`courses/${id}`, {
         ...options,
         method: "GET",

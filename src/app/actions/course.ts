@@ -25,7 +25,7 @@ export async function getCourses(page = 1, limit = 10, instructorId?: string) {
 
 export async function getCourseById(id: string) {
   try {
-    const res = await api.course.getById<Course>(id)
+    const res = await api.course.getCourseById<Course>(id)
 
     if (!res.success) {
       return {

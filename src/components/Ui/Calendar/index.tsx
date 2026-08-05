@@ -74,9 +74,9 @@ export default function MyCalendar({
             return <div key={idx} className="aspect-square"></div>
           }
 
-          const dayRounds = rounds.filter((r) => isSameDay(new Date(r.start_date), day))
-          const hasRound = dayRounds.length > 0
-          const isFullyBooked = hasRound && dayRounds.every((r) => r.total === 0)
+          const dayRounds = rounds?.filter((r) => isSameDay(new Date(r.start_date), day))
+          const hasRound = dayRounds?.length > 0
+          const isFullyBooked = hasRound && dayRounds?.every((r) => r.total === 0)
 
           const isPastDate = day < new Date(new Date().setHours(0, 0, 0, 0))
           const isUnavailable = !hasRound || isPastDate
@@ -96,10 +96,10 @@ export default function MyCalendar({
                   isSelected
                     ? "bg-[#4F7354] text-white font-bold shadow-sm"
                     : isUnavailable
-                    ? "text-gray-400"
-                    : isToday(day)
-                    ? "border border-gold text-gold"
-                    : "text-gray-700 hover:bg-gray-100"
+                      ? "text-gray-400"
+                      : isToday(day)
+                        ? "border border-gold text-gold"
+                        : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 <span className={isFullyBooked ? "line-through opacity-50" : ""}>
