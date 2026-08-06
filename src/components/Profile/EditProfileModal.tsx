@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/Ui/Button/Button"
 import { User } from "@/types/user"
 import { updateUserProfile } from "@/app/actions/userProfile"
-import { X } from "lucide-react"
+import { X, CalendarDays, ScanLine } from "lucide-react"
 
 interface EditProfileModalProps {
   user: User
@@ -20,10 +20,11 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
     email: user.email || "",
     telephone: user.telephone || "",
     sex: user.sex || "",
-    speciality: user.student_profile?.speciality || "",
-    hourly_rate: user.student_profile?.hourly_rate || 0,
-    experience_years: user.student_profile?.experience_years || 0,
-    image_profile: user.student_profile?.image_profile || "",
+    image_profile: user.profile_image || user.student_profile?.image_profile || "",
+    id_card: "", // Placeholder for design
+    nationality: "", // Placeholder for design
+    birth_date: "", // Placeholder for design
+    level: user.level || "Level 1",
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -41,7 +42,17 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
     e.preventDefault()
     setIsLoading(true)
     try {
-      const res = await updateUserProfile(formData)
+      // NOTE: We only send fields that are supported by the backend right now
+      const payload = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        nickname: formData.nickname,
+        telephone: formData.telephone,
+        sex: formData.sex,
+        image_profile: formData.image_profile,
+      }
+
+      const res = await updateUserProfile(payload)
       if (res.success) {
         onClose()
       } else {
@@ -56,170 +67,212 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm pb-20">
-      <div className="bg-card-bg w-full max-w-md rounded-2xl border border-card-border shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="flex justify-between items-center p-4 border-b border-card-border/50">
-          <h2 className="text-lg font-bold text-foreground">แก้ไขโปรไฟล์</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm pb-16">
+      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex justify-between items-center p-6 pb-2">
+          <h2 className="text-xl font-bold text-[#4F7354]">แก้ไขข้อมูลโปรไฟล์</h2>
           <button
             onClick={onClose}
-            className="text-text-muted hover:text-foreground transition-colors p-1"
+            className="bg-black text-white rounded-full p-1.5 hover:opacity-80 transition-opacity"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
+        {/* Form Content */}
         <div className="p-6 overflow-y-auto">
           <form id="edit-profile-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              {formData.image_profile && (
-                <div className="mt-2 flex justify-center">
-                  <img
-                    src={formData.image_profile}
-                    alt="Profile Preview"
-                    className="w-24 h-24 object-cover rounded-full border-2 border-gold/50"
-                    onError={(e) => {
-                      ;(e.target as HTMLImageElement).src =
-                        "https://via.placeholder.com/150?text=Invalid+Image"
-                    }}
-                  />
-                </div>
-              )}
-              <label className="text-sm font-medium text-text-muted">รูปโปรไฟล์ (URL)</label>
+            {/* Profile Image URL */}
+            {/* <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-gray-900">รูปโปรไฟล์ (URL)</label>
               <input
                 type="text"
                 name="image_profile"
                 value={formData.image_profile}
                 onChange={handleChange}
-                className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
+                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
                 placeholder="https://example.com/image.jpg"
               />
-            </div>
+            </div> */}
 
+            {/* ID Card */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text-muted">ชื่อจริง</label>
-              <input
-                type="text"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
-                className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
-                placeholder="ชื่อจริง"
-              />
+              <label className="text-sm font-bold text-gray-900">เลขบัตรประชาชน/เลขพาสปอร์ต</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="id_card"
+                  value={formData.id_card}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
+                  placeholder="เลขบัตรประชาชน/เลขพาสปอร์ต"
+                />
+                <ScanLine className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700" />
+              </div>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text-muted">นามสกุล</label>
-              <input
-                type="text"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
-                className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
-                placeholder="นามสกุล"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text-muted">ชื่อเล่น</label>
-              <input
-                type="text"
-                name="nickname"
-                value={formData.nickname}
-                onChange={handleChange}
-                className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
-                placeholder="ชื่อเล่น"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text-muted">อีเมล</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
-                placeholder="อีเมล"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text-muted">เบอร์โทรศัพท์</label>
-              <input
-                type="tel"
-                name="telephone"
-                value={formData.telephone}
-                onChange={handleChange}
-                className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
-                placeholder="เบอร์โทรศัพท์"
-              />
-            </div>
-
+            {/* Nationality & Birth Date */}
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-text-muted">เพศ</label>
+                <label className="text-sm font-bold text-gray-900">สัญชาติ</label>
                 <select
-                  name="sex"
-                  value={formData.sex}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, sex: e.target.value }))}
-                  className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all appearance-none"
+                  name="nationality"
+                  value={formData.nationality}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-no-repeat bg-[position:right_1rem_center]"
                 >
                   <option value="" disabled>
-                    เลือกเพศ
+                    เลือก
                   </option>
-                  <option value="male">ชาย</option>
-                  <option value="female">หญิง</option>
+                  <option value="thai">ไทย</option>
                   <option value="other">อื่นๆ</option>
                 </select>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-medium text-text-muted">ประสบการณ์ (ปี)</label>
+                <label className="text-sm font-bold text-gray-900">วันเดือนปีเกิด</label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="birth_date"
+                    value={formData.birth_date}
+                    onChange={handleChange}
+                    className="w-full bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  />
+                  <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700 pointer-events-none" />
+                </div>
+              </div>
+            </div>
+
+            {/* First Name & Last Name */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">ชื่อ</label>
                 <input
-                  type="number"
-                  name="experience_years"
-                  value={formData.experience_years}
+                  type="text"
+                  name="first_name"
+                  value={formData.first_name}
                   onChange={handleChange}
-                  className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all"
-                  placeholder="0"
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">นามสกุล</label>
+                <input
+                  type="text"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
                 />
               </div>
             </div>
 
+            {/* Nickname & Telephone */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">ชื่อเล่น</label>
+                <input
+                  type="text"
+                  name="nickname"
+                  value={formData.nickname}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">เบอร์โทรศัพท์</label>
+                <input
+                  type="tel"
+                  name="telephone"
+                  value={formData.telephone}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-400 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
+                  placeholder="080xxxxxxx"
+                />
+              </div>
+            </div>
+
+            {/* Email */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-text-muted">
-                ความเชี่ยวชาญพิเศษ (Speciality)
-              </label>
-              <textarea
-                name="speciality"
-                value={formData.speciality}
+              <label className="text-sm font-bold text-gray-900">อีเมล์</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                rows={8}
-                className="w-full bg-background/50 border border-card-border/50 rounded-lg p-3 text-foreground focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 transition-all resize-none"
-                placeholder="เช่น การพัตต์, ไดร์ฟเวอร"
+                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
+                placeholder="อีเมล..."
               />
             </div>
-          </form>
-        </div>
 
-        <div className="p-4 border-t border-card-border/50 bg-background/30 flex gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex-1"
-            onClick={onClose}
-            disabled={isLoading}
-          >
-            ยกเลิก
-          </Button>
-          <Button
-            type="submit"
-            form="edit-profile-form"
-            className="flex-1 bg-gold text-black hover:bg-gold-hover border-none"
-            disabled={isLoading}
-          >
-            {isLoading ? "กำลังบันทึก..." : "บันทึก"}
-          </Button>
+            {/* Gender */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-gray-900">เพศ</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, sex: "male" }))}
+                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
+                    formData.sex === "male"
+                      ? "bg-[#354359] text-white border-[#354359]"
+                      : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="text-lg">♂</span> ชาย
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, sex: "female" }))}
+                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
+                    formData.sex === "female"
+                      ? "bg-[#354359] text-white border-[#354359]"
+                      : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="text-lg">♀</span> หญิง
+                </button>
+              </div>
+            </div>
+
+            {/* Player Level */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">ระดับผู้เล่น</label>
+                <input
+                  type="text"
+                  value={formData.level}
+                  disabled
+                  className="w-full bg-gray-200/60 border border-transparent rounded-xl p-3 text-sm text-gray-500 cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            {/* Divider */}
+            <hr className="border-gray-200 my-2" />
+
+            {/* Actions */}
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isLoading}
+                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-[#1C1F22] hover:bg-black transition-colors"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-[#5D8E61] hover:bg-[#4F7354] transition-colors"
+              >
+                {isLoading ? "กำลังบันทึก..." : "บันทึก"}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

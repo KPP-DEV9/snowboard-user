@@ -38,18 +38,36 @@ export default function HomeFilters({
   setIsPriceEnabled,
   handleSearch,
 }: Props) {
+  const handleClear = () => {
+    setNationID("ทั้งหมด")
+    setProvince([])
+    setCourseLevel("ทั้งหมด")
+    setIsPriceEnabled(false)
+    setMinPrice("20000")
+    setMaxPrice("50000")
+  }
+
   return (
     <>
       <div className="flex gap-2 lg:gap-3 overflow-x-auto pb-2 scrollbar-hide w-full justify-center flex-wrap">
-        <button
-          onClick={() => setIsFilterOpen(true)}
-          className="flex items-center gap-1.5 bg-white text-[#4F7354] px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm hover:bg-gray-100 transition-colors"
-        >
-          <SlidersHorizontal size={14} />
-          Filter
-        </button>
+        {province.length === 0 ? (
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="bg-[#6B7A5D] hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
+          >
+            เลือกเมืองที่ต้องการค้นหา...
+          </button>
+        ) : (
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-1.5 bg-white text-[#4F7354] px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm hover:bg-gray-100 transition-colors"
+          >
+            <SlidersHorizontal size={14} />
+            Filter
+          </button>
+        )}
 
-        {province.map((item, i) => (
+        {province.slice(0, 5).map((item, i) => (
           <button
             key={i}
             className="bg-[#6B7A5D] hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
@@ -57,6 +75,14 @@ export default function HomeFilters({
             {Provinces.find((p) => p.code === item)?.name_th}
           </button>
         ))}
+        {province.length > 5 && (
+          <button
+            onClick={() => setIsFilterOpen(true)}
+            className="bg-[#6B7A5D] hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
+          >
+            ...
+          </button>
+        )}
       </div>
 
       {/* Filter Modal */}
@@ -124,6 +150,16 @@ export default function HomeFilters({
                   ค้นหาจากชื่อเมือง
                 </label>
                 <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setProvince([])}
+                    className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-colors ${
+                      province.length === 0
+                        ? "bg-[#354359] text-white border-[#354359]"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    ทั้งหมด
+                  </button>
                   {Provinces.filter((p) => nationID === "ทั้งหมด" || p.nation_id === nationID).map(
                     (p) => {
                       const isSelected = province.includes(p.code)
@@ -201,13 +237,21 @@ export default function HomeFilters({
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <button
-                onClick={handleSearch}
-                className="w-full bg-[#C75D33] hover:bg-[#B34B24] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
-              >
-                <Search size={18} /> ค้นหา
-              </button>
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleClear}
+                  className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors flex items-center justify-center"
+                >
+                  ล้าง
+                </button>
+                <button
+                  onClick={() => handleSearch()}
+                  className="w-2/3 bg-[#C75D33] hover:bg-[#B34B24] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                >
+                  <Search size={18} /> ค้นหา
+                </button>
+              </div>
             </div>
           </div>
         </div>
