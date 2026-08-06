@@ -3,30 +3,21 @@ import { Phone, Mail } from "lucide-react"
 import Image from "next/image"
 import { api } from "@/lib/api"
 
+export const dynamic = "force-dynamic"
+
 interface Contact {
   id: string
-  type: string
-  title: string
+  type: string // "contact" | "social"
+  name: string // "phone" | "line" | "email" | "facebook" | "instagram" | "tiktok"
   value: string
-  sort_order: number
-}
-
-interface SocialLink {
-  id: string
-  platform_name: string
-  profile_url: string
-  sort_order: number
-}
-
-interface ContactInfoResponse {
-  contacts: Contact[]
-  social_links: SocialLink[]
 }
 
 export default async function ContactPage() {
-  const res = await api.contacts.getAll<ContactInfoResponse>()
-  const contacts = res.data?.contacts?.sort((a, b) => a.sort_order - b.sort_order) || []
-  const socialLinks = res.data?.social_links?.sort((a, b) => a.sort_order - b.sort_order) || []
+  const res: any = await api.contacts.getAll()
+  const allContacts: Contact[] = res?.contacts || []
+
+  const contactList = allContacts.filter((c) => c.type === "contact")
+  const socialList = allContacts.filter((c) => c.type === "social")
 
   return (
     <div className="min-h-screen bg-[#859877] pb-32 font-sans selection:bg-[#568759]/30 flex flex-col items-center">
@@ -42,44 +33,68 @@ export default async function ContactPage() {
           <p className="text-gray-500 text-sm mb-6">ช่องทางติดต่อสอบถาม</p>
 
           <div className="space-y-0">
-            {contacts.map((contact) => {
-              if (contact.type === "phone") {
+            {contactList.map((contact) => {
+              if (contact.name === "phone") {
                 return (
-                  <div key={contact.id} className="flex items-center gap-4 py-5 border-b border-gray-100">
+                  <a
+                    key={contact.id}
+                    href={`tel:${contact.value.replace(/[^0-9+]/g, "")}`}
+                    className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
                     <div className="w-11 h-11 rounded-full bg-[#EAF3EA] flex items-center justify-center shrink-0">
                       <Phone size={20} className="text-[#357948] fill-[#357948]" />
                     </div>
                     <div>
-                      <div className="font-bold text-gray-900 text-[17px] mb-0.5">{contact.value}</div>
-                      <div className="text-gray-400 text-[13px]">{contact.title}</div>
+                      <div className="font-bold text-gray-900 text-[17px] mb-0.5">
+                        {contact.value}
+                      </div>
+                      <div className="text-gray-400 text-[13px]">เบอร์โทรศัพท์สำนักงาน</div>
                     </div>
-                  </div>
+                  </a>
                 )
               }
-              if (contact.type === "line") {
+              if (contact.name === "line") {
                 return (
-                  <div key={contact.id} className="flex items-center gap-4 py-5 border-b border-gray-100">
+                  <a
+                    key={contact.id}
+                    href={
+                      contact.value.startsWith("http") || contact.value.startsWith("line://")
+                        ? contact.value
+                        : `https://line.me/R/ti/p/${contact.value.startsWith("@") ? contact.value : "~" + contact.value}`
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
                     <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0">
                       <Image src="/logo/line.png" alt="Line" width={120} height={120} />
                     </div>
                     <div>
-                      <div className="font-bold text-gray-900 text-[17px] mb-0.5">{contact.value}</div>
-                      <div className="text-gray-400 text-[13px]">{contact.title}</div>
+                      <div className="font-bold text-gray-900 text-[17px] mb-0.5">
+                        {contact.value}
+                      </div>
+                      <div className="text-gray-400 text-[13px]">Line Official</div>
                     </div>
-                  </div>
+                  </a>
                 )
               }
-              if (contact.type === "email") {
+              if (contact.name === "email") {
                 return (
-                  <div key={contact.id} className="flex items-center gap-4 py-5 border-b border-gray-100">
+                  <a
+                    key={contact.id}
+                    href={`mailto:${contact.value}`}
+                    className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                  >
                     <div className="w-11 h-11 rounded-full bg-[#EAF3EA] flex items-center justify-center shrink-0">
                       <Mail size={20} className="text-[#357948]" />
                     </div>
                     <div>
-                      <div className="font-bold text-gray-900 text-[17px] mb-0.5">{contact.value}</div>
-                      <div className="text-gray-400 text-[13px]">{contact.title}</div>
+                      <div className="font-bold text-gray-900 text-[17px] mb-0.5">
+                        {contact.value}
+                      </div>
+                      <div className="text-gray-400 text-[13px]">อีเมล์</div>
                     </div>
-                  </div>
+                  </a>
                 )
               }
               return null
@@ -87,23 +102,35 @@ export default async function ContactPage() {
           </div>
 
           {/* Social */}
-          {socialLinks.length > 0 && (
+          {socialList.length > 0 && (
             <div className="mt-8 mb-8">
               <h3 className="font-bold text-gray-900 text-lg mb-4">Social</h3>
               <div className="flex items-center gap-3">
-                {socialLinks.map((link) => {
-                  if (link.platform_name === "facebook") {
+                {socialList.map((link) => {
+                  if (link.name === "facebook") {
                     return (
-                      <a key={link.id} href={link.profile_url} target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
+                      <a
+                        key={link.id}
+                        href={link.value}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:opacity-80 transition-opacity"
+                      >
                         <svg viewBox="0 0 24 24" fill="#1877F2" className="w-[42px] h-[42px]">
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                       </a>
                     )
                   }
-                  if (link.platform_name === "instagram") {
+                  if (link.name === "instagram") {
                     return (
-                      <a key={link.id} href={link.profile_url} target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
+                      <a
+                        key={link.id}
+                        href={link.value}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:opacity-80 transition-opacity"
+                      >
                         <svg viewBox="0 0 24 24" className="w-[42px] h-[42px]">
                           <defs>
                             <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
@@ -124,9 +151,15 @@ export default async function ContactPage() {
                       </a>
                     )
                   }
-                  if (link.platform_name === "tiktok") {
+                  if (link.name === "tiktok") {
                     return (
-                      <a key={link.id} href={link.profile_url} target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
+                      <a
+                        key={link.id}
+                        href={link.value}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="hover:opacity-80 transition-opacity"
+                      >
                         <svg viewBox="0 0 24 24" className="w-[42px] h-[42px]">
                           <circle cx="12" cy="12" r="12" fill="#000" />
                           <path
