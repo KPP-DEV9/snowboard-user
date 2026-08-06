@@ -435,4 +435,12 @@ export const api = {
         cache: "no-store",
       }),
   },
+  contacts: {
+    getAll: <T>(options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`contacts`, {
+        ...options,
+        method: "GET",
+        cache: "no-store",
+      }),
+  },
 }

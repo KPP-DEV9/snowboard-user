@@ -21,7 +21,7 @@ export default function MainPage() {
   const [nationID, setNationID] = useState("ทั้งหมด")
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
-  const [courseType, setCourseType] = useState("") // Placeholder if needed in future
+  const [courseType, setCourseType] = useState("snowboard") // Placeholder if needed in future
   const [isPriceEnabled, setIsPriceEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState("20000")
   const [maxPrice, setMaxPrice] = useState("50000")
@@ -60,8 +60,8 @@ export default function MainPage() {
           <Logo />
 
           {/* Greeting Text */}
-          <h2 className="text-white text-xl md:text-2xl font-bold drop-shadow-sm text-center mt-2">
-            สวัสดี, เตรียมตัวให้พร้อมสำหรับทริปสุดพิเศษของคุณ
+          <h2 className="text-white text-xl md:text-2xl font-bold drop-shadow-sm text-center">
+            เตรียมตัวให้พร้อมสำหรับทริปสุดพิเศษ
           </h2>
 
           {/* Category Tabs */}
