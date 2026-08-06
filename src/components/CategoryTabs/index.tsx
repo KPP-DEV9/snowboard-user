@@ -2,13 +2,28 @@
 
 import { useState } from "react"
 
-export default function CategoryTabs() {
-  const [active, setActive] = useState<"snowboard" | "ski">("snowboard")
+interface Props {
+  setCourseType: (courseType: string) => void
+  handleSearch: () => void
+}
+
+type CategoryType = "snowboard" | "ski"
+
+export default function CategoryTabs({ setCourseType, handleSearch }: Props) {
+  const [active, setActive] = useState<CategoryType>("snowboard")
+
+  const handleSearchType = (type: CategoryType) => {
+    setActive(type)
+    setCourseType(type)
+    handleSearch()
+  }
 
   return (
-    <div className="flex bg-[#67755D] rounded-full p-1 mb-6 relative shadow-inner">
+    <div className="flex bg-[#67755D] rounded-full p-1 relative shadow-inner">
       <div
-        onClick={() => setActive("snowboard")}
+        onClick={() => {
+          handleSearchType("snowboard")
+        }}
         className={`flex-1 text-center rounded-full py-3 z-10 cursor-pointer transition-all duration-300 ${
           active === "snowboard" ? "bg-white shadow-md" : ""
         }`}
@@ -22,7 +37,7 @@ export default function CategoryTabs() {
         </span>
       </div>
       <div
-        onClick={() => setActive("ski")}
+        onClick={() => handleSearchType("ski")}
         className={`flex-1 text-center rounded-full py-3 z-10 cursor-pointer transition-all duration-300 ${
           active === "ski" ? "bg-white shadow-md" : ""
         }`}

@@ -3,10 +3,23 @@
 import { Course, SumaryCourse, UserClasses, UserClassesSummary } from "@/types/course"
 import { api, PaginatedData } from "@/lib/api"
 
-export async function getCourses(page = 1, limit = 10, instructorId?: string) {
-  try {
-    const res = await api.course.getAll<PaginatedData<Course>>(page, limit, instructorId)
+export interface GetCoursesParams {
+  page?: number
+  limit?: number
+  instructorId?: string
+  province?: string | string[]
+  nationID?: string
+  courseLevel?: string
+  courseType?: string
+  minPrice?: string | number
+  maxPrice?: string | number
+}
 
+export async function getCourses(params: GetCoursesParams = {}) {
+  const { page = 1, limit = 10, instructorId, ...filters } = params
+
+  try {
+    const res = await api.course.getAll<PaginatedData<Course>>(page, limit, filters)
     if (!res.success) {
       return {
         success: false,

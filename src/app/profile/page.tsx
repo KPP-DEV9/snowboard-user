@@ -3,9 +3,11 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import Logo from "@/components/Logo"
 import ProfileMenuClient from "./ProfileMenuClient"
+import LevelBadge from "@/components/LevelBadge"
 
 export default async function ProfilePage() {
   const user = await getUser()
+
   if (!user) return null
 
   const fullName = user.first_name
@@ -50,9 +52,7 @@ export default async function ProfilePage() {
           <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-xl md:text-2xl font-bold text-[#357948]">โปรไฟล์ของฉัน</h3>
-              <div className="bg-[#EAF3EA] text-[#357948] px-3 py-1 rounded-full text-xs font-bold border border-[#357948]/20">
-                Level 1
-              </div>
+              <LevelBadge level={user?.level} />
             </div>
             <p className="text-gray-500 text-sm md:text-base font-medium mb-8">
               ข้อมูลของคุณ{fullName}

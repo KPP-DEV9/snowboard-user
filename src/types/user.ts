@@ -30,6 +30,7 @@ export type User = {
     created_at: string
     updated_at: string
   }
+  level: string
   is_active: boolean
   profile_image: string | null
   sex?: string | null

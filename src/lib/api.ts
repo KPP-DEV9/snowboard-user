@@ -120,12 +120,24 @@ export const api = {
     getAll: <T>(
       page = 1,
       limit = 10,
-      instructorId?: string,
+      filters?: Record<string, any>,
       options?: Omit<RequestInit, "method" | "body">,
     ) => {
       let url = `courses?page=${page}&limit=${limit}`
-      if (instructorId) {
-        url += `&instructor_id=${instructorId}`
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            if (Array.isArray(value)) {
+              value.forEach((v) => {
+                if (v !== undefined && v !== null && v !== "") {
+                  url += `&${key}=${v}`
+                }
+              })
+            } else {
+              url += `&${key}=${value}`
+            }
+          }
+        })
       }
       return fetchWrapper<T>(url, {
         ...options,

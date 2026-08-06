@@ -28,6 +28,7 @@ export async function setSession(token: string, user: any) {
       is_active: user.is_active,
       profile_image: user.profile_image,
       sex: user.sex,
+      level: user.level,
       student_profile: user.student_profile
         ? {
             ...user.student_profile,
