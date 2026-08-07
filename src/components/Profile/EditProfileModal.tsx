@@ -270,7 +270,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, has_disease: e.target.checked }))
                     }
-                    className="w-4 h-4 text-[#357948] bg-white border-gray-300 rounded focus:ring-[#357948] cursor-pointer"
+                    className="w-4 h-4 text-[#798E75] bg-white border-gray-300 rounded focus:ring-[#798E75] cursor-pointer"
                   />
                   <span>
                     <span className="text-red-500">*</span>มีโรคประจำตัวหรือไม่ ?
@@ -299,7 +299,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, has_allergy: e.target.checked }))
                     }
-                    className="w-4 h-4 text-[#357948] bg-white border-gray-300 rounded focus:ring-[#357948] cursor-pointer"
+                    className="w-4 h-4 text-[#798E75] bg-white border-gray-300 rounded focus:ring-[#798E75] cursor-pointer"
                   />
                   <span>
                     <span className="text-red-500">*</span>แพ้อาหารหรือไม่ ?

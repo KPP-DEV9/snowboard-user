@@ -81,7 +81,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#859877] px-6 py-10 relative items-center justify-center text-center text-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#304B65] via-[#304B65] to-[#F04E23] px-6 py-10 relative items-center justify-center text-center text-white">
       <div className="flex flex-col items-center flex-1 justify-center -mt-20">
         <Logo />
 

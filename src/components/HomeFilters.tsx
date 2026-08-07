@@ -53,7 +53,7 @@ export default function HomeFilters({
         {province.length === 0 ? (
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="bg-[#6B7A5D] hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
+            className="bg-sec hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
           >
             เลือกเมืองที่ต้องการค้นหา...
           </button>
@@ -70,7 +70,7 @@ export default function HomeFilters({
         {province.slice(0, 5).map((item, i) => (
           <button
             key={i}
-            className="bg-[#6B7A5D] hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
+            className="bg-sec hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
           >
             {Provinces.find((p) => p.code === item)?.name_th}
           </button>
@@ -78,7 +78,7 @@ export default function HomeFilters({
         {province.length > 5 && (
           <button
             onClick={() => setIsFilterOpen(true)}
-            className="bg-[#6B7A5D] hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
+            className="bg-sec hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
           >
             ...
           </button>
@@ -104,7 +104,7 @@ export default function HomeFilters({
 
             {/* Modal Content */}
             <div className="px-6 md:px-8 pb-8 overflow-y-auto">
-              <h2 className="text-[#357948] text-xl font-bold mb-6">ตัวกรองการค้นหา</h2>
+              <h2 className="text-[#798E75] text-xl font-bold mb-6">ตัวกรองการค้นหา</h2>
 
               {/* Country */}
               <div className="mb-6">

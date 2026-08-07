@@ -22,7 +22,7 @@ export default async function MyTripPage() {
     switch (status) {
       case "pending_payment":
         return (
-          <div className="bg-[#FFF4E5] text-[#D94C2B] px-3 py-1 rounded-md text-[11px] font-bold">
+          <div className="bg-[#FFF4E5] text-[#F04E23] px-3 py-1 rounded-md text-[11px] font-bold">
             รอชำระ
           </div>
         )
@@ -34,7 +34,7 @@ export default async function MyTripPage() {
         )
       case "cancelled":
         return (
-          <div className="bg-[#FFE5E5] text-[#D94C2B] px-3 py-1 rounded-md text-[11px] font-bold">
+          <div className="bg-[#FFE5E5] text-[#F04E23] px-3 py-1 rounded-md text-[11px] font-bold">
             ยกเลิก
           </div>
         )
@@ -44,7 +44,7 @@ export default async function MyTripPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#859877] pb-32 font-sans selection:bg-[#568759]/30">
+    <div className="min-h-screen bg-[#304B65] pb-32 font-sans selection:bg-[#568759]/30">
       <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-6 max-w-5xl">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-8">
@@ -59,7 +59,7 @@ export default async function MyTripPage() {
 
         {/* Tabs / Filters */}
         <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-2 scrollbar-hide">
-          <button className="flex items-center gap-2 bg-white text-[#357948] px-4 py-2 rounded-full text-sm font-bold shadow-sm whitespace-nowrap">
+          <button className="flex items-center gap-2 bg-white text-[#798E75] px-4 py-2 rounded-full text-sm font-bold shadow-sm whitespace-nowrap">
             ทริปทั้งหมด <ChevronDown size={16} />
           </button>
           <button className="bg-black/20 text-white px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap hover:bg-black/30 transition-colors">
@@ -84,7 +84,7 @@ export default async function MyTripPage() {
               const totalAmount = course.adult_price || 0 // Assuming adult_price is the total price for simplicity, or we can calculate based on something else
               
               const programType = course.course_type?.name?.toLowerCase().includes("ski") ? "Ski" : "Snowboard"
-              const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#1877F2]"
+              const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"
 
               return (
                 <Card
@@ -128,8 +128,8 @@ export default async function MyTripPage() {
                       <div className="text-[10px] text-gray-400 font-medium text-right mb-[-4px]">
                         ราคาทริปทั้งหมด
                       </div>
-                      <div className="text-[#357948] font-bold text-[19px] md:text-xl">
-                        <span className="text-[#357948] text-sm md:text-base mr-0.5">฿</span>
+                      <div className="text-[#798E75] font-bold text-[19px] md:text-xl">
+                        <span className="text-[#798E75] text-sm md:text-base mr-0.5">฿</span>
                         {numeral(totalAmount).format("0,0.00")}
                       </div>
                       {getStatusBadge(enrollment.status)}

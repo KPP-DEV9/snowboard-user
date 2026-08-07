@@ -26,7 +26,7 @@ export default function ProfileMenuClient({ user }: ProfileMenuClientProps) {
         >
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full bg-[#EAF3EA] flex items-center justify-center shrink-0">
-              <UserIcon size={20} className="text-[#357948]" />
+              <UserIcon size={20} className="text-[#798E75]" />
             </div>
             <div className="text-left">
               <div className="font-bold text-gray-900 text-[15px] mb-0.5">แก้ไขข้อมูลส่วนตัว</div>

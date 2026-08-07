@@ -28,12 +28,7 @@ export default async function RootLayout({
         <main className="w-full mx-auto min-h-screen relative bg-background shadow-2xl overflow-x-hidden flex flex-col">
           <WebSocketProvider userId={user?.id}>
             <div className="flex-1">{children}</div>
-
-            <div className="w-full text-center pb-28 text-white/80 text-sm font-medium z-0 relative">
-              Snowvibes Co., Ltd. • Snowwhite by Snowvibes
-            </div>
           </WebSocketProvider>
-          <MenuFooter />
         </main>
       </body>
     </html>

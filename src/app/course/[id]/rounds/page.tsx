@@ -7,6 +7,7 @@ import Link from "next/link"
 import CourseRoundsFilter from "./CourseRoundsFilter"
 import { format } from "date-fns"
 import LevelBadge from "@/components/LevelBadge"
+import BookingButton from "./BookingButton"
 
 interface CourseRoundsPageProps {
   params: Promise<{ id: string }>
@@ -27,7 +28,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
   }
 
   return (
-    <div className="min-h-screen bg-[#859877] pb-24 font-sans selection:bg-[#568759]/30">
+    <div className="min-h-screen bg-[#304B65] pb-24 font-sans selection:bg-[#568759]/30">
       <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-6 max-w-7xl">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-10">
@@ -45,7 +46,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
           <div className="lg:col-span-6 xl:col-span-6 flex flex-col w-full">
             <div className="mb-6 space-y-4">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="bg-[#1877F2] text-white text-[11px] md:text-xs font-bold px-3 py-1.5 rounded shadow-sm">
+                <span className="bg-[#304B65] text-white text-[11px] md:text-xs font-bold px-3 py-1.5 rounded shadow-sm">
                   {course.course_type?.name}
                 </span>
                 <LevelBadge level={course.course_level} />
@@ -112,7 +113,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                       className="p-5 flex flex-row justify-between items-center bg-white rounded-2xl md:rounded-[1.5rem] border-none shadow-md"
                     >
                       <div className="space-y-1.5">
-                        <div className="text-[#357948] font-bold text-[17px] md:text-[19px]">
+                        <div className="text-[#798E75] font-bold text-[17px] md:text-[19px]">
                           เวลา {RenderDate(round.start_date, "HH:mm")}-
                           {RenderDate(round.end_date, "HH:mm")}
                         </div>
@@ -126,15 +127,17 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                       </div>
 
                       <div className="flex flex-col items-end gap-3 md:gap-4">
-                        <div className="bg-[#EAF3EA] text-[#357948] px-3 py-1 rounded-full text-[11px] md:text-xs font-bold border border-[#357948]/20">
+                        <div className="bg-[#EAF3EA] text-[#798E75] px-3 py-1 rounded-full text-[11px] md:text-xs font-bold border border-[#798E75]/20">
                           เหลือ {round.total} ที่นั่ง
                         </div>
-                        <Link
-                          href={`/payment/?course_id=${course.id}&round_id=${round.id}`}
-                          className="bg-[#D94C2B] hover:bg-[#b03c20] text-white px-7 md:px-8 py-2 md:py-2.5 rounded-[10px] md:rounded-xl font-bold text-sm md:text-[15px] transition-colors shadow-sm"
-                        >
-                          เลือก
-                        </Link>
+
+                        <BookingButton
+                          courseId={course.id}
+                          roundId={round.id}
+                          adultPrice={course.adult_price - (course.discount || 0)}
+                          childPrice={course.child_price - (course.discount || 0)}
+                          availableSeats={round.total}
+                        />
                       </div>
                     </Card>
                   ))

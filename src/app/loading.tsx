@@ -31,7 +31,7 @@ export default function Loading() {
           >
             <path
               d="M0 0H1440V400C1440 400 1320 580 960 480C600 380 400 600 0 500V0Z"
-              fill="#859877"
+              fill="#304B65"
             />
             {/* Added white border stroke for the wave */}
             <path
@@ -47,7 +47,6 @@ export default function Loading() {
         <div className="flex flex-col items-center justify-center mt-2 relative">
           <Logo />
         </div>
-        <p>กำลังโหลดข้อมูล....</p>
       </div>
 
       {/* Bottom Wavy Overlay */}
@@ -63,7 +62,7 @@ export default function Loading() {
           >
             <path
               d="M0 400H1440V200C1440 200 1200 0 720 150C240 300 0 100 0 100V400Z"
-              fill="#859877"
+              fill="#F04E23"
             />
             {/* Added white border stroke for the wave */}
             <path

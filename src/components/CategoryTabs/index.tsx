@@ -19,7 +19,7 @@ export default function CategoryTabs({ setCourseType, handleSearch }: Props) {
   }
 
   return (
-    <div className="flex bg-[#67755D] rounded-full p-1 relative shadow-inner">
+    <div className="flex bg-sec rounded-full p-1 relative shadow-inner w-full max-w-[500px]">
       <div
         onClick={() => {
           handleSearchType("snowboard")
@@ -30,7 +30,7 @@ export default function CategoryTabs({ setCourseType, handleSearch }: Props) {
       >
         <span
           className={`font-bold text-lg transition-colors duration-300 ${
-            active === "snowboard" ? "text-[#4F7354]" : "text-[#96A68C]"
+            active === "snowboard" ? "text-active" : "text-[#96A68C]"
           }`}
         >
           Snowboard
@@ -44,7 +44,7 @@ export default function CategoryTabs({ setCourseType, handleSearch }: Props) {
       >
         <span
           className={`font-bold text-lg transition-colors duration-300 ${
-            active === "ski" ? "text-[#4F7354]" : "text-[#96A68C]"
+            active === "ski" ? "text-active" : "text-[#96A68C]"
           }`}
         >
           Ski

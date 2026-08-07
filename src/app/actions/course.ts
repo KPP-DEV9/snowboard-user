@@ -18,6 +18,8 @@ export interface GetCoursesParams {
 export async function getCourses(params: GetCoursesParams = {}) {
   const { page = 1, limit = 10, instructorId, ...filters } = params
 
+  console.log("snowboard =============> ", filters)
+
   try {
     const res = await api.course.getAll<PaginatedData<Course>>(page, limit, filters)
     if (!res.success) {

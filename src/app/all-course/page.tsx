@@ -10,7 +10,7 @@ export default async function AllCoursePage() {
   const course = toures?.data?.data || []
 
   return (
-    <div className="min-h-screen bg-[#859877] pb-32 font-sans selection:bg-[#568759]/30">
+    <div className="min-h-screen bg-[#304B65] pb-32 font-sans selection:bg-[#568759]/30">
       <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-6 max-w-5xl">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-10">
@@ -43,7 +43,7 @@ export default async function AllCoursePage() {
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#1877F2] text-white text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-1.5 rounded shadow-sm">
+                  <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#304B65] text-white text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-1.5 rounded shadow-sm">
                     {item.course_type?.name?.toLowerCase().includes("ski") ? "Ski" : "Snowboard"}
                   </div>
                 </div>
@@ -78,8 +78,8 @@ export default async function AllCoursePage() {
                   </div>
                   
                   <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-[#357948] font-bold text-base md:text-lg">฿</span>
-                    <span className="text-[#357948] font-extrabold text-lg md:text-xl">{numeral(item.adult_price).format("0,0")}</span>
+                    <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
+                    <span className="text-[#798E75] font-extrabold text-lg md:text-xl">{numeral(item.adult_price).format("0,0")}</span>
                     <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">/คน</span>
                   </div>
                 </div>

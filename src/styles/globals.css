@@ -1,7 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #859777;
+  --color-background: #304B65; /* น้ำเงินกรมท่า */
+  --color-sec: #112335; /* น้ำเงินเข้มมาก */
+  --color-trd: #798E75; /* เขียว */
+  --color-quar: #F04E23; /* ส้มแสด */
+
+  --color-active: #304B65;
+  --color-neon: #22C55E;
+  --color-label: #1E5BB1;
+
+  --color-footer: #05080E;
+  
   --color-foreground: #ffffff;
   
   --color-gold: #c19b52;
@@ -16,6 +26,29 @@
   
   --color-text-muted: #888888;
   --color-text-subtle: #555555;
+
+
+}
+
+@layer base {
+  :root {
+    --color-primary: #F04E23;    /* ส้มแสด */
+    --color-secondary: #798E75;  /* เขียวซาจ */
+    --color-accent: #304B65;     /* น้ำเงินกรมท่า */
+    --color-bg: #FFFFFF;         /* ขาว */
+    --color-surface: #F8E3CE;    /* ครีมพีช */
+    --color-text: #0b101f;       /* เทาเข้ม */
+  }
+
+  /* สำหรับ Dark Mode
+  [data-theme="dark"] {
+    --color-primary: #F04E23;
+    --color-secondary: #798E75;
+    --color-accent: #F8E3CE;
+    --color-bg: #25272D;
+    --color-surface: #304B65;
+    --color-text: #FFFFFF;
+  } */
 }
 
 @layer base {

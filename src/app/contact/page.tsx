@@ -20,7 +20,7 @@ export default async function ContactPage() {
   const socialList = allContacts.filter((c) => c.type === "social")
 
   return (
-    <div className="min-h-screen bg-[#859877] pb-32 font-sans selection:bg-[#568759]/30 flex flex-col items-center">
+    <div className="min-h-screen bg-[#304B65] pb-32 font-sans selection:bg-[#568759]/30 flex flex-col items-center">
       {/* Header Logo */}
       <div className="pt-16 pb-8 flex justify-center w-full">
         <Logo />
@@ -29,7 +29,7 @@ export default async function ContactPage() {
       {/* Contact Card */}
       <div className="w-full max-w-md px-4">
         <div className="bg-white rounded-[2rem] p-8 shadow-xl">
-          <h2 className="text-[#357948] text-2xl font-bold mb-1">ติดต่อเจ้าหน้าที่</h2>
+          <h2 className="text-[#798E75] text-2xl font-bold mb-1">ติดต่อเจ้าหน้าที่</h2>
           <p className="text-gray-500 text-sm mb-6">ช่องทางติดต่อสอบถาม</p>
 
           <div className="space-y-0">
@@ -42,7 +42,7 @@ export default async function ContactPage() {
                     className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
                     <div className="w-11 h-11 rounded-full bg-[#EAF3EA] flex items-center justify-center shrink-0">
-                      <Phone size={20} className="text-[#357948] fill-[#357948]" />
+                      <Phone size={20} className="text-[#798E75] fill-[#798E75]" />
                     </div>
                     <div>
                       <div className="font-bold text-gray-900 text-[17px] mb-0.5">
@@ -86,7 +86,7 @@ export default async function ContactPage() {
                     className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
                     <div className="w-11 h-11 rounded-full bg-[#EAF3EA] flex items-center justify-center shrink-0">
-                      <Mail size={20} className="text-[#357948]" />
+                      <Mail size={20} className="text-[#798E75]" />
                     </div>
                     <div>
                       <div className="font-bold text-gray-900 text-[17px] mb-0.5">
@@ -116,7 +116,7 @@ export default async function ContactPage() {
                         rel="noreferrer"
                         className="hover:opacity-80 transition-opacity"
                       >
-                        <svg viewBox="0 0 24 24" fill="#1877F2" className="w-[42px] h-[42px]">
+                        <svg viewBox="0 0 24 24" fill="#304B65" className="w-[42px] h-[42px]">
                           <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                         </svg>
                       </a>
