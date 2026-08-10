@@ -6,6 +6,7 @@ import Image from "next/image"
 import { RenderDate } from "@/lib/date"
 import CourseBookingWidget from "@/components/CourseBookingWidget"
 import LayoutPage from "@/components/Layout"
+import { Provinces } from "@/constants/location"
 
 interface CourseDetailsPageProps {
   params: Promise<{ id: string }>
@@ -20,6 +21,11 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
   if (!success || !course) {
     return notFound()
   }
+
+  const provinceData = Provinces.find((p) => p.code === course.province)
+  const provinceName = provinceData?.name_th || course.province
+  const districtData = provinceData?.cities?.find((c) => c.code === course.district)
+  const districtName = districtData?.name_th || course.district
 
   return (
     <LayoutPage isLicense={false}>
@@ -55,7 +61,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
             <div className="flex flex-col w-full">
               {/* Subtitle / ID */}
               <div className="text-gray-400 text-[13px] font-medium mb-1.5">
-                {course.course_type?.name || "Snowboard"} AE034234B
+                {course?.course_level}
               </div>
 
               {/* Title */}
@@ -68,7 +74,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                 <div className="flex items-center gap-3 text-gray-600 font-medium text-[15px]">
                   <MapPin size={18} className="text-gray-500 shrink-0" />
                   <span>
-                    {course.district?.name}, {course.province?.name}
+                    {districtName} {provinceName ? `, ${provinceName}` : ""}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-gray-600 font-medium text-[15px]">
@@ -109,7 +115,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
           <div className="w-full max-w-3xl mx-auto px-2">
             <CourseBookingWidget
               courseId={course.id}
-              adultPrice={course.adult_price}
+              adultPrice={course.price}
               childPrice={course.child_price}
               discount={course.discount || 0}
             />

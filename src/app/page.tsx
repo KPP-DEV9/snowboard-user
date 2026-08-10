@@ -13,6 +13,7 @@ import { useEffect, useState } from "react"
 import { Course } from "@/types/course"
 import LayoutPage from "@/components/Layout"
 import Label from "@/components/Ui/Label"
+import { Provinces } from "@/constants/location"
 
 export default function MainPage() {
   const [course, setCourse] = useState<Course[]>([])
@@ -23,7 +24,7 @@ export default function MainPage() {
   const [nationID, setNationID] = useState("ทั้งหมด")
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
-  const [courseType, setCourseType] = useState("snowboard") // Placeholder if needed in future
+  const [courseType, setCourseType] = useState("SNOWBOARD") // Placeholder if needed in future
   const [isPriceEnabled, setIsPriceEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState("20000")
   const [maxPrice, setMaxPrice] = useState("50000")
@@ -36,7 +37,7 @@ export default function MainPage() {
         nationID: nationID !== "ทั้งหมด" ? nationID : undefined,
         province: province.length > 0 ? province : undefined,
         courseLevel: courseLevel !== "ทั้งหมด" ? courseLevel : undefined,
-        courseType: courseType || "snowboard",
+        courseType: courseType || "SNOWBOARD",
         minPrice: isPriceEnabled ? minPrice.replace(/,/g, "") : undefined,
         maxPrice: isPriceEnabled ? maxPrice.replace(/,/g, "") : undefined,
       })
@@ -52,6 +53,14 @@ export default function MainPage() {
   useEffect(() => {
     handleSearch()
   }, [])
+
+  const getLocationName = (provinceCode?: string, districtCode?: string) => {
+    const provinceData = Provinces.find((p) => p.code === provinceCode)
+    const provinceName = provinceData?.name_th || provinceCode
+    const districtData = provinceData?.cities?.find((c) => c.code === districtCode)
+    const districtName = districtData?.name_th || districtCode
+    return { provinceName, districtName }
+  }
 
   return (
     <LayoutPage>
@@ -100,53 +109,56 @@ export default function MainPage() {
             </div>
 
             <div className="flex gap-6 overflow-x-auto pb-4 snap-x scrollbar-hide">
-              {course?.map((item, i) => (
-                <Link
-                  href={`/course/${item.id}`}
-                  key={i}
-                  className="bg-white rounded-[1.5rem] overflow-hidden min-w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0 shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer"
-                >
-                  <div className="relative h-[180px] lg:h-[200px] w-full bg-blue-100 overflow-hidden">
-                    <Image
-                      src="https://images.unsplash.com/photo-1605540436563-5bca919ae766?q=80&w=600&auto=format&fit=crop"
-                      alt="Indoor snowpark"
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {item?.course_level && <Label text={item.course_level} />}
-                  </div>
-                  <div className="p-5 flex flex-col flex-1">
-                    <h4 className="font-bold text-lg md:text-xl text-gray-900 mb-3 leading-tight group-hover:text-[#4F7354] transition-colors line-clamp-2">
-                      {item.title}
-                    </h4>
-                    <div className="space-y-2 mb-4 flex-1">
-                      <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
-                        <MapPin size={16} className="text-[#4F7354] shrink-0" />
-                        <span className="truncate">
-                          {item?.district} {item?.province ? `, ${item.province}` : ""}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
-                        <CalendarDays size={16} className="text-[#4F7354] shrink-0" />
-                        <span>
-                          {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
-                          {RenderDate(item.end_date, "dd MMM yyyy")}
-                        </span>
-                      </div>
+              {course?.map((item, i) => {
+                const { provinceName, districtName } = getLocationName(item.province, item.district)
+                return (
+                  <Link
+                    href={`/course/${item.id}`}
+                    key={i}
+                    className="bg-white rounded-[1.5rem] overflow-hidden min-w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0 shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer"
+                  >
+                    <div className="relative h-[180px] lg:h-[200px] w-full bg-blue-100 overflow-hidden">
+                      <Image
+                        src="https://images.unsplash.com/photo-1605540436563-5bca919ae766?q=80&w=600&auto=format&fit=crop"
+                        alt="Indoor snowpark"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      {item?.course_level && <Label text={item.course_level} />}
                     </div>
-                    <div className="flex justify-between items-end pt-4 border-t border-gray-100">
-                      <div>
-                        <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
-                          ฿ {numeral(item.price).format("0,0")}
+                    <div className="p-5 flex flex-col flex-1">
+                      <h4 className="font-bold text-lg md:text-xl text-gray-900 mb-3 leading-tight group-hover:text-[#4F7354] transition-colors line-clamp-2">
+                        {item.title}
+                      </h4>
+                      <div className="space-y-2 mb-4 flex-1">
+                        <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
+                          <MapPin size={16} className="text-[#4F7354] shrink-0" />
+                          <span className="truncate">
+                            {districtName} {provinceName ? `, ${provinceName}` : ""}
+                          </span>
                         </div>
-                        <div className="text-[#E03131] font-extrabold text-xl md:text-2xl">
-                          ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
+                        <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
+                          <CalendarDays size={16} className="text-[#4F7354] shrink-0" />
+                          <span>
+                            {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
+                            {RenderDate(item.end_date, "dd MMM yyyy")}
+                          </span>
                         </div>
                       </div>
+                      <div className="flex justify-between items-end pt-4 border-t border-gray-100">
+                        <div>
+                          <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
+                            ฿ {numeral(item.price).format("0,0")}
+                          </div>
+                          <div className="text-[#E03131] font-extrabold text-xl md:text-2xl">
+                            ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                )
+              })}
             </div>
           </div>
 
@@ -163,56 +175,60 @@ export default function MainPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {course?.map((item, i) => (
-                <Link
-                  href={`/course/${item.id}`}
-                  key={i}
-                  className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
-                >
-                  <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
-                    <Image
-                      src="https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop"
-                      alt="Changbaishan snow"
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {item?.course_level && <Label text={item.course_level} />}
-                  </div>
-                  <div className="flex flex-col py-2 pr-2 md:pr-4 flex-1 h-full">
-                    <h4 className="font-bold text-base md:text-lg text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-2 group-hover:text-[#4F7354] transition-colors">
-                      {item?.title}
-                    </h4>
-                    <div className="space-y-1 md:space-y-1.5 flex-1">
-                      <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                        <MapPin size={16} className="text-gray-400 shrink-0" />
-                        <span className="truncate">
-                          {item?.district} {item?.province ? `, ${item.province}` : ""}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                        <CalendarDays size={16} className="text-gray-400 shrink-0" />
-                        <span>
-                          {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
-                          {RenderDate(item.end_date, "dd MMM yyyy")}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                        <User size={16} className="text-gray-400 shrink-0" />
-                        <span>{item.course_level}</span>
+              {course?.map((item, i) => {
+                const { provinceName, districtName } = getLocationName(item.province, item.district)
+                return (
+                  <Link
+                    href={`/course/${item.id}`}
+                    key={i}
+                    className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
+                  >
+                    <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
+                      <Image
+                        src="https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop"
+                        alt="Changbaishan snow"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      {item?.course_level && <Label text={item.course_level} />}
+                    </div>
+                    <div className="flex flex-col py-2 pr-2 md:pr-4 flex-1 h-full">
+                      <h4 className="font-bold text-base md:text-lg text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-2 group-hover:text-[#4F7354] transition-colors">
+                        {item?.title}
+                      </h4>
+                      <div className="space-y-1 md:space-y-1.5 flex-1">
+                        <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
+                          <MapPin size={16} className="text-gray-400 shrink-0" />
+                          <span className="truncate">
+                            {districtName} {provinceName ? `, ${provinceName}` : ""}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
+                          <CalendarDays size={16} className="text-gray-400 shrink-0" />
+                          <span>
+                            {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
+                            {RenderDate(item.end_date, "dd MMM yyyy")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
+                          <User size={16} className="text-gray-400 shrink-0" />
+                          <span>{item.course_level}</span>
+                        </div>
                       </div>
 
+                      <div className="mt-3 flex items-baseline gap-1">
+                        <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
+                        <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
+                          {numeral(item.price).format("0,0")}
+                        </span>
+                        <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">
+                          /คน
+                        </span>
+                      </div>
                     </div>
-
-                    <div className="mt-3 flex items-baseline gap-1">
-                      <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
-                      <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                        {numeral(item.price).format("0,0")}
-                      </span>
-                      <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">/คน</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                )
+              })}
             </div>
 
             {/* Pagination Controls */}
