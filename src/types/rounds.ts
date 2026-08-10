@@ -1,4 +1,4 @@
-export type Round = {
+export type Rounds = {
   id: string
   classes_id: string
   start_date: string

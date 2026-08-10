@@ -1,7 +1,6 @@
-import { ClassesStatus } from "@/types/course"
 import Link from "next/link"
 
-export default function StatusBtn({ status, id }: { status: ClassesStatus; id: string }) {
+export default function StatusBtn({ status, id }: { status: string; id: string }) {
   switch (status) {
     case "WAIT_BOOKING":
       return (

@@ -44,7 +44,7 @@ export default async function AllCoursePage() {
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#304B65] text-white text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-1.5 rounded shadow-sm">
-                    {item.course_type?.name?.toLowerCase().includes("ski") ? "Ski" : "Snowboard"}
+                    {item.course_type?.toLowerCase().includes("ski") ? "Ski" : "Snowboard"}
                   </div>
                 </div>
                 <div className="flex flex-col py-2 pr-2 md:pr-4 flex-1 h-full">
@@ -55,7 +55,7 @@ export default async function AllCoursePage() {
                     <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
                       <MapPin size={16} className="text-gray-400 shrink-0" />
                       <span className="truncate">
-                        {item?.district?.name}, {item?.province?.name}
+                        {item?.district}, {item?.province}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
@@ -69,17 +69,22 @@ export default async function AllCoursePage() {
                       <User size={16} className="text-gray-400 shrink-0" />
                       <span>{item.course_level}</span>
                     </div>
-                    {item?.course_type?.name && (
+                    {item?.course_type && (
                       <div className="flex items-center gap-2 text-[#D4AF37] text-xs md:text-sm font-medium">
-                        <BadgeCheck size={16} className="text-[#D4AF37] shrink-0 fill-[#D4AF37] text-white" />
-                        <span>{item.course_type.name}</span>
+                        <BadgeCheck
+                          size={16}
+                          className="text-[#D4AF37] shrink-0 fill-[#D4AF37] text-white"
+                        />
+                        <span>{item.course_type}</span>
                       </div>
                     )}
                   </div>
-                  
+
                   <div className="mt-3 flex items-baseline gap-1">
                     <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
-                    <span className="text-[#798E75] font-extrabold text-lg md:text-xl">{numeral(item.adult_price).format("0,0")}</span>
+                    <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
+                      {numeral(item.price).format("0,0")}
+                    </span>
                     <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">/คน</span>
                   </div>
                 </div>

@@ -47,7 +47,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
             <div className="mb-6 space-y-4">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="bg-[#304B65] text-white text-[11px] md:text-xs font-bold px-3 py-1.5 rounded shadow-sm">
-                  {course.course_type?.name}
+                  {course.course_type}
                 </span>
                 <LevelBadge level={course.course_level} />
               </div>
@@ -58,7 +58,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
 
               <div className="flex flex-wrap items-center gap-3 md:gap-4 text-white/90 text-sm md:text-[15px] font-medium pt-1">
                 <div className="flex items-center gap-1.5">
-                  <MapPin size={18} /> {course.district?.name}, {course.province?.name}
+                  <MapPin size={18} /> {course.district}, {course.province}
                 </div>
                 <div className="hidden md:block text-white/50">|</div>
                 <div className="flex items-center gap-1.5">
@@ -134,7 +134,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                         <BookingButton
                           courseId={course.id}
                           roundId={round.id}
-                          adultPrice={course.adult_price - (course.discount || 0)}
+                          adultPrice={course.price - (course.discount || 0)}
                           childPrice={course.child_price - (course.discount || 0)}
                           availableSeats={round.total}
                         />

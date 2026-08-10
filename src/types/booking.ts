@@ -1,4 +1,3 @@
-import { Classes } from "./course"
 import { User } from "./user"
 import { Rounds } from "./rounds"
 
@@ -7,7 +6,6 @@ export type Booking = {
   user_id: string
   user: User
   classes_id: string
-  classes: Classes
   status: BookingStatus
   created_at: string | Date
   confirm_at: string | Date

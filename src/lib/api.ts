@@ -1,4 +1,3 @@
-import { UserClasses } from "@/types/course"
 import { UserSchedule } from "@/types/userSchedule"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
@@ -237,13 +236,13 @@ export const api = {
         cache: "no-store",
       }),
     getByUserID: <T>(userId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<UserClasses[]>(`booking/user/${userId}`, {
+      fetchWrapper<[]>(`booking/user/${userId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getUserClassesByUserID: <T>(userId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<UserClasses[]>(`booking/user/${userId}`, {
+      fetchWrapper<[]>(`booking/user/${userId}`, {
         ...options,
         method: "GET",
         cache: "no-store",

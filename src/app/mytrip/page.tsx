@@ -81,9 +81,11 @@ export default async function MyTripPage() {
               const course = enrollment.course
               if (!course) return null
 
-              const totalAmount = course.adult_price || 0 // Assuming adult_price is the total price for simplicity, or we can calculate based on something else
-              
-              const programType = course.course_type?.name?.toLowerCase().includes("ski") ? "Ski" : "Snowboard"
+              const totalAmount = course.price || 0 // Assuming adult_price is the total price for simplicity, or we can calculate based on something else
+
+              const programType = course.course_type?.toLowerCase().includes("ski")
+                ? "Ski"
+                : "Snowboard"
               const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"
 
               return (
@@ -93,7 +95,9 @@ export default async function MyTripPage() {
                 >
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <span className={`${tagColor} text-white text-[10px] font-bold px-2 py-0.5 rounded`}>
+                      <span
+                        className={`${tagColor} text-white text-[10px] font-bold px-2 py-0.5 rounded`}
+                      >
                         {programType}
                       </span>
                       <span className="text-gray-400 text-xs font-medium">
@@ -107,7 +111,7 @@ export default async function MyTripPage() {
 
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 text-gray-500 text-[13px] font-medium">
-                        <MapPin size={16} /> {course.district?.name}, {course.province?.name}
+                        <MapPin size={16} /> {course.district}, {course.province}
                       </div>
                       <div className="flex items-center gap-2 text-gray-500 text-[13px] font-medium">
                         <CalendarDays size={16} /> {RenderDate(course.start_date, "d MMMM yyyy")}
@@ -118,12 +122,15 @@ export default async function MyTripPage() {
                   <div className="flex items-end justify-between mt-4">
                     <div className="text-[11px] text-gray-400 font-medium">
                       {enrollment.status === "pending_payment" ? (
-                        <>ยอดชำระ {numeral(totalAmount).format("0,0.00")} | ชำระก่อน {RenderDate(course.start_date, "d MMMM yyyy")}</>
+                        <>
+                          ยอดชำระ {numeral(totalAmount).format("0,0.00")} | ชำระก่อน{" "}
+                          {RenderDate(course.start_date, "d MMMM yyyy")}
+                        </>
                       ) : (
                         <>&nbsp;</>
                       )}
                     </div>
-                    
+
                     <div className="flex flex-col items-end gap-1.5">
                       <div className="text-[10px] text-gray-400 font-medium text-right mb-[-4px]">
                         ราคาทริปทั้งหมด

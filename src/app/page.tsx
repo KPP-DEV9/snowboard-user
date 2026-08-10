@@ -1,7 +1,7 @@
 "use client"
 
-import CategoryTabs from "@/components/CategoryTabs"
-import { MapPin, CalendarDays, User, BadgeCheck, Zap } from "lucide-react"
+import CourseTypeTabs from "@/components/CourseTypeTabs"
+import { MapPin, CalendarDays, User, Zap } from "lucide-react"
 import Image from "next/image"
 import Logo from "@/components/Logo"
 import HomeFilters from "@/components/HomeFilters"
@@ -15,6 +15,8 @@ import LayoutPage from "@/components/Layout"
 import Label from "@/components/Ui/Label"
 import { Provinces } from "@/constants/location"
 
+export type CategoryType = "SNOWBOARD" | "SKI"
+
 export default function MainPage() {
   const [course, setCourse] = useState<Course[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -24,12 +26,12 @@ export default function MainPage() {
   const [nationID, setNationID] = useState("ทั้งหมด")
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
-  const [courseType, setCourseType] = useState("SNOWBOARD") // Placeholder if needed in future
+  const [courseType, setCourseType] = useState<CategoryType>("SNOWBOARD") // Placeholder if needed in future
   const [isPriceEnabled, setIsPriceEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState("20000")
   const [maxPrice, setMaxPrice] = useState("50000")
 
-  const handleSearch = async (targetPage = 1) => {
+  const handleSearch = async (targetPage = 1, type: CategoryType = courseType) => {
     try {
       const res = await getCourses({
         page: targetPage,
@@ -37,7 +39,7 @@ export default function MainPage() {
         nationID: nationID !== "ทั้งหมด" ? nationID : undefined,
         province: province.length > 0 ? province : undefined,
         courseLevel: courseLevel !== "ทั้งหมด" ? courseLevel : undefined,
-        courseType: courseType || "SNOWBOARD",
+        courseType: type ? type : courseType,
         minPrice: isPriceEnabled ? minPrice.replace(/,/g, "") : undefined,
         maxPrice: isPriceEnabled ? maxPrice.replace(/,/g, "") : undefined,
       })
@@ -77,7 +79,7 @@ export default function MainPage() {
             </h2>
 
             {/* Category Tabs */}
-            <CategoryTabs setCourseType={setCourseType} handleSearch={handleSearch} />
+            <CourseTypeTabs setCourseType={setCourseType} handleSearch={handleSearch} page={page} />
 
             {/* Filters */}
             <HomeFilters

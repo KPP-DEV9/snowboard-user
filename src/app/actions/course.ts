@@ -1,6 +1,6 @@
 "use server"
 
-import { Course, SumaryCourse, UserClasses, UserClassesSummary } from "@/types/course"
+import { Course } from "@/types/course"
 import { api, PaginatedData } from "@/lib/api"
 
 export interface GetCoursesParams {
@@ -17,8 +17,6 @@ export interface GetCoursesParams {
 
 export async function getCourses(params: GetCoursesParams = {}) {
   const { page = 1, limit = 10, instructorId, ...filters } = params
-
-  console.log("snowboard =============> ", filters)
 
   try {
     const res = await api.course.getAll<PaginatedData<Course>>(page, limit, filters)
@@ -78,70 +76,70 @@ export async function getCourseById(id: string) {
 //   }
 // }
 
-export async function getUserClassesByUserID(id: string) {
-  try {
-    const res = await api.booking.getUserClassesByUserID<UserClasses>(id)
-    if (!res.success) {
-      return {
-        success: false,
-        error: res.message || "Failed to fetch user schedule",
-      }
-    }
-    return {
-      success: true,
-      data: res?.data,
-    }
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Failed to fetch user schedule",
-    }
-  }
-}
+// export async function getUserClassesByUserID(id: string) {
+//   try {
+//     const res = await api.booking.getUserClassesByUserID<UserClasses>(id)
+//     if (!res.success) {
+//       return {
+//         success: false,
+//         error: res.message || "Failed to fetch user schedule",
+//       }
+//     }
+//     return {
+//       success: true,
+//       data: res?.data,
+//     }
+//   } catch (error: any) {
+//     return {
+//       success: false,
+//       error: error.message || "Failed to fetch user schedule",
+//     }
+//   }
+// }
 
-export async function getUserClassesSummary(id: string) {
-  try {
-    const res = await api.booking.getUserClassesSummary<SumaryCourse[]>(id)
+// export async function getUserClassesSummary(id: string) {
+//   try {
+//     const res = await api.booking.getUserClassesSummary<SumaryCourse[]>(id)
 
-    if (!res.success) {
-      return {
-        success: false,
-        error: res.message || "Failed to fetch user schedule",
-      }
-    }
-    return {
-      success: true,
-      data: res?.data,
-    }
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Failed to fetch user schedule",
-    }
-  }
-}
+//     if (!res.success) {
+//       return {
+//         success: false,
+//         error: res.message || "Failed to fetch user schedule",
+//       }
+//     }
+//     return {
+//       success: true,
+//       data: res?.data,
+//     }
+//   } catch (error: any) {
+//     return {
+//       success: false,
+//       error: error.message || "Failed to fetch user schedule",
+//     }
+//   }
+// }
 
-export async function getUserClassesById(id: string) {
-  try {
-    const res = await api.booking.getById<UserClasses>(id)
+// export async function getUserClassesById(id: string) {
+//   try {
+//     const res = await api.booking.getById<UserClasses>(id)
 
-    if (!res.success) {
-      return {
-        success: false,
-        error: res.message || "Failed to fetch course phase",
-      }
-    }
-    return {
-      success: true,
-      data: res.data,
-    }
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Failed to fetch course phase",
-    }
-  }
-}
+//     if (!res.success) {
+//       return {
+//         success: false,
+//         error: res.message || "Failed to fetch course phase",
+//       }
+//     }
+//     return {
+//       success: true,
+//       data: res.data,
+//     }
+//   } catch (error: any) {
+//     return {
+//       success: false,
+//       error: error.message || "Failed to fetch course phase",
+//     }
+//   }
+// }
 
 export async function updateUserClassesBooking(booking_id: string, round_id: string) {
   try {
