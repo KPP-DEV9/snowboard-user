@@ -4,7 +4,6 @@ import { MapPin, CalendarDays, ArrowLeft, User } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { RenderDate } from "@/lib/date"
-import { getSession } from "@/app/actions/auth"
 import CourseBookingWidget from "@/components/CourseBookingWidget"
 import LayoutPage from "@/components/Layout"
 
@@ -13,7 +12,6 @@ interface CourseDetailsPageProps {
 }
 
 export default async function CourseDetailsPage({ params }: CourseDetailsPageProps) {
-  const session = await getSession()
   const resolvedParams = await params
   const { id } = resolvedParams
 

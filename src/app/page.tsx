@@ -113,7 +113,7 @@ export default function MainPage() {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <Label text={item?.course_type?.name} />
+                    {item?.course_level && <Label text={item.course_level} />}
                   </div>
                   <div className="p-5 flex flex-col flex-1">
                     <h4 className="font-bold text-lg md:text-xl text-gray-900 mb-3 leading-tight group-hover:text-[#4F7354] transition-colors line-clamp-2">
@@ -123,7 +123,7 @@ export default function MainPage() {
                       <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
                         <MapPin size={16} className="text-[#4F7354] shrink-0" />
                         <span className="truncate">
-                          {item?.district?.name}, {item?.province?.name}
+                          {item?.district} {item?.province ? `, ${item.province}` : ""}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
@@ -137,10 +137,10 @@ export default function MainPage() {
                     <div className="flex justify-between items-end pt-4 border-t border-gray-100">
                       <div>
                         <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
-                          ฿ {numeral(item.adult_price).format("0,0")}
+                          ฿ {numeral(item.price).format("0,0")}
                         </div>
                         <div className="text-[#E03131] font-extrabold text-xl md:text-2xl">
-                          ฿ {numeral(item.adult_price - item.discount).format("0,0")}
+                          ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
                         </div>
                       </div>
                     </div>
@@ -176,7 +176,7 @@ export default function MainPage() {
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <Label text={item?.course_type?.name} />
+                    {item?.course_level && <Label text={item.course_level} />}
                   </div>
                   <div className="flex flex-col py-2 pr-2 md:pr-4 flex-1 h-full">
                     <h4 className="font-bold text-base md:text-lg text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-2 group-hover:text-[#4F7354] transition-colors">
@@ -186,7 +186,7 @@ export default function MainPage() {
                       <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
                         <MapPin size={16} className="text-gray-400 shrink-0" />
                         <span className="truncate">
-                          {item?.district?.name}, {item?.province?.name}
+                          {item?.district} {item?.province ? `, ${item.province}` : ""}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
@@ -200,21 +200,13 @@ export default function MainPage() {
                         <User size={16} className="text-gray-400 shrink-0" />
                         <span>{item.course_level}</span>
                       </div>
-                      {item?.course_type?.name && (
-                        <div className="flex items-center gap-2 text-[#D4AF37] text-xs md:text-sm font-medium">
-                          <BadgeCheck
-                            size={16}
-                            className="text-[#D4AF37] shrink-0 fill-[#D4AF37] text-white"
-                          />
-                          <span>{item.course_type.name}</span>
-                        </div>
-                      )}
+
                     </div>
 
                     <div className="mt-3 flex items-baseline gap-1">
                       <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
                       <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                        {numeral(item.adult_price).format("0,0")}
+                        {numeral(item.price).format("0,0")}
                       </span>
                       <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">/คน</span>
                     </div>

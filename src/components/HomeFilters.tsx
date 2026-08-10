@@ -191,7 +191,7 @@ export default function HomeFilters({
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-900 mb-3">ค้นหาจาก Level</label>
                 <div className="flex flex-wrap gap-2">
-                  {["ทั้งหมด", "Beginer", "Level 1", "Level 2", "Level 3", "Level 4"].map((l) => (
+                  {["ทั้งหมด", "Beginner", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"].map((l) => (
                     <button
                       key={l}
                       onClick={() => setCourseLevel(l)}

@@ -1,127 +1,62 @@
-import { Booking } from "./booking"
-import { InstructorProfile } from "./instructor"
-import { Rounds } from "./rounds"
-import { User } from "./user"
+import { Round } from "./rounds"
 
-export interface Nation {
+export type CourseLevel = "Beginner" | "Level 1" | "Level 2" | "Level 3" | "Level 4" | "Level 5"
+
+export interface Course {
   id: string
-  name: string
-  created_at: string
-  updated_at: string
-}
-
-export interface Province {
-  id: string
-  nation_id: string
-  province_code: string
-  name: string
-  created_at: string
-  updated_at: string
-}
-
-export interface District {
-  id: string
-  province_id: string
-  district_code: string
-  name: string
-  created_at: string
-  updated_at: string
-}
-
-export type ProgramType = "REGULAR" | string
-export type CourseLevel = "Level 1" | string
-
-export type Course = {
-  id: string
-  title_courses: string
   title: string
   description: string
-  program_type: ProgramType
   course_level: CourseLevel
-  course_type: {
-    id: string
-    program_type_master_id: string
-    name: string
-    has_evaluation: boolean
-    passing_score: number
-    created_at: string
-    updated_at: string
-  }
+  image_urls: string[]
   register_start: string
   register_end: string
   start_date: string
   end_date: string
-  price: string
-  adult_price: number
+  price: number
   child_price: number
   down_price: number
+  nation?: string
+  province?: string
+  district?: string
+  discount: number
   total_days: number
   total_user: number
-  nation_id: string
-  nation: Nation
-  province_id: string
-  province: Province
-  district_id: string
-  district: District
-  province_code: string
-  discount: number
-  discount_active: boolean
+  max_users: number
+  rounds?: Round[]
+  course_rooms?: CourseRoom[]
   is_active: boolean
   created_at: string
   updated_at: string
-  total_hour: string
-  total_times: number
-  max_students: number
-  total_class: number
-  rounds?: Rounds[]
 }
 
-export type Classes = {
-  course: Course
+export interface CourseRoom {
+  id: string
   course_id: string
-  created_at: string
-  hour: number
-  description: string
-  duration_hour: number
+  room_id: string
+  room_master?: RoomMaster
+}
+
+export interface RoomMaster {
   id: string
+  hotel_id: string
+  room_type: string
+  bed_type: string
+  code: string
+  base_price: number
+  extra_price: number
   is_active: boolean
-  title: string
-  order: number
+  created_at: string
+  updated_at: string
+  hotel?: HotelsMaster
 }
 
-export type ClassesStatus =
-  | "WAIT_BOOKING"
-  | "CUS_CONFIRM"
-  | "CUS_REJECT"
-  | "INS_CONFIRM"
-  | "INS_REJECT"
-  | "INPROGRESS"
-  | "COMPLETE"
-
-export interface UserClasses {
+export interface HotelsMaster {
   id: string
-  user_id: string
-  user?: User
-  classes_id: string
-  classes?: Classes
-  status: ClassesStatus
-  created_at: string | Date
-  updated_at: string | Date
-  deleted_at?: string | Date | null
-  round?: Rounds
-}
-
-export type UserClassesSummary = {
-  past: number
-  remaining: number
-  total: number
-}
-
-export type SumaryCourse = {
-  course: Course
-  bookings: Booking[]
-  total: number
-  past: number
-  remaining: number
-  count_past: number
+  name: string
+  nation: string
+  city: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  rooms?: RoomMaster[]
 }
