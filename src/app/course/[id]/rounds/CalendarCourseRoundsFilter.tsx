@@ -1,5 +1,6 @@
 "use client"
-import { useRouter, useSearchParams } from "next/navigation"
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import {
   startOfMonth,
@@ -18,9 +19,10 @@ interface Props {
   course: Course
 }
 
-export default function CourseRoundsFilter({ course }: Props) {
+export default function CalendarCourseRoundsFilter({ course }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const defaultDate = searchParams.get("date")
 
   const [currentMonth, setCurrentMonth] = useState(
@@ -28,7 +30,9 @@ export default function CourseRoundsFilter({ course }: Props) {
   )
 
   const handleDateSelect = (date: Date) => {
-    router.push(`?date=${format(date, "yyyy-MM-dd")}`)
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("date", format(date, "yyyy-MM-dd"))
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
@@ -41,12 +45,10 @@ export default function CourseRoundsFilter({ course }: Props) {
 
   const calendarDays = eachDayOfInterval({ start: startDate, end: endDate })
 
-  const validStartDate = course.start_date || new Date().toISOString()
-
   const rounds = course?.rounds
 
   return (
-    <div className="mb-6 w-full">
+    <div className="w-full">
       <MyCalendar
         currentMonth={currentMonth}
         selectedDate={defaultDate ? new Date(defaultDate) : null}

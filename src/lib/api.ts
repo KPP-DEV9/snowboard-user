@@ -144,8 +144,12 @@ export const api = {
         cache: "no-store",
       })
     },
-    getCourseById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`courses/${id}`, {
+    getCourseById: <T>(
+      id: string,
+      total_user: number,
+      options?: Omit<RequestInit, "method" | "body">,
+    ) =>
+      fetchWrapper<T>(`courses/${id}?total_user=${total_user}`, {
         ...options,
         method: "GET",
         cache: "no-store",

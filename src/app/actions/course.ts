@@ -36,9 +36,9 @@ export async function getCourses(params: GetCoursesParams = {}) {
   }
 }
 
-export async function getCourseById(id: string) {
+export async function getCourseById(id: string, total_user = 0) {
   try {
-    const res = await api.course.getCourseById<Course>(id)
+    const res = await api.course.getCourseById<Course>(id, total_user)
 
     if (!res.success) {
       return {

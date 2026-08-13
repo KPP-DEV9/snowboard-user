@@ -7,6 +7,7 @@ import { RenderDate } from "@/lib/date"
 import CourseBookingWidget from "@/components/CourseBookingWidget"
 import LayoutPage from "@/components/Layout"
 import { Provinces } from "@/constants/location"
+import SlideImg from "@/components/Ui/SlideImg"
 
 interface CourseDetailsPageProps {
   params: Promise<{ id: string }>
@@ -16,7 +17,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
   const resolvedParams = await params
   const { id } = resolvedParams
 
-  const { success, data: course } = await getCourseById(id)
+  const { success, data: course } = await getCourseById(id, 0)
 
   if (!success || !course) {
     return notFound()
@@ -36,13 +37,14 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
           <div className="absolute top-0 left-0 right-0 h-[80%] bg-[#304B65]" />
 
           <div className="relative w-full h-full overflow-hidden rounded-[1rem]">
-            <Image
-              src={
-                "https://images.unsplash.com/photo-1605540436563-5bca919ae766?q=80&w=1200&auto=format&fit=crop"
+            <SlideImg
+              images={
+                course.image_urls && course.image_urls.length > 0
+                  ? course.image_urls
+                  : [
+                      "https://images.unsplash.com/photo-1605540436563-5bca919ae766?q=80&w=1200&auto=format&fit=crop",
+                    ]
               }
-              alt="Course cover"
-              fill
-              className="object-cover"
             />
             <div className="absolute inset-0 bg-black/10" />
           </div>

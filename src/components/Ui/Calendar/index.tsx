@@ -1,7 +1,7 @@
 import { th } from "date-fns/locale"
 import { Card } from "../Card/Card"
 import { format, isSameMonth, isSameDay, isToday } from "date-fns"
-import { Rounds } from "@/types/rounds"
+import { Round } from "@/types/rounds"
 
 interface Props {
   currentMonth: Date
@@ -10,7 +10,7 @@ interface Props {
   nextMonth: () => void
   prevMonth: () => void
   calendarDays: Date[]
-  rounds: Rounds[]
+  rounds: Round[]
 }
 
 export default function MyCalendar({

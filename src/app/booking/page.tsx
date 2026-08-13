@@ -24,7 +24,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
     return notFound()
   }
 
-  const { success, data: course } = await getCourseById(courseId)
+  const { success, data: course } = await getCourseById(courseId, 0)
 
   if (!success || !course) {
     return notFound()

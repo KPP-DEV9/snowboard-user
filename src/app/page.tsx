@@ -2,7 +2,7 @@
 
 import CourseTypeTabs from "@/components/CourseTypeTabs"
 import { MapPin, CalendarDays, User, Zap } from "lucide-react"
-import Image from "next/image"
+import SlideImg from "@/components/Ui/SlideImg"
 import Logo from "@/components/Logo"
 import HomeFilters from "@/components/HomeFilters"
 import { getCourses } from "./actions/course"
@@ -120,11 +120,15 @@ export default function MainPage() {
                     className="bg-white rounded-[1.5rem] overflow-hidden min-w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0 shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer"
                   >
                     <div className="relative h-[180px] lg:h-[200px] w-full bg-blue-100 overflow-hidden">
-                      <Image
-                        src="https://images.unsplash.com/photo-1605540436563-5bca919ae766?q=80&w=600&auto=format&fit=crop"
+                      <SlideImg
+                        images={
+                          item.image_urls && item.image_urls.length > 0
+                            ? item.image_urls
+                            : [
+                                "https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop",
+                              ]
+                        }
                         alt="Indoor snowpark"
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {item?.course_level && <Label text={item.course_level} />}
                     </div>
@@ -186,11 +190,15 @@ export default function MainPage() {
                     className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
                   >
                     <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
-                      <Image
-                        src="https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop"
+                      <SlideImg
+                        images={
+                          item.image_urls && item.image_urls.length > 0
+                            ? item.image_urls
+                            : [
+                                "https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop",
+                              ]
+                        }
                         alt="Changbaishan snow"
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       {item?.course_level && <Label text={item.course_level} />}
                     </div>

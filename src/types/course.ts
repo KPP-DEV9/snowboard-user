@@ -1,13 +1,18 @@
-import { Rounds } from "./rounds"
+import { Round } from "./rounds"
 
 export type CourseLevel = "Beginner" | "Level 1" | "Level 2" | "Level 3" | "Level 4" | "Level 5"
+
+export type ProgramType = "TRIP" | "PRIVATE_COACHING"
+
+export type CourseTypes = "SNOWBOARD" | "SKI"
 
 export interface Course {
   id: string
   title: string
   description: string
   course_level: CourseLevel
-  course_type: "SNOWBOARD" | "SKI"
+  course_type: CourseTypes
+  program_type: ProgramType
   image_urls: string[]
   register_start: string
   register_end: string
@@ -23,7 +28,7 @@ export interface Course {
   total_days: number
   total_user: number
   max_users: number
-  rounds?: Rounds[]
+  rounds?: Round[]
   course_rooms?: CourseRoom[]
   is_active: boolean
   created_at: string

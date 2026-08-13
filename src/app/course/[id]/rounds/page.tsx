@@ -4,14 +4,14 @@ import { Card } from "@/components/Ui/Card/Card"
 import { CalendarDays, MapPin, ArrowLeft, Users, User, Clock } from "lucide-react"
 import { RenderDate } from "@/lib/date"
 import Link from "next/link"
-import CourseRoundsFilter from "./CourseRoundsFilter"
+import CalendarCourseRoundsFilter from "./CalendarCourseRoundsFilter"
 import { format } from "date-fns"
 import LevelBadge from "@/components/LevelBadge"
 import BookingButton from "./BookingButton"
 
 interface CourseRoundsPageProps {
   params: Promise<{ id: string }>
-  searchParams: Promise<{ date?: string }>
+  searchParams: Promise<{ date?: string; adults?: string; children?: string }>
 }
 
 export default async function CourseRoundsPage({ params, searchParams }: CourseRoundsPageProps) {
@@ -20,8 +20,12 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
 
   const resolvedSearchParams = await searchParams
   const filterDate = resolvedSearchParams.date
+  const adultsQuery = resolvedSearchParams.adults
+  const childrenQuery = resolvedSearchParams.children
 
-  const { success, data: course } = await getCourseById(id)
+  const total_user = Number(adultsQuery) + Number(childrenQuery)
+
+  const { success, data: course } = await getCourseById(id, 0)
 
   if (!success || !course) {
     return notFound()
@@ -44,19 +48,19 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
           {/* Left Column: Course Info & Calendar */}
           <div className="lg:col-span-6 xl:col-span-6 flex flex-col w-full">
-            <div className="mb-6 space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="bg-[#304B65] text-white text-[11px] md:text-xs font-bold px-3 py-1.5 rounded shadow-sm">
+            <div className="mb-2 space-y-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="bg-[#304B65] text-white font-bold rounded shadow-sm">
                   {course.course_type}
                 </span>
                 <LevelBadge level={course.course_level} />
               </div>
 
-              <h2 className="text-2xl lg:text-3xl font-bold text-white leading-snug">
+              <h2 className="text-2xl lg:text-3xl font-bold text-white leading-snug truncate">
                 {course.title}
               </h2>
 
-              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-white/90 text-sm md:text-[15px] font-medium pt-1">
+              <div className="flex flex-wrap items-center gap-3 md:gap-4 text-white/90 text-sm md:text-[15px] font-medium">
                 <div className="flex items-center gap-1.5">
                   <MapPin size={18} /> {course.district}, {course.province}
                 </div>
@@ -65,16 +69,12 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                   <CalendarDays size={18} /> {RenderDate(course.start_date, "d MMMM yyyy")} -{" "}
                   {RenderDate(course.end_date, "d MMMM yyyy")}
                 </div>
-                <div className="hidden lg:block text-white/50">|</div>
-                <div className="flex items-center gap-1.5">
-                  <User size={18} /> {course.course_level || "Beginner"}
-                </div>
               </div>
             </div>
 
             {/* Calendar Filter */}
             <div className="w-full mt-4 lg:pr-8">
-              <CourseRoundsFilter course={course} />
+              <CalendarCourseRoundsFilter course={course} />
             </div>
           </div>
 
@@ -96,7 +96,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                   const displayRounds =
                     course?.rounds?.filter((round) => {
                       if (!filterDate) return true
-                      return format(new Date(round.start_date), "yyyy-MM-dd") === filterDate
+                      return format(new Date(round?.start_date), "yyyy-MM-dd") === filterDate
                     }) || []
 
                   if (displayRounds.length === 0) {
@@ -128,16 +128,18 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
 
                       <div className="flex flex-col items-end gap-3 md:gap-4">
                         <div className="bg-[#EAF3EA] text-[#798E75] px-3 py-1 rounded-full text-[11px] md:text-xs font-bold border border-[#798E75]/20">
-                          เหลือ {round.total} ที่นั่ง
+                          เหลือ {round.total_user} ที่นั่ง
                         </div>
 
-                        <BookingButton
-                          courseId={course.id}
-                          roundId={round.id}
-                          adultPrice={course.price - (course.discount || 0)}
-                          childPrice={course.child_price - (course.discount || 0)}
-                          availableSeats={round.total}
-                        />
+                        {total_user < round?.total_user && (
+                          <BookingButton
+                            courseId={course.id}
+                            roundId={round.id}
+                            adultPrice={course.price - (course.discount || 0)}
+                            childPrice={course.child_price - (course.discount || 0)}
+                            availableSeats={round.total}
+                          />
+                        )}
                       </div>
                     </Card>
                   ))

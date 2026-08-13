@@ -1,5 +1,5 @@
 import { User } from "./user"
-import { Rounds } from "./rounds"
+import { Round } from "./rounds"
 
 export type Booking = {
   id: string
@@ -12,7 +12,7 @@ export type Booking = {
   updated_at: string | Date
   deleted_at: string | Date | null
   round_id: string | null
-  round?: Rounds
+  round?: Round
 }
 
 export type BookingStatus =

@@ -1,10 +1,15 @@
-export type Rounds = {
+import { Course } from "./course"
+
+export interface Round {
   id: string
-  classes_id: string
-  start_date: string
+  course_id: string
+  course?: Course
+  start_date: string // ISO 8601 string format (เช่น "2026-08-13T10:00:00Z")
   end_date: string
+  total_user: number
+  total: number
   is_active: boolean
   created_at: string
-  total: number
-  hour: number
+  updated_at: string
+  // instructors?: InstructorOfCourse[]
 }

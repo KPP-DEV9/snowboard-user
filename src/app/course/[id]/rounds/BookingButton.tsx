@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { X, Minus, Plus } from "lucide-react"
 
 interface BookingButtonProps {
@@ -19,15 +19,18 @@ export default function BookingButton({
   childPrice,
   availableSeats,
 }: BookingButtonProps) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [adults, setAdults] = useState(1)
-  const [children, setChildren] = useState(0)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const adultsQuery = searchParams.get("adults")
+  const childrenQuery = searchParams.get("children")
+
+  const [isOpen, setIsOpen] = useState(false)
+  const [adults, setAdults] = useState(Number(adultsQuery || 1))
+  const [children, setChildren] = useState(Number(childrenQuery || 0))
 
   const totalPrice = adults * adultPrice + children * childPrice
 
   const handleConfirm = () => {
-    // Navigate to booking page with query params
     router.push(
       `/booking/?course_id=${courseId}&round_id=${roundId}&adults=${adults}&children=${children}`,
     )
@@ -53,7 +56,9 @@ export default function BookingButton({
             </button>
 
             <div className="p-6 md:p-8 flex flex-col gap-6">
-              <h2 className="text-center text-[19px] font-bold text-black mt-2">ระบุจำนวนผู้จอง</h2>
+              <h2 className="text-center text-[19px] font-bold text-black mt-2">
+                คอนเฟิร์มจำนวนผู้จอง
+              </h2>
 
               {/* Adult */}
               <div className="flex items-center justify-between py-2">
