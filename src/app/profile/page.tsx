@@ -10,22 +10,13 @@ export default async function ProfilePage() {
 
   if (!user) return null
 
-  const fullName = user.first_name
-    ? `${user.first_name} ${user.last_name || ""}`
-    : user.nickname || "ผู้ใช้ไม่ทราบชื่อ"
+  const fullName =
+    user?.user_profile?.first_name || user.nickname + " " + user?.user_profile?.last_name || "-"
+
+  console.log("AAAAAA============> ", user.user_profile)
 
   return (
-    <div className="min-h-screen relative flex items-center overflow-x-hidden font-sans">
-      {/* Background Image with Tint */}
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-center md:bg-right mix-blend-multiply opacity-50 bg-[#F8E3CE]"
-        style={{
-          backgroundImage:
-            'url("https://images.unsplash.com/photo-1605540436563-5bca919ae766?q=80&w=1200&auto=format&fit=crop")',
-        }}
-      ></div>
-      <div className="absolute inset-0 z-0 bg-[#F8E3CE]/80"></div>
-
+    <div className="flex items-center overflow-x-hidden font-sans">
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 z-10 relative flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24 pt-12 pb-32">
         {/* Left Content */}
         <div className="flex-1 flex flex-col items-start text-black w-full">
@@ -35,16 +26,7 @@ export default async function ProfilePage() {
           >
             <ArrowLeft size={20} className="stroke-[3]" /> ย้อนกลับ
           </Link>
-
-          <div className="mb-4">
-            <Logo />
-          </div>
-
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mt-6 mb-2">Snowvibes Travel</h1>
-          <h2 className="text-xl md:text-2xl font-medium text-black/90 mb-4">
-            Ski & Snowboard Trip
-          </h2>
-          <p className="text-black/80">ทริปสุดพิเศษต้อง SnowVibes</p>
+          <Logo />
         </div>
 
         {/* Right Content - Profile Menu Card */}
@@ -52,10 +34,10 @@ export default async function ProfilePage() {
           <div className="bg-white rounded-[2rem] p-8 md:p-10 shadow-2xl">
             <div className="flex justify-between items-center mb-2">
               <h3 className="text-xl md:text-2xl font-bold text-[#798E75]">โปรไฟล์ของฉัน</h3>
-              <LevelBadge level={user?.level} />
+              <LevelBadge level={user?.user_profile?.level} />
             </div>
             <p className="text-gray-500 text-sm md:text-base font-medium mb-8">
-              ข้อมูลของคุณ{fullName}
+              ข้อมูลของคุณ {fullName}
             </p>
 
             <ProfileMenuClient user={user} />

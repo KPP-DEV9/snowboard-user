@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function Welcome({ user }: Props) {
-  const name = !user.first_name ? user.nickname : `${user?.first_name} ${user?.last_name}`
+  const name = !user.user_profile?.first_name ? user.nickname : `${user?.user_profile?.first_name} ${user?.user_profile?.last_name}`
 
   return (
     <header className="flex justify-between items-start">

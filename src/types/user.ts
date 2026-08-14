@@ -1,40 +1,58 @@
+import { Booking } from "./booking"
+
 export type Token = string
 
-export type StudentProfile = {
+export interface User {
   id: string
-  user_id: string
-  bio: string | null
-  speciality: string | null
-  hourly_rate: number
-  experience_years: number
-  is_active: boolean
-  created_at: string
-  image_profile?: string | null
-}
-
-export type User = {
-  id: string
-  username: string | null
-  line_user_id: string | null
-  nickname: string | null
-  first_name: string | null
-  last_name: string | null
-  telephone: string | null
-  email: string
+  username?: string
+  line_user_id?: string | null
+  nickname?: string | null
   role_id: string
-  role: {
-    id: string
-    name: string
-    description: string | null
-    is_active: boolean
-    created_at: string
-    updated_at: string
-  }
-  level: string
+  role?: Role
+  description?: string | null
+  bookings?: Booking[]
+  tax_id?: string | null
+  branch?: string | null
+  address?: string | null
+  profile_image?: string | null
   is_active: boolean
-  profile_image: string | null
-  sex?: string | null
-  student_profile: StudentProfile
   created_at: string
   updated_at: string
+  user_profile?: UserProfile | null
+}
+
+export interface Role {
+  id: string
+  name: string
+  description?: string | null
+  is_active: boolean
+  deleted_at?: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface UserProfile {
+  id: string
+  user_id: string
+  first_name?: string | null
+  last_name?: string | null
+  telephone?: string
+  email?: string | null
+  level: string
+  weight: number
+  height: number
+  head_size: string
+  glove_size: string
+  shoe_size: string
+  food_allergies: string
+  underlying_disease: string
+  sex: "Male" | "Female" | string
+  nation: string
+  id_card?: string | null
+  passport_no?: string | null
+  tax_id?: string | null
+  address?: string | null
+  birth_date?: string | Date
+  created_at: string | Date
+  updated_at: string | Date
 }

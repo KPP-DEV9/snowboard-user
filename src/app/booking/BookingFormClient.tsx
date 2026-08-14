@@ -2,17 +2,31 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ArrowLeft, MapPin, CalendarDays, User, ChevronDown, ChevronUp, Edit } from "lucide-react"
+import {
+  ArrowLeft,
+  MapPin,
+  CalendarDays,
+  User as UserIcon,
+  ChevronDown,
+  ChevronUp,
+  Edit,
+} from "lucide-react"
 import { Course } from "@/types/course"
 import { RenderDate } from "@/lib/date"
-import LevelBadge from "@/components/LevelBadge"
 import { useRouter } from "next/navigation"
+import { User } from "@/types/user"
+
+import { AssetMaster } from "@/app/actions/assetMaster"
+import { OptionMaster } from "../actions/optionMaster"
 
 interface BookingFormClientProps {
   course: Course
   roundId: string
   adultsCount: number
   childrenCount: number
+  user?: any // Use 'any' or import 'User' type if possible. I'll import User from '@/types/user'
+  assets: AssetMaster[]
+  options: OptionMaster[]
 }
 
 // Interfaces for form state
@@ -20,8 +34,8 @@ interface ParticipantData {
   id: string
   type: "adult" | "child"
   index: number
-  lineId: string
-  level: string
+  lineId?: string
+  level?: string
   idCard: string
   nationality: string
   birthDate: string
@@ -39,10 +53,8 @@ interface ParticipantData {
   hatSize: string
   gloveSize: string
   shoeSize: string
-  rentSnowboard: boolean
-  rentBoots: boolean
-  rentKneePads: boolean
-  rentPants: boolean
+  rentedAssets: Record<string, boolean>
+  rentedOptions: Record<string, boolean>
   extraInsurance3: boolean
   extraInsurance1: boolean
   extraPhoto: boolean
@@ -60,6 +72,9 @@ export default function BookingFormClient({
   roundId,
   adultsCount,
   childrenCount,
+  user,
+  assets,
+  options,
 }: BookingFormClientProps) {
   const router = useRouter()
   const getPrice = (price: number | undefined) =>
@@ -76,13 +91,15 @@ export default function BookingFormClient({
   const [participants, setParticipants] = useState<ParticipantData[]>(() => {
     const list: ParticipantData[] = []
     for (let i = 1; i <= adultsCount; i++) {
-      list.push(createEmptyParticipant("adult", i))
+      list.push(createEmptyParticipant("adult", i, i === 1 ? user : undefined))
     }
     for (let i = 1; i <= childrenCount; i++) {
       list.push(createEmptyParticipant("child", i))
     }
     return list
   })
+
+  // (Removed useEffect to prevent HMR weirdness, we rely entirely on initial state)
 
   // Initialize rooms (start with 1)
   const [rooms, setRooms] = useState<RoomData[]>([
@@ -116,13 +133,17 @@ export default function BookingFormClient({
   const calculateExtras = () => {
     let extrasTotal = 0
     participants.forEach((p) => {
-      if (p.rentSnowboard) extrasTotal += 0
-      if (p.rentBoots) extrasTotal += 900
-      if (p.rentKneePads) extrasTotal += 250
-      if (p.rentPants) extrasTotal += 500
-      if (p.extraInsurance3) extrasTotal += 0
-      if (p.extraInsurance1) extrasTotal += 1250
-      if (p.extraPhoto) extrasTotal += 3000
+      // Dynamic asset calculation
+      if (p.rentedAssets) {
+        Object.entries(p.rentedAssets).forEach(([assetId, isRented]) => {
+          if (isRented) {
+            const asset = assets.find((a) => a.id === assetId)
+            if (asset) {
+              extrasTotal += asset.price
+            }
+          }
+        })
+      }
     })
 
     rooms.forEach((r) => {
@@ -171,7 +192,7 @@ export default function BookingFormClient({
             {RenderDate(course.end_date, "d MMMM yyyy")}
           </div>
           <div className="flex items-center gap-2">
-            <User size={16} /> {course.course_level || "Beginner"}
+            <UserIcon size={16} /> {course.course_level || "Beginner"}
           </div>
         </div>
       </div>
@@ -180,7 +201,7 @@ export default function BookingFormClient({
       <div className="bg-white rounded-3xl p-6 mb-4 shadow-sm relative">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 font-bold text-lg text-gray-900">
-            <User size={20} /> จำนวนคน
+            <UserIcon size={20} /> จำนวนคน
           </div>
           <div className="flex items-center gap-2 font-bold text-gray-900">
             ผู้ใหญ่ {adultsCount}, เด็ก {childrenCount}{" "}
@@ -230,6 +251,8 @@ export default function BookingFormClient({
                   <ParticipantForm
                     data={p}
                     onChange={(field, val) => handleParticipantChange(p.id, field, val)}
+                    assets={assets}
+                    options={options}
                   />
                 </div>
               )}
@@ -368,9 +391,13 @@ export default function BookingFormClient({
 function ParticipantForm({
   data,
   onChange,
+  assets,
+  options,
 }: {
   data: ParticipantData
   onChange: (field: keyof ParticipantData, value: any) => void
+  assets: AssetMaster[]
+  options: OptionMaster[]
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -384,7 +411,7 @@ function ParticipantForm({
             type="text"
             value={data.lineId}
             onChange={(e) => onChange("lineId", e.target.value)}
-            className="bg-gray-100 border-none rounded-lg p-2.5 text-sm"
+            className="bg-gray-100 border-none rounded-lg p-2.5 text-sm text-gray-900"
             placeholder="LineID0001"
           />
         </div>
@@ -395,7 +422,7 @@ function ParticipantForm({
           <select
             value={data.level}
             onChange={(e) => onChange("level", e.target.value)}
-            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
           >
             <option value="Level 1">Level 1</option>
             <option value="Level 2">Level 2</option>
@@ -414,7 +441,7 @@ function ParticipantForm({
             type="text"
             value={data.idCard}
             onChange={(e) => onChange("idCard", e.target.value)}
-            className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+            className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             placeholder="1234567890123"
           />
           <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50">
@@ -441,7 +468,7 @@ function ParticipantForm({
           <select
             value={data.nationality}
             onChange={(e) => onChange("nationality", e.target.value)}
-            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
           >
             <option value="ไทย">ไทย</option>
             <option value="อื่นๆ">อื่นๆ</option>
@@ -455,7 +482,7 @@ function ParticipantForm({
             type="date"
             value={data.birthDate}
             onChange={(e) => onChange("birthDate", e.target.value)}
-            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
           />
         </div>
       </div>
@@ -470,7 +497,7 @@ function ParticipantForm({
             type="text"
             value={data.firstName}
             onChange={(e) => onChange("firstName", e.target.value)}
-            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             placeholder="พัชราภา"
           />
         </div>
@@ -482,7 +509,7 @@ function ParticipantForm({
             type="text"
             value={data.lastName}
             onChange={(e) => onChange("lastName", e.target.value)}
-            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             placeholder="ภิรมย์ภักดี"
           />
         </div>
@@ -517,7 +544,7 @@ function ParticipantForm({
             type="tel"
             value={data.telephone}
             onChange={(e) => onChange("telephone", e.target.value)}
-            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+            className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             placeholder="0899999999"
           />
         </div>
@@ -532,7 +559,7 @@ function ParticipantForm({
           type="email"
           value={data.email}
           onChange={(e) => onChange("email", e.target.value)}
-          className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+          className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
           placeholder="patcharapa1992@gmail.com"
         />
       </div>
@@ -555,7 +582,7 @@ function ParticipantForm({
           disabled={!data.hasDisease}
           value={data.diseaseDetail}
           onChange={(e) => onChange("diseaseDetail", e.target.value)}
-          className={`border rounded-lg p-2 text-sm ${!data.hasDisease ? "bg-gray-100 border-transparent text-gray-400" : "bg-white border-gray-200"}`}
+          className={`border rounded-lg p-2 text-sm text-gray-900 ${!data.hasDisease ? "bg-gray-100 border-transparent text-gray-400" : "bg-white border-gray-200"}`}
           placeholder="ระบุโรคประจำตัว..."
         />
 
@@ -575,7 +602,7 @@ function ParticipantForm({
           disabled={!data.hasAllergy}
           value={data.allergyDetail}
           onChange={(e) => onChange("allergyDetail", e.target.value)}
-          className={`border rounded-lg p-2 text-sm ${!data.hasAllergy ? "bg-gray-100 border-transparent text-gray-400" : "bg-white border-gray-200"}`}
+          className={`border rounded-lg p-2 text-sm text-gray-900 ${!data.hasAllergy ? "bg-gray-100 border-transparent text-gray-400" : "bg-white border-gray-200"}`}
           placeholder="ปลาหมึก, หอยนางรม"
         />
       </div>
@@ -591,7 +618,7 @@ function ParticipantForm({
             <select
               value={data.weight}
               onChange={(e) => onChange("weight", e.target.value)}
-              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
               <option value="65">65</option>
             </select>
@@ -603,7 +630,7 @@ function ParticipantForm({
             <select
               value={data.height}
               onChange={(e) => onChange("height", e.target.value)}
-              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
               <option value="171">171</option>
             </select>
@@ -615,7 +642,7 @@ function ParticipantForm({
             <select
               value={data.hatSize}
               onChange={(e) => onChange("hatSize", e.target.value)}
-              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
               <option value="8.5">8.5</option>
             </select>
@@ -627,7 +654,7 @@ function ParticipantForm({
             <select
               value={data.gloveSize}
               onChange={(e) => onChange("gloveSize", e.target.value)}
-              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
               <option value="8">8</option>
             </select>
@@ -639,7 +666,7 @@ function ParticipantForm({
             <select
               value={data.shoeSize}
               onChange={(e) => onChange("shoeSize", e.target.value)}
-              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm"
+              className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
               <option value="7">7</option>
             </select>
@@ -650,142 +677,104 @@ function ParticipantForm({
       {/* Equipment Rental */}
       <div className="mt-4 pt-4 border-t border-gray-100">
         <div className="flex justify-between items-center mb-2">
-          <h4 className="text-sm font-bold text-gray-900">เช่าอุปกรณ์ Snowboard</h4>
-          <span className="text-xs font-bold text-[#798E75]">(฿ 1,040)</span>
+          <h4 className="text-sm font-bold text-gray-900">
+            เช่าอุปกรณ์
+            {/* {assets?.[0]?.course_type} */}
+          </h4>
+          {/* <span className="text-xs font-bold text-[#798E75]">(฿ 1,040)</span> */}
         </div>
         <p className="text-[11px] text-gray-400 mb-3">
           (การเช่าอุปกรณ์สามารถจ่ายได้ในวันเดินทาง และค่าอุปกรณ์ที่ระบุเป็นต่อชิ้น
           อาจมีการเปลี่ยนแปลง)
         </p>
         <div className="space-y-2">
-          <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={data.rentSnowboard}
-                onChange={(e) => onChange("rentSnowboard", e.target.checked)}
-                className="text-blue-500"
-              />{" "}
-              <span className="text-sm">แผ่นสโนว์บอร์ด</span>
-            </div>
-            <span className="text-sm font-medium">฿0</span>
-          </label>
-          <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={data.rentBoots}
-                onChange={(e) => onChange("rentBoots", e.target.checked)}
-                className="text-blue-500"
-              />{" "}
-              <span className="text-sm">รองเท้าบูท</span>
-            </div>
-            <span className="text-sm font-medium">฿900</span>
-          </label>
-          <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={data.rentKneePads}
-                onChange={(e) => onChange("rentKneePads", e.target.checked)}
-                className="text-blue-500"
-              />{" "}
-              <span className="text-sm">กันกระแทกเข่า</span>
-            </div>
-            <span className="text-sm font-medium">฿250</span>
-          </label>
-          <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={data.rentPants}
-                onChange={(e) => onChange("rentPants", e.target.checked)}
-                className="text-blue-500"
-              />{" "}
-              <span className="text-sm">กางเกงกันเปื้อน</span>
-            </div>
-            <span className="text-sm font-medium">฿500</span>
-          </label>
+          {assets.map((asset) => (
+            <label key={asset.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={!!data.rentedAssets?.[asset.id]}
+                  onChange={(e) => {
+                    const newRented = { ...data.rentedAssets, [asset.id]: e.target.checked }
+                    onChange("rentedAssets", newRented)
+                  }}
+                  className="text-blue-500"
+                />{" "}
+                <span className="text-sm text-black">
+                  {asset.name} (size: {asset.size})
+                </span>
+              </div>
+              <span className="text-sm font-medium text-black">
+                ฿{asset.price.toLocaleString()}
+              </span>
+            </label>
+          ))}
         </div>
       </div>
 
       {/* Extra Services */}
-      <div className="mt-4 pt-4 border-t border-gray-100">
+      <div className="mt-4 pt-4 border-t border-gray-100 text-black">
         <div className="flex justify-between items-center mb-3">
           <h4 className="text-sm font-bold text-gray-900">ค่าบริการเพิ่มเติมอื่นๆ</h4>
           <span className="text-xs font-medium text-gray-400">(Optional)</span>
         </div>
         <div className="space-y-2">
-          <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={data.extraInsurance3}
-                onChange={(e) => onChange("extraInsurance3", e.target.checked)}
-                className="text-gray-400"
-              />{" "}
-              <span className="text-sm">ทำประกันภัยชั้น 3</span>
-            </div>
-            <span className="text-sm font-medium">฿0</span>
-          </label>
-          <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={data.extraInsurance1}
-                onChange={(e) => onChange("extraInsurance1", e.target.checked)}
-                className="text-blue-500"
-              />{" "}
-              <span className="text-sm">ทำประกันภัยชั้น 1</span>
-            </div>
-            <span className="text-sm font-medium">฿1,250</span>
-          </label>
-          <label className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={data.extraPhoto}
-                onChange={(e) => onChange("extraPhoto", e.target.checked)}
-                className="text-gray-400"
-              />{" "}
-              <span className="text-sm">ช่างภาพถ่ายรูปตลอดทริป</span>
-            </div>
-            <span className="text-sm font-medium">฿3,000</span>
-          </label>
+          {options.map((option) => (
+            <label key={option.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={!!data.rentedOptions?.[option.id]}
+                  onChange={(e) => {
+                    const newRented = { ...data.rentedOptions, [option.id]: e.target.checked }
+                    onChange("rentedOptions", newRented)
+                  }}
+                  className="text-blue-500"
+                />{" "}
+                <span className="text-sm text-black">{option.name}</span>
+              </div>
+              <span className="text-sm font-medium text-black">
+                ฿{option.price.toLocaleString()}
+              </span>
+            </label>
+          ))}
         </div>
       </div>
     </div>
   )
 }
 
-function createEmptyParticipant(type: "adult" | "child", index: number): ParticipantData {
+function createEmptyParticipant(
+  type: "adult" | "child",
+  index: number,
+  user?: User,
+): ParticipantData {
+  const profile = user?.user_profile
   return {
     id: `${type}-${index}`,
     type,
     index,
-    lineId: "",
-    level: "Level 1",
-    idCard: "",
-    nationality: "ไทย",
-    birthDate: "",
-    firstName: "",
-    lastName: "",
-    gender: "male",
-    telephone: "",
-    email: "",
-    hasDisease: false,
-    diseaseDetail: "",
-    hasAllergy: false,
-    allergyDetail: "",
-    weight: "65",
-    height: "171",
-    hatSize: "8.5",
-    gloveSize: "8",
-    shoeSize: "7",
-    rentSnowboard: false,
-    rentBoots: false,
-    rentKneePads: false,
-    rentPants: false,
+    lineId: user?.line_user_id || "",
+    level: profile?.level || "",
+    idCard: profile?.id_card || profile?.passport_no || "",
+    nationality: profile?.nation || "",
+    birthDate: "", // birth_date is removed from UserProfile
+    firstName: profile?.first_name || "",
+    lastName: profile?.last_name || "",
+    gender: profile?.sex === "Male" ? "male" : profile?.sex === "Female" ? "female" : "",
+    telephone: profile?.telephone || "",
+    email: profile?.email || "",
+    hasDisease: !!profile?.underlying_disease,
+    diseaseDetail: profile?.underlying_disease || "",
+    hasAllergy: !!profile?.food_allergies,
+    allergyDetail: profile?.food_allergies || "",
+    weight: profile?.weight?.toString() || "0",
+    height: profile?.height?.toString() || "0",
+    hatSize: profile?.head_size || "",
+    gloveSize: profile?.glove_size || "",
+    shoeSize: profile?.shoe_size || "0",
+    rentedAssets: {},
+    rentedOptions: {},
     extraInsurance3: false,
     extraInsurance1: false,
     extraPhoto: false,

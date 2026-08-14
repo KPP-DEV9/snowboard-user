@@ -446,4 +446,34 @@ export const api = {
         cache: "no-store",
       }),
   },
+  assetMasters: {
+    getAll: <T>(
+      page = 1,
+      limit = 10,
+      course_type = "",
+      options?: Omit<RequestInit, "method" | "body">,
+    ) => {
+      let url = `asset-masters?page=${page}&limit=${limit}`
+      if (course_type) url += `&course_type=${course_type}`
+      return fetchWrapper<T>(url, {
+        ...options,
+        method: "GET",
+        cache: "no-store",
+      })
+    },
+  },
+  optionMasters: {
+    getAll: <T>(
+      page = 1,
+      limit = 10,
+      options?: Omit<RequestInit, "method" | "body">,
+    ) => {
+      let url = `option-masters?page=${page}&limit=${limit}`
+      return fetchWrapper<T>(url, {
+        ...options,
+        method: "GET",
+        cache: "no-store",
+      })
+    },
+  },
 }

@@ -33,8 +33,6 @@ export default function LoginPage() {
               profile_image: profile.pictureUrl || "",
             })
 
-            console.log("response ==============> ", response)
-
             if (response.success && response.data?.token) {
               const userData = (response.data as any).user
 

@@ -1,25 +1,38 @@
 import { User } from "./user"
 import { Round } from "./rounds"
 
-export type Booking = {
+export interface Booking {
   id: string
   user_id: string
-  user: User
-  classes_id: string
+  user?: User
   status: BookingStatus
-  created_at: string | Date
-  confirm_at: string | Date
-  updated_at: string | Date
-  deleted_at: string | Date | null
-  round_id: string | null
-  round?: Round
+  created_at: string
+  confirm_at?: string | null
+  updated_at: string
+  deleted_at?: string | null
+  round_id?: string | null
+  round?: Round | null
+  admin_id?: string | null
+  admin?: Admin | null
 }
 
-export type BookingStatus =
-  | "WAIT_BOOKING"
-  | "CUS_CONFIRM"
-  | "CUS_REJECT"
-  | "INS_CONFIRM"
-  | "INS_REJECT"
-  | "INPROGRESS"
-  | "COMPLETE"
+export enum BookingStatus {
+  WaitingBooking = "WAIT_BOOKING",
+  CusConfirm = "CUS_CONFIRM",
+  CusReject = "CUS_REJECT",
+  InsConfirm = "INS_CONFIRM",
+  InsReject = "INS_REJECT",
+  InProgress = "INPROGRESS",
+  Complete = "COMPLETE",
+}
+
+export interface Admin {
+  id: string
+  username: string
+  name: string
+  session_id?: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  deleted_at?: string | null
+}

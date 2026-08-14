@@ -1,5 +1,7 @@
 import { getCourseById } from "@/app/actions/course"
 import { getSession } from "@/app/actions/auth"
+import { getAssetMasters } from "@/app/actions/assetMaster"
+import { getOptionMasters } from "@/app/actions/optionMaster"
 import { notFound, redirect } from "next/navigation"
 import BookingFormClient from "./BookingFormClient"
 
@@ -33,6 +35,9 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
   const session = await getSession()
   if (!session?.user) return redirect("/signin")
 
+  const { data: assets } = await getAssetMasters(course.course_type.toUpperCase())
+  const { data: options } = await getOptionMasters()
+
   return (
     <div className="min-h-screen bg-[#304B65] pb-24 font-sans selection:bg-[#568759]/30">
       <BookingFormClient
@@ -40,6 +45,9 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
         roundId={roundId}
         adultsCount={adults}
         childrenCount={childrenCount}
+        user={session.user}
+        assets={assets || []}
+        options={options || []}
       />
     </div>
   )

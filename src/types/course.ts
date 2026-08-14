@@ -1,6 +1,6 @@
 import { Round } from "./rounds"
 
-export type CourseLevel = "Beginner" | "Level 1" | "Level 2" | "Level 3" | "Level 4" | "Level 5"
+export type Level = "Beginner" | "Level 1" | "Level 2" | "Level 3" | "Level 4" | "Level 5"
 
 export type ProgramType = "TRIP" | "PRIVATE_COACHING"
 
@@ -10,7 +10,7 @@ export interface Course {
   id: string
   title: string
   description: string
-  course_level: CourseLevel
+  course_level: Level
   course_type: CourseTypes
   program_type: ProgramType
   image_urls: string[]

@@ -14,6 +14,7 @@ import { Course } from "@/types/course"
 import LayoutPage from "@/components/Layout"
 import Label from "@/components/Ui/Label"
 import { Provinces } from "@/constants/location"
+import TopRightAuth from "@/components/TopRightAuth"
 
 export type CategoryType = "SNOWBOARD" | "SKI"
 
@@ -67,7 +68,8 @@ export default function MainPage() {
   return (
     <LayoutPage>
       <div className="min-h-screen pb-24 font-sans">
-        <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-8 lg:pt-12 max-w-7xl">
+        <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-8 lg:pt-12 max-w-7xl relative">
+          <TopRightAuth />
           {/* Header Section */}
           <div className="flex flex-col items-center justify-center mb-6 gap-6">
             {/* Logo */}

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/Ui/Button/Button"
 import { User } from "@/types/user"
 import { updateUserProfile } from "@/app/actions/userProfile"
 import { X, CalendarDays, ScanLine } from "lucide-react"
@@ -14,26 +13,43 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProps) {
   const [formData, setFormData] = useState({
-    first_name: user.first_name || "",
-    last_name: user.last_name || "",
-    nickname: user.nickname || "",
-    email: user.email || "",
-    telephone: user.telephone || "",
-    sex: user.sex || "",
-    image_profile: user.profile_image || user.student_profile?.image_profile || "",
-    id_card: "", // Placeholder for design
-    nationality: "", // Placeholder for design
-    birth_date: "", // Placeholder for design
-    level: user.level || "Level 1",
-    has_disease: false,
-    disease_detail: "",
-    has_allergy: false,
-    allergy_detail: "",
-    weight: "00",
-    height: "00",
-    hat_size: "",
-    glove_size: "",
-    shoe_size: "",
+    // ข้อมูลจากระดับ User
+    nickname: user?.nickname || "",
+    image_profile: user?.profile_image || "",
+
+    // ข้อมูลส่วนตัว / ข้อมูลติดต่อ
+    first_name: user?.user_profile?.first_name || "",
+    last_name: user?.user_profile?.last_name || "",
+    email: user?.user_profile?.email || "",
+    telephone: user?.user_profile?.telephone || "",
+    sex: user?.user_profile?.sex || "Male",
+    birth_date: user?.user_profile?.birth_date
+      ? (user.user_profile.birth_date instanceof Date
+          ? user.user_profile.birth_date.toISOString()
+          : String(user.user_profile.birth_date)
+        ).split("T")[0]
+      : "",
+    nation: user?.user_profile?.nation || "",
+
+    // เอกสารประจำตัว & ข้อมูลภาษี/ที่อยู่ (เพิ่ม tax_id, address)
+    id_card: user?.user_profile?.id_card || "",
+    passport_no: user?.user_profile?.passport_no || "",
+    tax_id: user?.user_profile?.tax_id || "",
+    address: user?.user_profile?.address || "",
+
+    // ทักษะ & ขนาดร่างกาย
+    level: user?.user_profile?.level || "Beginner",
+    weight: user?.user_profile?.weight || 0,
+    height: user?.user_profile?.height || 0,
+    head_size: user?.user_profile?.head_size || "",
+    glove_size: user?.user_profile?.glove_size || "",
+    shoe_size: user?.user_profile?.shoe_size || "",
+
+    // ข้อมูลสุขภาพ / ประวัติแพ้
+    has_disease: !!user?.user_profile?.underlying_disease,
+    disease_detail: user?.user_profile?.underlying_disease || "",
+    has_allergy: !!user?.user_profile?.food_allergies,
+    allergy_detail: user?.user_profile?.food_allergies || "",
   })
 
   const [isLoading, setIsLoading] = useState(false)
@@ -53,12 +69,29 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
     try {
       // NOTE: We only send fields that are supported by the backend right now
       const payload = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        nickname: formData.nickname,
+        // ข้อมูลส่วนตัว / ติดต่อ
+        first_name: formData.first_name || null,
+        last_name: formData.last_name || null,
         telephone: formData.telephone,
+        email: formData.email || null, // เพิ่ม
         sex: formData.sex,
-        image_profile: formData.image_profile,
+        birth_date: formData.birth_date || null,
+        nation: formData.nation,
+        // เอกสารประจำตัว & ข้อมูลภาษี/ที่อยู่
+        id_card: formData.id_card || null,
+        passport_no: formData.passport_no || null,
+        tax_id: formData.tax_id || null, // เพิ่ม
+        address: formData.address || null, // เพิ่ม
+        // ทักษะ & ไซส์ร่างกาย
+        level: formData.level,
+        weight: Number(formData.weight) || 0,
+        height: Number(formData.height) || 0,
+        head_size: formData.head_size,
+        glove_size: formData.glove_size,
+        shoe_size: formData.shoe_size,
+        // ประวัติสุขภาพ / แพ้อาหาร (แมปให้ตรงกับ json tag ของ Go)
+        underlying_disease: formData.has_disease ? formData.disease_detail : "",
+        food_allergies: formData.has_allergy ? formData.allergy_detail : "",
       }
 
       const res = await updateUserProfile(payload)
@@ -107,7 +140,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
 
             {/* ID Card */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-bold text-gray-900">เลขบัตรประชาชน/เลขพาสปอร์ต</label>
+              <label className="text-sm font-bold text-gray-900">เลขบัตรประชาชน</label>
               <div className="relative">
                 <input
                   type="text"
@@ -115,10 +148,49 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   value={formData.id_card}
                   onChange={handleChange}
                   className="w-full bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
-                  placeholder="เลขบัตรประชาชน/เลขพาสปอร์ต"
+                  placeholder="เลขบัตรประชาชน 13 หลัก"
                 />
                 <ScanLine className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-700" />
               </div>
+            </div>
+
+            {/* Passport No */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-gray-900">เลขพาสปอร์ต</label>
+              <input
+                type="text"
+                name="passport_no"
+                value={formData.passport_no}
+                onChange={handleChange}
+                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
+                placeholder="เลขพาสปอร์ต"
+              />
+            </div>
+
+            {/* Tax ID */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-gray-900">เลขประจำตัวผู้เสียภาษี</label>
+              <input
+                type="text"
+                name="tax_id"
+                value={formData.tax_id}
+                onChange={handleChange}
+                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
+                placeholder="เลขประจำตัวผู้เสียภาษี 13 หลัก"
+              />
+            </div>
+
+            {/* Address */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-gray-900">ที่อยู่</label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                rows={3}
+                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400 resize-none"
+                placeholder="บ้านเลขที่ หมู่ ซอย ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"
+              />
             </div>
 
             {/* Nationality & Birth Date */}
@@ -126,8 +198,8 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">สัญชาติ</label>
                 <select
-                  name="nationality"
-                  value={formData.nationality}
+                  name="nation"
+                  value={formData.nation}
                   onChange={handleChange}
                   className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-no-repeat bg-[position:right_1rem_center]"
                 >
@@ -147,6 +219,13 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     name="birth_date"
                     value={formData.birth_date}
                     onChange={handleChange}
+                    onClick={(e) => {
+                      try {
+                        if ("showPicker" in HTMLInputElement.prototype) {
+                          ;(e.target as HTMLInputElement).showPicker()
+                        }
+                      } catch (err) {}
+                    }}
                     className="w-full bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                   <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700 pointer-events-none" />
@@ -181,7 +260,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
 
             {/* Nickname & Telephone */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
+              {/* <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">ชื่อเล่น</label>
                 <input
                   type="text"
@@ -190,7 +269,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   onChange={handleChange}
                   className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
                 />
-              </div>
+              </div> */}
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">เบอร์โทรศัพท์</label>
@@ -199,23 +278,23 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   name="telephone"
                   value={formData.telephone}
                   onChange={handleChange}
-                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-400 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
+                  className="w-full bg-white text-black border border-gray-200 rounded-xl p-3 text-sm text-gray-400 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
                   placeholder="080xxxxxxx"
                 />
               </div>
-            </div>
 
-            {/* Email */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-bold text-gray-900">อีเมล์</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
-                placeholder="อีเมล..."
-              />
+              {/* Email */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">อีเมล์</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
+                  placeholder="อีเมล..."
+                />
+              </div>
             </div>
 
             {/* Gender */}
@@ -364,8 +443,8 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                 <div className="flex flex-col gap-1.5">
                   <label className="text-sm font-bold text-gray-900">Size หมวก (us)</label>
                   <select
-                    name="hat_size"
-                    value={formData.hat_size}
+                    name="head_size"
+                    value={formData.head_size}
                     onChange={handleChange}
                     className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-no-repeat bg-[position:right_1rem_center]"
                   >
@@ -409,14 +488,11 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     <option value="" disabled>
                       เลือก
                     </option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
+                    {Array.from({ length: 50 }, (_, i) => i + 10).map((size) => (
+                      <option key={size} value={size.toString()}>
+                        {size}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -14,24 +14,25 @@ export async function setSession(token: string, user: any) {
   })
 
   if (user) {
-    const minimalUser = {
+    const minimalUser: User = {
       id: user.id,
       username: user.username,
       line_user_id: user.line_user_id,
       nickname: user.nickname || user.nick_name || user.name,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      telephone: user.telephone,
-      email: user.email,
       role_id: user.role_id,
-      role: user.role ? { id: user.role.id, name: user.role.name } : undefined,
-      is_active: user.is_active,
+      role: user.role,
+      description: user.description,
+      bookings: user.bookings,
+      tax_id: user.tax_id,
+      branch: user.branch,
+      address: user.address,
       profile_image: user.profile_image,
-      sex: user.sex,
-      level: user.level,
-      student_profile: user.student_profile
+      is_active: user.is_active,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+      user_profile: user.user_profile
         ? {
-            ...user.student_profile,
+            ...user.user_profile,
             user: undefined,
           }
         : undefined,
