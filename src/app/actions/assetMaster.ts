@@ -17,8 +17,6 @@ export async function getAssetMasters(courseType: string) {
   try {
     const res = await api.assetMasters.getAll<PaginatedData<AssetMaster>>(1, 10, courseType)
 
-    console.log("res ==============> ", res)
-
     if (!res.success) {
       return {
         success: false,

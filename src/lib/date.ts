@@ -47,3 +47,10 @@ export function DateTime(date: Date | string | number | undefined | null) {
     return null
   }
 }
+
+export const DateToIso = (dateStr?: string | null) => {
+  if (!dateStr) return null
+  const date = new Date(dateStr)
+  // เช็กว่าเป็น Date ที่ถูกต้องหรือไม่
+  return isNaN(date.getTime()) ? null : date.toISOString()
+}

@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { User, UserProfile } from "@/types/user"
 import { api } from "@/lib/api"
+import { DateToIso } from "@/lib/date"
 
 export async function updateUserProfile(data: any) {
   const cookieStore = await cookies()
@@ -72,36 +73,29 @@ export async function updateUserProfile(data: any) {
 
     try {
       const updatePayload = {
-        first_name: data.first_name,
-        last_name: data.last_name,
-        nickname: data.nickname,
-        telephone: data.telephone,
-        email: data.email,
-        level: data.level,
-        user_profile: {
-          first_name: data.first_name || "",
-          last_name: data.last_name || "",
-          telephone: data.telephone || "",
-          level: data.level || "Level 1",
-          email: data.email || "",
-          weight: Number(data.weight) || 0,
-          height: Number(data.height) || 0,
-          head_size: data.head_size || "",
-          glove_size: data.glove_size || "",
-          shoe_size: data.shoe_size || "",
-          food_allergies: data.has_allergy ? data.allergy_detail || "" : "",
-          underlying_disease: data.has_disease ? data.disease_detail || "" : "",
-          sex: data.sex === "male" ? "Male" : data.sex === "female" ? "Female" : "",
-          nation: data.nation || "",
-          id_card: data.id_card || "",
-          passport_no: data.passport_no || "",
-          tax_id: data.tax_id || "",
-          address: data.address || "",
-          birth_date: data.birth_date || "",
-        },
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        telephone: data.telephone || "",
+        level: data.level || "Level 1",
+        email: data.email || "",
+        weight: Number(data.weight) || 0,
+        height: Number(data.height) || 0,
+        head_size: data.head_size || "",
+        glove_size: data.glove_size || "",
+        shoe_size: data.shoe_size || "",
+        food_allergies: data.food_allergies || "",
+        underlying_disease: data.underlying_disease || "",
+        sex: data.sex === "male" ? "Male" : data.sex === "female" ? "Female" : "",
+        nation: data.nation || "",
+        id_card: data.id_card || "",
+        passport_no: data.passport_no || "",
+        tax_id: data.tax_id || "",
+        address: data.address || "",
+        birth_date: DateToIso(data.birth_date),
       }
 
       const response = await api.users.updateProfile(updatePayload)
+
       if (!response.success) {
         return { success: false, error: response.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล" }
       }

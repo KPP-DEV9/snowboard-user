@@ -125,19 +125,6 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
         {/* Form Content */}
         <div className="p-6 overflow-y-auto">
           <form id="edit-profile-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* Profile Image URL */}
-            {/* <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-bold text-gray-900">รูปโปรไฟล์ (URL)</label>
-              <input
-                type="text"
-                name="image_profile"
-                value={formData.image_profile}
-                onChange={handleChange}
-                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
-                placeholder="https://example.com/image.jpg"
-              />
-            </div> */}
-
             {/* ID Card */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-gray-900">เลขบัตรประชาชน</label>
@@ -260,17 +247,6 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
 
             {/* Nickname & Telephone */}
             <div className="grid grid-cols-2 gap-4">
-              {/* <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-bold text-gray-900">ชื่อเล่น</label>
-                <input
-                  type="text"
-                  name="nickname"
-                  value={formData.nickname}
-                  onChange={handleChange}
-                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
-                />
-              </div> */}
-
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">เบอร์โทรศัพท์</label>
                 <input
@@ -278,7 +254,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   name="telephone"
                   value={formData.telephone}
                   onChange={handleChange}
-                  className="w-full bg-white text-black border border-gray-200 rounded-xl p-3 text-sm text-gray-400 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
                   placeholder="080xxxxxxx"
                 />
               </div>

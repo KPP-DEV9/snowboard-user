@@ -13,13 +13,11 @@ export default async function ProfilePage() {
   const fullName =
     user?.user_profile?.first_name || user.nickname + " " + user?.user_profile?.last_name || "-"
 
-  console.log("AAAAAA============> ", user.user_profile)
-
   return (
     <div className="flex items-center overflow-x-hidden font-sans">
       <div className="w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 z-10 relative flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24 pt-12 pb-32">
         {/* Left Content */}
-        <div className="flex-1 flex flex-col items-start text-black w-full">
+        <div className="flex-1 flex flex-col items-start text-black w-full text-white">
           <Link
             href="/"
             className="flex items-center gap-2 font-bold mb-2 hover:opacity-80 transition-opacity text-sm md:text-base"
