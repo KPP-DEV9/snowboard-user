@@ -11,13 +11,14 @@ import {
   ChevronUp,
   Edit,
 } from "lucide-react"
-import { Course } from "@/types/course"
+import { Course, HotelsMaster, RoomMaster } from "@/types/course"
 import { RenderDate } from "@/lib/date"
 import { useRouter } from "next/navigation"
 import { User } from "@/types/user"
 
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
+import { format } from "date-fns"
 
 interface BookingFormClientProps {
   course: Course
@@ -87,6 +88,34 @@ export default function BookingFormClient({
   const childrenTotal = childrenCount * childPrice
   const baseTotal = adultsTotal + childrenTotal
 
+  // Extract hotels and rooms from course
+  const hotelsList: HotelsMaster[] =
+    course.hotels && course.hotels.length > 0
+      ? course.hotels
+      : (course.course_hotels?.map((ch) => ch.hotel).filter(Boolean) as HotelsMaster[]) || []
+
+  // Extract rooms available from hotels or course_rooms
+  const availableRooms: RoomMaster[] = []
+  if (hotelsList.length > 0) {
+    hotelsList.forEach((h) => {
+      if (h.rooms && h.rooms.length > 0) {
+        availableRooms.push(...h.rooms)
+      }
+    })
+  }
+  if (availableRooms.length === 0 && course.course_rooms && course.course_rooms.length > 0) {
+    course.course_rooms.forEach((cr) => {
+      if (cr.room_master) {
+        availableRooms.push(cr.room_master)
+      }
+    })
+  }
+
+  // Primary hotel name
+  const primaryHotel = hotelsList[0] || course.course_rooms?.[0]?.room_master?.hotel
+  const hotelName = primaryHotel?.name || "โรงแรม Steigenberger"
+  const defaultOption = availableRooms[0]?.id || ""
+
   // Initialize participants
   const [participants, setParticipants] = useState<ParticipantData[]>(() => {
     const list: ParticipantData[] = []
@@ -103,7 +132,7 @@ export default function BookingFormClient({
 
   // Initialize rooms (start with 1)
   const [rooms, setRooms] = useState<RoomData[]>([
-    { id: "r1", roomIndex: 1, selectedOption: "standard_twin", extraBed: false },
+    { id: "r1", roomIndex: 1, selectedOption: defaultOption, extraBed: false },
   ])
 
   // Accordion state (first one open)
@@ -121,12 +150,24 @@ export default function BookingFormClient({
     setRooms((prev) => [
       ...prev,
       {
-        id: `r${prev.length + 1}`,
+        id: `r${prev.length + 1}_${Date.now()}`,
         roomIndex: prev.length + 1,
-        selectedOption: "standard_twin",
+        selectedOption: defaultOption,
         extraBed: false,
       },
     ])
+  }
+
+  const removeRoom = (id: string) => {
+    if (rooms.length <= 1) return
+    setRooms((prev) =>
+      prev
+        .filter((r) => r.id !== id)
+        .map((r, idx) => ({
+          ...r,
+          roomIndex: idx + 1,
+        })),
+    )
   }
 
   // Cost calculations
@@ -144,12 +185,29 @@ export default function BookingFormClient({
           }
         })
       }
+      // Dynamic options calculation
+      if (p.rentedOptions) {
+        Object.entries(p.rentedOptions).forEach(([optionId, isRented]) => {
+          if (isRented) {
+            const opt = options.find((o) => o.id === optionId)
+            if (opt) {
+              extrasTotal += opt.price
+            }
+          }
+        })
+      }
     })
 
     rooms.forEach((r) => {
-      if (r.selectedOption === "deluxe_twin") extrasTotal += 2000
-      if (r.selectedOption === "suite_single") extrasTotal += 4000
-      if (r.extraBed) extrasTotal += 500
+      const selected = availableRooms.find((rm) => rm.id === r.selectedOption)
+      if (selected) {
+        extrasTotal += Number(selected.base_price) || 0
+        if (r.extraBed) {
+          extrasTotal += Number(selected.extra_price) || 500
+        }
+      } else if (r.extraBed) {
+        extrasTotal += 500
+      }
     })
 
     return extrasTotal
@@ -262,7 +320,7 @@ export default function BookingFormClient({
       </div>
 
       {/* Hotel Selection */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm mb-24">
+      <div className="bg-white rounded-3xl p-6 shadow-sm mb-24 text-black">
         <div className="flex items-center gap-2 font-bold text-lg text-gray-900 mb-2">
           <svg
             className="w-5 h-5"
@@ -280,7 +338,7 @@ export default function BookingFormClient({
           เลือกห้องพัก
         </div>
         <div className="flex justify-between text-sm mb-6">
-          <span className="font-bold">โรงแรม Steigenberger</span>
+          <span className="font-bold text-gray-900">{hotelName}</span>
           <span className="text-[#798E75] font-bold">
             ผู้ใหญ่ {adultsCount}, เด็ก {childrenCount}
           </span>
@@ -290,85 +348,82 @@ export default function BookingFormClient({
           (กรณีต้องการเพิ่มเตียงเสริม สามารถระบุได้ในตัวเลือก)
         </p>
 
-        <div className="space-y-6">
-          {rooms.map((r, i) => (
-            <div key={r.id}>
-              <div className="flex justify-between items-center font-bold text-gray-900 mb-3 text-sm">
-                <span>เลือกห้องพัก ห้องที่ {r.roomIndex}</span>
-                <span className="text-[#798E75]">
-                  ปิดซ่อน <ChevronDown size={16} className="inline" />
-                </span>
-              </div>
-              <div className="space-y-3 mb-4">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={r.selectedOption === "standard_twin"}
-                      onChange={() => handleRoomChange(r.id, "selectedOption", "standard_twin")}
-                      className="text-blue-500"
-                    />
-                    <span className="text-sm">Standard, เตียงคู่</span>
-                  </div>
-                  <span className="text-sm font-medium">฿0</span>
-                </label>
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={r.selectedOption === "standard_single"}
-                      onChange={() => handleRoomChange(r.id, "selectedOption", "standard_single")}
-                      className="text-blue-500"
-                    />
-                    <span className="text-sm">Standard, เตียงเดี่ยว</span>
-                  </div>
-                  <span className="text-sm font-medium">฿0</span>
-                </label>
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={r.selectedOption === "deluxe_twin"}
-                      onChange={() => handleRoomChange(r.id, "selectedOption", "deluxe_twin")}
-                      className="text-blue-500"
-                    />
-                    <span className="text-sm">Deluxe, เตียงคู่</span>
-                  </div>
-                  <span className="text-sm font-medium">฿2,000</span>
-                </label>
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      checked={r.selectedOption === "suite_single"}
-                      onChange={() => handleRoomChange(r.id, "selectedOption", "suite_single")}
-                      className="text-blue-500"
-                    />
-                    <span className="text-sm">Suite, เตียงเดี่ยว</span>
-                  </div>
-                  <span className="text-sm font-medium">฿4,000</span>
-                </label>
-              </div>
+        <div className="space-y-6 text-black">
+          {rooms.map((r) => {
+            const selectedRoom = availableRooms.find((rm) => rm.id === r.selectedOption)
+            const extraBedPrice = selectedRoom?.extra_price ? selectedRoom.extra_price : 500
 
-              <div className="font-bold text-sm text-gray-900 mb-2">ต้องการเตียงเสริมหรือไม่ ?</div>
-              <label className="flex items-center justify-between cursor-pointer mb-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={r.extraBed}
-                    onChange={(e) => handleRoomChange(r.id, "extraBed", e.target.checked)}
-                    className="text-blue-500 rounded"
-                  />
-                  <span className="text-sm">เพิ่มเตียง</span>
+            return (
+              <div key={r.id} className="border-b border-gray-100 pb-5 last:border-b-0 last:pb-0">
+                <div className="flex justify-between items-center font-bold text-gray-900 mb-3 text-sm">
+                  <span>เลือกห้องพัก ห้องที่ {r.roomIndex}</span>
+                  {rooms.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeRoom(r.id)}
+                      className="text-red-500 text-xs font-normal hover:underline"
+                    >
+                      ลบห้องพัก
+                    </button>
+                  )}
                 </div>
-                <span className="text-sm font-medium">฿ 500</span>
-              </label>
-            </div>
-          ))}
+
+                {availableRooms.length === 0 ? (
+                  <div className="text-sm text-gray-400 py-2">ไม่มีข้อมูลห้องพัก</div>
+                ) : (
+                  <div className="space-y-3 mb-4">
+                    {availableRooms.map((room) => (
+                      <label
+                        key={room.id}
+                        className="flex items-center justify-between cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name={`room-option-${r.id}`}
+                            value={room.id}
+                            checked={r.selectedOption === room.id}
+                            onChange={() => handleRoomChange(r.id, "selectedOption", room.id)}
+                            className="text-blue-500"
+                          />
+                          <span className="text-sm text-gray-800">
+                            {room.room_type}
+                            {room.bed_type ? `, ${room.bed_type}` : ""}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900">
+                          {room.base_price > 0 ? `฿${room.base_price.toLocaleString()}` : "฿0"}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                <div className="font-bold text-sm text-gray-900 mb-2">
+                  ต้องการเตียงเสริมหรือไม่ ?
+                </div>
+                <label className="flex items-center justify-between cursor-pointer mb-2">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={r.extraBed}
+                      onChange={(e) => handleRoomChange(r.id, "extraBed", e.target.checked)}
+                      className="text-blue-500 rounded"
+                    />
+                    <span className="text-sm text-gray-800">เพิ่มเตียง</span>
+                  </div>
+                  <span className="text-sm font-medium text-gray-900">
+                    ฿ {extraBedPrice.toLocaleString()}
+                  </span>
+                </label>
+              </div>
+            )
+          })}
 
           <button
+            type="button"
             onClick={addRoom}
-            className="text-[#798E75] font-bold text-sm w-full text-left flex items-center justify-between mt-2"
+            className="text-[#798E75] font-bold text-sm w-full text-left flex items-center justify-between mt-2 hover:opacity-80"
           >
             เพิ่มห้องพัก <ChevronDown size={16} />
           </button>
@@ -524,13 +579,13 @@ function ParticipantForm({
           <div className="flex gap-2">
             <button
               onClick={() => onChange("gender", "male")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg border flex items-center justify-center gap-1 ${data.gender === "male" ? "bg-[#354359] text-white border-[#354359]" : "border-gray-200"}`}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg border flex items-center justify-center gap-1 ${data.gender === "male" ? "bg-[#354359] text-white border-[#354359]" : "border-gray-200 text-black"}`}
             >
               ♂ ชาย
             </button>
             <button
               onClick={() => onChange("gender", "female")}
-              className={`flex-1 py-2 text-xs font-bold rounded-lg border flex items-center justify-center gap-1 ${data.gender === "female" ? "bg-[#354359] text-white border-[#354359]" : "border-gray-200"}`}
+              className={`flex-1 py-2 text-xs font-bold rounded-lg border flex items-center justify-center gap-1 ${data.gender === "female" ? "bg-[#354359] text-white border-[#354359]" : "border-gray-200 text-black"}`}
             >
               ♀ หญิง
             </button>
@@ -750,6 +805,19 @@ function createEmptyParticipant(
   user?: User,
 ): ParticipantData {
   const profile = user?.user_profile
+
+  let birthDate = ""
+  if (profile?.birth_date) {
+    try {
+      const d = new Date(profile.birth_date)
+      if (!isNaN(d.getTime())) {
+        birthDate = format(d, "yyyy-MM-dd")
+      }
+    } catch {
+      birthDate = ""
+    }
+  }
+
   return {
     id: `${type}-${index}`,
     type,
@@ -758,7 +826,7 @@ function createEmptyParticipant(
     level: profile?.level || "",
     idCard: profile?.id_card || profile?.passport_no || "",
     nationality: profile?.nation || "",
-    birthDate: "", // birth_date is removed from UserProfile
+    birthDate,
     firstName: profile?.first_name || "",
     lastName: profile?.last_name || "",
     gender: profile?.sex === "Male" ? "male" : profile?.sex === "Female" ? "female" : "",
