@@ -3,9 +3,6 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { X, Minus, Plus } from "lucide-react"
-import { createEnrollment } from "@/app/actions/enrollment"
-import { Toast } from "@/components/Ui/Toast/Toast"
-import { Spinner } from "@/components/Ui/Loading/Spinner"
 
 interface BookingButtonProps {
   courseId: string
@@ -27,50 +24,15 @@ export default function BookingButton({
   const childrenQuery = searchParams.get("children")
 
   const [isOpen, setIsOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [toast, setToast] = useState<{
-    message: string
-    type: "success" | "error" | "warning"
-  } | null>(null)
   const [adults, setAdults] = useState(Number(adultsQuery || 1))
   const [children, setChildren] = useState(Number(childrenQuery || 0))
 
   const totalPrice = adults * adultPrice + children * childPrice
 
-  const handleConfirm = async () => {
-    try {
-      setLoading(true)
-      const payload = {
-        course_id: courseId,
-        round_id: roundId,
-        adult_count: adults,
-        child_count: children,
-        total_amount: totalPrice,
-        deposit_amount: 0,
-        ski_equipment: false,
-        snowboard_equipment: false,
-        participants: [],
-      }
-
-      const { success, error, data } = await createEnrollment(payload)
-
-      if (!success) {
-        setToast({ message: error || "เกิดข้อผิดพลาดในการจอง", type: "error" })
-        return
-      }
-
-      setToast({ message: "จองสำเร็จแล้ว! กำลังพาท่านไปยังหน้าชำระเงิน...", type: "success" })
-      setTimeout(() => {
-        const enrollmentIdParam = data?.id ? `&enrollment_id=${data.id}` : ""
-        router.push(
-          `/payment/?course_id=${courseId}&round_id=${roundId}&adults=${adults}&children=${children}${enrollmentIdParam}`,
-        )
-      }, 1000)
-    } catch (err: any) {
-      setToast({ message: err?.message || "เกิดข้อผิดพลาดในการจอง", type: "error" })
-    } finally {
-      setLoading(false)
-    }
+  const handleConfirm = () => {
+    router.push(
+      `/booking?course_id=${courseId}&round_id=${roundId}&adults=${adults}&children=${children}`,
+    )
   }
 
   return (
@@ -163,25 +125,14 @@ export default function BookingButton({
               {/* Confirm Button */}
               <button
                 onClick={handleConfirm}
-                disabled={loading}
-                className={`w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-3.5 rounded-2xl font-bold text-[17px] transition-colors mt-2 shadow-sm flex items-center justify-center gap-2 ${
-                  loading ? "opacity-75 cursor-not-allowed" : ""
-                }`}
+                className="w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-3.5 rounded-2xl font-bold text-[17px] transition-colors mt-2 shadow-sm flex items-center justify-center gap-2"
               >
-                {loading ? (
-                  <>
-                    <Spinner size="sm" color="border-white" />
-                    <span>กำลังดำเนินการ...</span>
-                  </>
-                ) : (
-                  <span>ยืนยัน</span>
-                )}
+                <span>ยืนยัน</span>
               </button>
             </div>
           </div>
         </div>
       )}
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </>
   )
 }

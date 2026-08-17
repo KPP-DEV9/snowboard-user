@@ -18,6 +18,9 @@ import { User } from "@/types/user"
 
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
+import { createEnrollment } from "@/app/actions/enrollment"
+import { Toast } from "@/components/Ui/Toast/Toast"
+import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"
 
 interface BookingFormClientProps {
@@ -215,9 +218,99 @@ export default function BookingFormClient({
 
   const grandTotal = baseTotal + calculateExtras()
 
-  const handleNext = () => {
-    // Collect all data, possibly save to context or local storage, then push to payment page
-    router.push(`/payment/?course_id=${course.id}&round_id=${roundId}&method=credit`)
+  const [loading, setLoading] = useState(false)
+  const [toast, setToast] = useState<{
+    message: string
+    type: "success" | "error" | "warning"
+  } | null>(null)
+
+  const handleNext = async () => {
+    try {
+      setLoading(true)
+
+      const formattedParticipants = participants.map((p) => {
+        const asset_options: { asset_options_id: string; requirement_type: string }[] = []
+        if (p.rentedAssets) {
+          Object.entries(p.rentedAssets).forEach(([assetId, isRented]) => {
+            if (isRented) {
+              asset_options.push({
+                asset_options_id: assetId,
+                requirement_type: "ASSET",
+              })
+            }
+          })
+        }
+        if (p.rentedOptions) {
+          Object.entries(p.rentedOptions).forEach(([optionId, isRented]) => {
+            if (isRented) {
+              asset_options.push({
+                asset_options_id: optionId,
+                requirement_type: "OPTION",
+              })
+            }
+          })
+        }
+
+        return {
+          type: p.type === "adult" ? "ADULT" : "CHILD",
+          line_id: p.lineId || undefined,
+          id_card: p.idCard || undefined,
+          nationality: p.nationality || undefined,
+          date_of_birth: p.birthDate ? new Date(p.birthDate).toISOString() : undefined,
+          first_name: p.firstName || "",
+          last_name: p.lastName || "",
+          gender:
+            p.gender === "male"
+              ? "MALE"
+              : p.gender === "female"
+                ? "FEMALE"
+                : p.gender || undefined,
+          phone_number: p.telephone || undefined,
+          email: p.email || undefined,
+          has_medical_condition: p.hasDisease,
+          medical_condition_detail: p.hasDisease ? p.diseaseDetail : undefined,
+          has_food_allergy: p.hasAllergy,
+          food_allergy_detail: p.hasAllergy ? p.allergyDetail : undefined,
+          weight_kg: p.weight ? parseFloat(p.weight) : undefined,
+          height_cm: p.height ? parseFloat(p.height) : undefined,
+          helmet_size_us: p.hatSize || undefined,
+          glove_size_us: p.gloveSize || undefined,
+          shoe_size_us: p.shoeSize || undefined,
+          asset_options: asset_options.length > 0 ? asset_options : undefined,
+        }
+      })
+
+      const payload = {
+        course_id: course.id,
+        round_id: roundId,
+        adult_count: adultsCount,
+        child_count: childrenCount,
+        total_amount: grandTotal,
+        deposit_amount: 0,
+        ski_equipment: false,
+        snowboard_equipment: false,
+        participants: formattedParticipants,
+      }
+
+      const { success, error, data } = await createEnrollment(payload)
+
+      if (!success) {
+        setToast({ message: error || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
+        return
+      }
+
+      setToast({ message: "บันทึกการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน...", type: "success" })
+      setTimeout(() => {
+        const enrollmentIdParam = data?.id ? `&enrollment_id=${data.id}` : ""
+        router.push(
+          `/payment/?course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}${enrollmentIdParam}&method=credit`,
+        )
+      }, 1000)
+    } catch (err: any) {
+      setToast({ message: err?.message || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -434,11 +527,23 @@ export default function BookingFormClient({
       <div className="fixed bottom-0 left-0 right-0 bg-transparent p-4 z-40 max-w-lg mx-auto">
         <button
           onClick={handleNext}
-          className="w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg shadow-black/20 flex justify-center items-center gap-2"
+          disabled={loading}
+          className={`w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-4 rounded-xl font-bold text-lg transition-colors shadow-lg shadow-black/20 flex justify-center items-center gap-2 ${
+            loading ? "opacity-75 cursor-not-allowed" : ""
+          }`}
         >
-          สรุปการจอง &rarr;
+          {loading ? (
+            <>
+              <Spinner size="sm" color="border-white" />
+              <span>กำลังดำเนินการ...</span>
+            </>
+          ) : (
+            <span>สรุปการจอง &rarr;</span>
+          )}
         </button>
       </div>
+
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     </div>
   )
 }
