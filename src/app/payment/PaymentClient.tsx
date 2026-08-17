@@ -28,11 +28,21 @@ export default function PaymentClient({
 }: PaymentClientProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [paymentType, setPaymentType] = useState<"deposit" | "full">("deposit")
   const [toast, setToast] = useState<{
     message: string
     type: "success" | "error" | "warning"
   } | null>(null)
+
+  // Check if deposit was already paid
+  const isDepositAlreadyPaid = Boolean(
+    (enrollment?.deposit_amount && enrollment.deposit_amount > 0) ||
+      enrollment?.status === "deposit_paid" ||
+      enrollment?.status?.toLowerCase()?.includes("มัดจำ")
+  )
+
+  const [paymentType, setPaymentType] = useState<"deposit" | "full">(
+    isDepositAlreadyPaid ? "full" : "deposit"
+  )
 
   // Calculate prices
   const baseCoursePrice = (course.price || 0) - (course.discount || 0)
@@ -43,16 +53,24 @@ export default function PaymentClient({
   const totalAmount = enrollment?.total_amount || (fallbackTotal > 0 ? fallbackTotal : 55372.5)
   const subtotal = totalAmount / 1.07
   const vatAmount = totalAmount - subtotal
-  const depositAmount = totalAmount * 0.3
+  const depositAmount =
+    enrollment?.deposit_amount && enrollment.deposit_amount > 0
+      ? enrollment.deposit_amount
+      : totalAmount * 0.3
+  const remainingAmount = Math.max(0, totalAmount - depositAmount)
 
-  const currentPayAmount = paymentType === "deposit" ? depositAmount : totalAmount
+  const currentPayAmount = isDepositAlreadyPaid
+    ? remainingAmount
+    : paymentType === "deposit"
+      ? depositAmount
+      : totalAmount
 
   const handleConfirmPayment = async () => {
     try {
       setLoading(true)
 
-      const isDeposit = paymentType === "deposit"
-      const chosenDepositAmount = isDeposit ? depositAmount : 0
+      const isDeposit = !isDepositAlreadyPaid && paymentType === "deposit"
+      const chosenDepositAmount = isDeposit ? depositAmount : (isDepositAlreadyPaid ? depositAmount : 0)
       const newStatus = isDeposit ? "deposit_paid" : "paid"
 
       if (enrollment?.id) {
@@ -107,7 +125,7 @@ export default function PaymentClient({
   }
 
   const backUrl = enrollment?.id
-    ? `/booking?course_id=${course.id}&round_id=${roundId || ""}&adults=${adultsCount}&children=${childrenCount}`
+    ? `/mytrip`
     : `/course/${course.id}/rounds?adults=${adultsCount}&children=${childrenCount}`
 
   return (
@@ -155,39 +173,41 @@ export default function PaymentClient({
 
           {/* Radio Options List */}
           <div className="space-y-2.5">
-            {/* Option 1: Deposit */}
-            <label className="flex items-center justify-between cursor-pointer py-1">
-              <div className="flex items-center gap-3">
-                <input
-                  type="radio"
-                  name="paymentType"
-                  value="deposit"
-                  checked={paymentType === "deposit"}
-                  onChange={() => setPaymentType("deposit")}
-                  className="w-4 h-4 text-[#0066FF] border-gray-300 focus:ring-[#0066FF] cursor-pointer"
-                />
-                <span className="text-gray-900 font-medium text-sm">ชำระมัดจำ</span>
-              </div>
-              <span className="text-gray-900 font-medium text-sm">
-                ฿ {numeral(depositAmount).format("0,0.00")}
-              </span>
-            </label>
+            {/* If deposit is NOT paid yet, show "ชำระมัดจำ" option */}
+            {!isDepositAlreadyPaid && (
+              <label className="flex items-center justify-between cursor-pointer py-1">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="radio"
+                    name="paymentType"
+                    value="deposit"
+                    checked={paymentType === "deposit"}
+                    onChange={() => setPaymentType("deposit")}
+                    className="w-4 h-4 text-[#0066FF] border-gray-300 focus:ring-[#0066FF] cursor-pointer"
+                  />
+                  <span className="text-gray-900 font-medium text-sm">ชำระมัดจำ</span>
+                </div>
+                <span className="text-gray-900 font-medium text-sm">
+                  ฿ {numeral(depositAmount).format("0,0.00")}
+                </span>
+              </label>
+            )}
 
-            {/* Option 2: Full Amount */}
+            {/* Full Amount / Remaining Amount Option */}
             <label className="flex items-center justify-between cursor-pointer py-1">
               <div className="flex items-center gap-3">
                 <input
                   type="radio"
                   name="paymentType"
                   value="full"
-                  checked={paymentType === "full"}
+                  checked={paymentType === "full" || isDepositAlreadyPaid}
                   onChange={() => setPaymentType("full")}
                   className="w-4 h-4 text-[#0066FF] border-gray-300 focus:ring-[#0066FF] cursor-pointer"
                 />
                 <span className="text-gray-900 font-medium text-sm">ชำระเต็มจำนวน</span>
               </div>
               <span className="text-gray-900 font-medium text-sm">
-                ฿ {numeral(totalAmount).format("0,0.00")}
+                ฿ {numeral(isDepositAlreadyPaid ? remainingAmount : totalAmount).format("0,0.00")}
               </span>
             </label>
           </div>
@@ -195,8 +215,8 @@ export default function PaymentClient({
           {/* Divider */}
           <div className="border-t border-gray-100 my-4" />
 
-          {/* Deposit Instructions (Only shown when "ชำระมัดจำ" is selected) */}
-          {paymentType === "deposit" && (
+          {/* Deposit Instructions (Only shown when "ชำระมัดจำ" is selected and deposit not yet paid) */}
+          {!isDepositAlreadyPaid && paymentType === "deposit" && (
             <div className="text-center py-2 mb-4">
               <div className="text-gray-900 font-bold text-sm mb-1.5">
                 ชำระเงินเพื่อยืนยันการจอง 30% ของราคาทริป

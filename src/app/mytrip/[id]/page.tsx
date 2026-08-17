@@ -65,8 +65,14 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
 
   const course = enrollment.course
   const participants = enrollment.participants || []
-  const adultCount = enrollment.adult_count ?? 1
-  const childCount = enrollment.child_count ?? 0
+  const adultCount =
+    enrollment.adult_count ||
+    participants.filter((p) => (p.type || "").toUpperCase() === "ADULT").length ||
+    1
+  const childCount =
+    enrollment.child_count ||
+    participants.filter((p) => (p.type || "").toUpperCase() === "CHILD").length ||
+    0
   const totalAmount = enrollment.total_amount || course?.price || 0
   const depositAmount = enrollment.deposit_amount || 0
 
@@ -78,28 +84,41 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     : "-"
 
   const statusLower = (enrollment.status || "").toLowerCase()
-  const isPendingPayment =
-    !enrollment.status ||
-    statusLower === "pending_payment" ||
-    statusLower === "pending" ||
-    statusLower.includes("pending") ||
-    statusLower.includes("รอชำระ") ||
-    statusLower.includes("รอการชำระ")
+  const isDepositPaid =
+    statusLower === "deposit_paid" ||
+    (depositAmount > 0 && statusLower !== "paid" && statusLower !== "completed")
 
-  const getStatusDisplay = (status: string) => {
-    const s = (status || "").toLowerCase()
-    if (s === "paid" || s.includes("paid") || s.includes("ชำระแล้ว")) {
+  const isPaid =
+    statusLower === "paid" ||
+    statusLower === "completed" ||
+    statusLower === "ชำระแล้ว" ||
+    statusLower === "ชำระสำเร็จ"
+
+  const isCancelled =
+    statusLower === "cancelled" || statusLower === "canceled" || statusLower.includes("ยกเลิก")
+
+  const isPendingPayment = !isPaid && !isCancelled
+
+  const getStatusDisplay = () => {
+    if (isPaid) {
       return {
         title: "ชำระเงินเรียบร้อยแล้ว",
         badgeBg: "bg-[#E5F0FF] text-[#0056D2]",
         icon: <CheckCircle2 size={16} className="text-[#0056D2]" />,
       }
     }
-    if (s === "cancelled" || s === "canceled" || s.includes("cancel") || s.includes("ยกเลิก")) {
+    if (isCancelled) {
       return {
         title: "ยกเลิกแล้ว",
         badgeBg: "bg-[#FFE5E5] text-[#F04E23]",
         icon: <XCircle size={16} className="text-[#F04E23]" />,
+      }
+    }
+    if (isDepositPaid) {
+      return {
+        title: "มัดจำแล้ว (รอชำระส่วนที่เหลือ)",
+        badgeBg: "bg-[#FEF3C7] text-[#D97706]",
+        icon: <Clock size={16} className="text-[#D97706]" />,
       }
     }
     return {
@@ -109,7 +128,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     }
   }
 
-  const statusInfo = getStatusDisplay(enrollment.status)
+  const statusInfo = getStatusDisplay()
 
   return (
     <LayoutPage isLicense={false}>
@@ -140,12 +159,6 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                     {course.course_level}
                   </span>
                 )}
-              </div>
-              <div
-                className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold ${statusInfo.badgeBg}`}
-              >
-                {statusInfo.icon}
-                <span>{statusInfo.title}</span>
               </div>
             </div>
 
@@ -196,7 +209,8 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               <div className="flex justify-between text-gray-600">
                 <span>จำนวนผู้จองทั้งหมด</span>
                 <span className="font-bold text-gray-900">
-                  {adultCount + childCount} ท่าน (ผู้ใหญ่ {adultCount}, เด็ก {childCount})
+                  {adultCount + childCount} ท่าน (ผู้ใหญ่ {adultCount}
+                  {childCount > 0 ? `, เด็ก ${childCount}` : ""})
                 </span>
               </div>
               {depositAmount > 0 && (
@@ -207,11 +221,20 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   </span>
                 </div>
               )}
-              <div className="flex justify-between text-gray-600">
+              {isDepositPaid && (
+                <div className="flex justify-between text-gray-600">
+                  <span>ยอดคงเหลือที่ต้องชำระ</span>
+                  <span className="font-bold text-[#D97706]">
+                    ฿ {numeral(Math.max(0, totalAmount - depositAmount)).format("0,0.00")}
+                  </span>
+                </div>
+              )}
+              <div className="flex justify-between text-gray-600 items-center">
                 <span>สถานะ</span>
                 <div
                   className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold ${statusInfo.badgeBg}`}
                 >
+                  {statusInfo.icon}
                   <span>{statusInfo.title}</span>
                 </div>
               </div>
@@ -224,7 +247,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               </span>
             </div>
 
-            {/* Pending Payment Action */}
+            {/* Pending / Remaining Payment Action */}
             {isPendingPayment && (
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <Link
@@ -232,7 +255,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   className="w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-3.5 rounded-2xl font-bold text-[16px] transition-colors shadow-md flex items-center justify-center gap-2 text-center"
                 >
                   <CreditCard size={18} />
-                  ชำระเงิน
+                  {isDepositPaid ? "ชำระเงินส่วนที่เหลือ" : "ชำระเงิน"}
                 </Link>
               </div>
             )}

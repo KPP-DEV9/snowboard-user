@@ -2,7 +2,7 @@ import { Course } from "./course"
 import { Payment } from "./payment"
 import { User } from "./user"
 
-type EnrollmentStatus = "pending_payment" | "paid" | "cancelled"
+type EnrollmentStatus = "pending_payment" | "deposit_paid" | "paid" | "cancelled" | string
 
 export interface Enrollment {
   id: string
