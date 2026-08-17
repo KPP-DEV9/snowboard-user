@@ -9,6 +9,7 @@ import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { Course } from "@/types/course"
 import { Enrollment } from "@/types/enrollment"
+import { createEnrollment, updateEnrollment } from "@/app/actions/enrollment"
 
 interface PaymentClientProps {
   course: Course
@@ -27,6 +28,7 @@ export default function PaymentClient({
 }: PaymentClientProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [paymentType, setPaymentType] = useState<"deposit" | "full">("deposit")
   const [toast, setToast] = useState<{
     message: string
     type: "success" | "error" | "warning"
@@ -43,11 +45,48 @@ export default function PaymentClient({
   const vatAmount = totalAmount - subtotal
   const depositAmount = totalAmount * 0.3
 
+  const currentPayAmount = paymentType === "deposit" ? depositAmount : totalAmount
+
   const handleConfirmPayment = async () => {
     try {
       setLoading(true)
-      // Simulate/trigger payment processing
-      await new Promise((resolve) => setTimeout(resolve, 800))
+
+      const isDeposit = paymentType === "deposit"
+      const chosenDepositAmount = isDeposit ? depositAmount : 0
+      const newStatus = isDeposit ? "deposit_paid" : "paid"
+
+      if (enrollment?.id) {
+        const res = await updateEnrollment(enrollment.id, {
+          deposit_amount: chosenDepositAmount,
+          status: newStatus,
+          total_amount: totalAmount,
+        })
+
+        if (!res.success) {
+          setToast({
+            message: res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระเงิน",
+            type: "error",
+          })
+          return
+        }
+      } else {
+        const res = await createEnrollment({
+          course_id: course.id,
+          round_id: roundId || "",
+          adult_count: adultsCount || 1,
+          child_count: childrenCount || 0,
+          total_amount: totalAmount,
+          deposit_amount: chosenDepositAmount,
+        })
+
+        if (!res.success) {
+          setToast({
+            message: res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระเงิน",
+            type: "error",
+          })
+          return
+        }
+      }
 
       setToast({
         message: "การชำระเงินสำเร็จ! กำลังพาท่านไปยังหน้ารายการทริป...",
@@ -56,7 +95,7 @@ export default function PaymentClient({
 
       setTimeout(() => {
         router.push("/mytrip")
-      }, 1200)
+      }, 1000)
     } catch (err: any) {
       setToast({
         message: err?.message || "เกิดข้อผิดพลาดในการชำระเงิน",
@@ -110,33 +149,80 @@ export default function PaymentClient({
         </div>
 
         {/* White Payment Card */}
-        <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl flex flex-col items-center text-center">
-          {/* Deposit Tag */}
-          <div className="bg-[#FFF4E5] text-[#D4411C] px-6 py-2 rounded-full text-[15px] font-extrabold mb-6 inline-block tracking-wide">
-            ชำระเงินมัดจำ
+        <div className="bg-white rounded-[2rem] p-6 md:p-8 shadow-2xl flex flex-col text-black">
+          {/* Radio Options Header */}
+          <h3 className="text-gray-900 font-bold text-base mb-3.5">เลือกรูปแบบชำระเงิน</h3>
+
+          {/* Radio Options List */}
+          <div className="space-y-2.5">
+            {/* Option 1: Deposit */}
+            <label className="flex items-center justify-between cursor-pointer py-1">
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="paymentType"
+                  value="deposit"
+                  checked={paymentType === "deposit"}
+                  onChange={() => setPaymentType("deposit")}
+                  className="w-4 h-4 text-[#0066FF] border-gray-300 focus:ring-[#0066FF] cursor-pointer"
+                />
+                <span className="text-gray-900 font-medium text-sm">ชำระมัดจำ</span>
+              </div>
+              <span className="text-gray-900 font-medium text-sm">
+                ฿ {numeral(depositAmount).format("0,0.00")}
+              </span>
+            </label>
+
+            {/* Option 2: Full Amount */}
+            <label className="flex items-center justify-between cursor-pointer py-1">
+              <div className="flex items-center gap-3">
+                <input
+                  type="radio"
+                  name="paymentType"
+                  value="full"
+                  checked={paymentType === "full"}
+                  onChange={() => setPaymentType("full")}
+                  className="w-4 h-4 text-[#0066FF] border-gray-300 focus:ring-[#0066FF] cursor-pointer"
+                />
+                <span className="text-gray-900 font-medium text-sm">ชำระเต็มจำนวน</span>
+              </div>
+              <span className="text-gray-900 font-medium text-sm">
+                ฿ {numeral(totalAmount).format("0,0.00")}
+              </span>
+            </label>
           </div>
 
-          {/* Deposit Amount */}
-          <div className="text-[34px] md:text-[38px] font-extrabold text-gray-900 tracking-tight mb-6">
-            ฿ {numeral(depositAmount).format("0,0.00")}
-          </div>
+          {/* Divider */}
+          <div className="border-t border-gray-100 my-4" />
 
-          {/* Description / Instructions */}
-          <div className="text-gray-900 font-bold text-[15px] md:text-[16px] mb-2">
-            ชำระเงินเพื่อยืนยันการจอง 30% ของราคาทริป
-          </div>
+          {/* Deposit Instructions (Only shown when "ชำระมัดจำ" is selected) */}
+          {paymentType === "deposit" && (
+            <div className="text-center py-2 mb-4">
+              <div className="text-gray-900 font-bold text-sm mb-1.5">
+                ชำระเงินเพื่อยืนยันการจอง 30% ของราคาทริป
+              </div>
 
-          <div className="text-gray-400 text-[12px] md:text-[13px] leading-relaxed mb-8 max-w-xs space-y-0.5 font-normal">
-            <p>โดยส่วนที่เหลือจะต้องชำระก่อนวันเดินทาง 30 วัน โดยระบบ</p>
-            <p>จะทำการแจ้งเตือนให้ชำระเงินผ่าน Line</p>
-            <p className="pt-0.5">**กรณียกเลิกขอสงวนสิทธิ์ในการคืนมัดจำ</p>
+              <div className="text-gray-400 text-[11px] md:text-xs leading-relaxed space-y-0.5 font-normal">
+                <p>โดยส่วนที่เหลือจะต้องชำระก่อนวันเดินทาง 30 วัน โดยระบบ</p>
+                <p>จะทำการแจ้งเตือนให้ชำระเงินผ่าน Line</p>
+                <p className="pt-0.5">**กรณียกเลิกขอสงวนสิทธิ์ในการคืนมัดจำ</p>
+              </div>
+            </div>
+          )}
+
+          {/* Pay Amount Row */}
+          <div className="flex items-center justify-between my-3">
+            <span className="text-gray-900 font-bold text-sm">ยอดชำระ:</span>
+            <span className="text-gray-900 font-extrabold text-2xl md:text-[28px] tracking-tight">
+              ฿ {numeral(currentPayAmount).format("0,0.00")}
+            </span>
           </div>
 
           {/* Confirm Button */}
           <button
             onClick={handleConfirmPayment}
             disabled={loading}
-            className={`w-full bg-[#D4411C] hover:bg-[#B93816] text-white py-4 rounded-2xl font-extrabold text-lg transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer ${
+            className={`w-full bg-[#D4411C] hover:bg-[#B93816] text-white py-3.5 rounded-2xl font-bold text-base transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer mt-3 ${
               loading ? "opacity-75 cursor-not-allowed" : ""
             }`}
           >

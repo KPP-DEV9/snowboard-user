@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, MapPin, CalendarDays, ChevronDown } from "lucide-react"
 import { RenderDate } from "@/lib/date"
@@ -12,6 +13,7 @@ interface MyTripClientProps {
 }
 
 export default function MyTripClient({ enrollments }: MyTripClientProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<"all" | "upcoming" | "past">("all")
   const [typeFilter, setTypeFilter] = useState<"all" | "snowboard" | "ski">("all")
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false)
@@ -69,30 +71,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
     return `${RenderDate(start, "d MMM yyyy")} - ${RenderDate(end, "d MMM yyyy")}`
   }
 
-  const getStatusBadge = (status: string) => {
-    const s = (status || "").toLowerCase()
-    if (s === "paid" || s.includes("ชำระแล้ว")) {
-      return (
-        <span className="bg-[#E0F2FE] text-[#0284C7] px-3 py-1 rounded-[6px] text-[12px] font-bold inline-block">
-          ชำระแล้ว
-        </span>
-      )
-    }
-    if (s === "cancelled" || s === "canceled" || s.includes("ยกเลิก")) {
-      return (
-        <span className="bg-[#FEE2E2] text-[#EF4444] px-3 py-1 rounded-[6px] text-[12px] font-bold inline-block">
-          ยกเลิก
-        </span>
-      )
-    }
-    // pending / default
-    return (
-      <span className="bg-[#FEF3C7] text-[#D97706] px-3 py-1 rounded-[6px] text-[12px] font-bold inline-block">
-        รอชำระ
-      </span>
-    )
-  }
-
   const getTypeLabel = () => {
     if (typeFilter === "snowboard") return "Snowboard"
     if (typeFilter === "ski") return "Ski"
@@ -127,10 +105,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
 
             {isTypeDropdownOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsTypeDropdownOpen(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setIsTypeDropdownOpen(false)} />
                 <div className="absolute left-0 top-full mt-2 w-36 bg-white rounded-2xl shadow-xl py-2 z-50 border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
                   <button
                     onClick={() => {
@@ -204,12 +179,13 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
           ) : (
             filteredEnrollments.map((enrollment) => {
               const course = enrollment.course
-              const totalAmount =
-                enrollment.total_amount || course?.price || 0
+              const totalAmount = enrollment.total_amount || course?.price || 55372.5
+              const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
+              const remainingAmount = totalAmount - depositAmount
 
               const isSki = course?.course_type?.toLowerCase()?.includes("ski")
               const programType = isSki ? "Ski" : "Snowboard"
-              const badgeBg = isSki ? "bg-[#D97706]" : "bg-[#0066FF]"
+              const badgeBg = isSki ? "bg-[#E67E22]" : "bg-[#0066FF]"
 
               // Generate clean code matching AE0342349-E032 format
               const shortId = enrollment.id
@@ -217,84 +193,168 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 : "E032"
               const itemCode = `AE0342349-${shortId}`
 
-              const isPending =
-                !enrollment.status ||
-                enrollment.status.toLowerCase() === "pending_payment" ||
-                enrollment.status.toLowerCase() === "pending" ||
-                enrollment.status.toLowerCase().includes("รอชำระ")
+              const statusLower = (enrollment.status || "").toLowerCase()
+              const isPaid =
+                statusLower === "paid" ||
+                statusLower === "completed" ||
+                statusLower.includes("ชำระแล้ว") ||
+                statusLower.includes("ชำระสำเร็จ")
+              const isCancelled =
+                statusLower === "cancelled" ||
+                statusLower === "canceled" ||
+                statusLower.includes("ยกเลิก")
+              const isDepositPaid =
+                statusLower === "deposit_paid" || statusLower.includes("มัดจำแล้ว")
+
+              // Determine payment link
+              const paymentUrl = `/payment/?course_id=${course?.id || enrollment.course_id}&round_id=${enrollment.round_id || ""}&enrollment_id=${enrollment.id}&adults=${enrollment.adult_count || 1}&children=${enrollment.child_count || 0}`
 
               return (
-                <Link
+                <div
                   key={enrollment.id}
-                  href={`/mytrip/${enrollment.id}`}
-                  className="block group cursor-pointer"
+                  onClick={() => router.push(`/mytrip/${enrollment.id}`)}
+                  className="bg-white rounded-[1.75rem] p-5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer text-black"
                 >
-                  <div className="bg-white rounded-[1.75rem] p-5 md:p-6 shadow-md hover:shadow-xl transition-all duration-200">
-                    {/* Top Row: Badge + Code */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <span
-                        className={`${badgeBg} text-white text-[11px] font-bold px-2.5 py-0.5 rounded-[6px] tracking-wide`}
-                      >
-                        {programType}
-                      </span>
-                      <span className="text-gray-400 text-[13px] font-medium">
-                        เลขที่รายการ {itemCode}
+                  {/* Top Row: Badge + Code */}
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className={`${badgeBg} text-white text-[11px] font-bold px-2.5 py-0.5 rounded-[5px] tracking-wide`}
+                    >
+                      {programType}
+                    </span>
+                    <span className="text-gray-400 text-[13px] font-medium">
+                      เลขที่รายการ {itemCode}
+                    </span>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-gray-900 font-extrabold text-[16px] leading-snug mb-2 line-clamp-2">
+                    {course?.title || "ทริปสโนว์บอร์ด โตเกียว สำหรับผู้เริ่มต้น 6 วัน 5 คืน"}
+                  </h3>
+
+                  {/* Location & Date */}
+                  <div className="space-y-1 mb-3">
+                    <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
+                      <MapPin size={15} className="text-gray-400 shrink-0" />
+                      <span>
+                        {course?.district ? `${course.district}, ` : ""}
+                        {course?.province || "โตเกียว, ญี่ปุ่น"}
                       </span>
                     </div>
-
-                    {/* Title */}
-                    <h3 className="text-gray-900 font-extrabold text-[17px] leading-snug mb-3 line-clamp-2">
-                      {course?.title || "ทริปสโนว์บอร์ด"}
-                    </h3>
-
-                    {/* Location & Date */}
-                    <div className="space-y-1 mb-4">
-                      <div className="flex items-center gap-2 text-gray-500 text-[13px] font-medium">
-                        <MapPin size={16} className="text-gray-400 shrink-0" />
-                        <span>
-                          {course?.district ? `${course.district}, ` : ""}
-                          {course?.province || "ญี่ปุ่น"}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-500 text-[13px] font-medium">
-                        <CalendarDays size={16} className="text-gray-400 shrink-0" />
-                        <span>
-                          {formatDateRange(course?.start_date, course?.end_date)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Price Section */}
-                    <div className="flex flex-col items-end mb-2">
-                      <span className="text-[12px] text-gray-400 font-medium">
-                        ราคาทริปทั้งหมด
-                      </span>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-[#0066FF] font-extrabold text-[20px]">
-                          ฿
-                        </span>
-                        <span className="text-gray-900 font-extrabold text-[22px] tracking-tight">
-                          {numeral(totalAmount).format("0,0.00")}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Bottom Status / Due Info Row */}
-                    <div className="flex items-center justify-between min-h-[28px] pt-1">
-                      <div>
-                        {isPending ? (
-                          <div className="text-[12px] text-gray-800 font-medium">
-                            ยอดชำระ: {numeral(totalAmount).format("0,0.00")} | ชำระก่อน{" "}
-                            {RenderDate(course?.start_date, "d MMMM yyyy")}
-                          </div>
-                        ) : (
-                          <span />
-                        )}
-                      </div>
-                      <div>{getStatusBadge(enrollment.status)}</div>
+                    <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
+                      <CalendarDays size={15} className="text-gray-400 shrink-0" />
+                      <span>{formatDateRange(course?.start_date, course?.end_date)}</span>
                     </div>
                   </div>
-                </Link>
+
+                  {/* Pricing Breakdown & Status Rows */}
+                  <div className="border-t border-gray-100 pt-3 space-y-1.5 text-[13px]">
+                    {/* Scenario 3: Fully Paid */}
+                    {isPaid ? (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-900 font-bold">
+                            ฿ {numeral(totalAmount).format("0,0.00")}
+                          </span>
+                          <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                            ชำระสำเร็จ
+                          </span>
+                        </div>
+                      </div>
+                    ) : isCancelled ? (
+                      /* Scenario 4: Cancelled */
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-900 font-bold">
+                            ฿ {numeral(totalAmount).format("0,0.00")}
+                          </span>
+                          <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                            ยกเลิก
+                          </span>
+                        </div>
+                      </div>
+                    ) : isDepositPaid ? (
+                      /* Scenario 1: Deposit Paid, Balance Pending */
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                          <span className="text-gray-900 font-bold">
+                            ฿ {numeral(totalAmount).format("0,0.00")}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">ยอดมัดจำ</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-900 font-bold">
+                              ฿ {numeral(depositAmount).format("0,0.00")}
+                            </span>
+                            <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                              มัดจำแล้ว
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-900 font-bold">
+                              ฿ {numeral(remainingAmount).format("0,0.00")}
+                            </span>
+                            <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                              รอชำระ
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex justify-end pt-1">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              router.push(paymentUrl)
+                            }}
+                            className="bg-[#C84323] hover:bg-[#B93816] text-white px-7 py-2 rounded-xl font-bold text-[13px] shadow-sm transition-colors cursor-pointer"
+                          >
+                            ชำระเงิน
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      /* Scenario 2: Deposit Pending (Default Pending) */
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                          <span className="text-gray-900 font-bold">
+                            ฿ {numeral(totalAmount).format("0,0.00")}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-700 font-medium">ยอดมัดจำ</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-900 font-bold">
+                              ฿ {numeral(depositAmount).format("0,0.00")}
+                            </span>
+                            {/* <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                              รอชำระ
+                            </span> */}
+                          </div>
+                        </div>
+                        <div className="flex justify-end pt-1">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              router.push(paymentUrl)
+                            }}
+                            className="bg-[#C84323] hover:bg-[#B93816] text-white px-7 py-2 rounded-xl font-bold text-[13px] shadow-sm transition-colors cursor-pointer"
+                          >
+                            ชำระเงิน
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               )
             })
           )}

@@ -27,6 +27,33 @@ export async function createEnrollment(data: CreateEnrollmentRequest) {
   }
 }
 
+export async function updateEnrollment(
+  id: string,
+  data: Partial<CreateEnrollmentRequest> & { status?: string; deposit_amount?: number; total_amount?: number },
+) {
+  try {
+    const res = await api.enrollment.update<Enrollment>(id, data)
+
+    if (!res?.success) {
+      return {
+        success: false,
+        error: res.message || "Failed to update enrollment",
+      }
+    }
+    revalidatePath("/", "layout")
+    revalidatePath("/mytrip", "page")
+    return {
+      success: true,
+      data: res.data,
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Failed to update enrollment",
+    }
+  }
+}
+
 export async function getEnrollmentByUserID(page: number = 1, limit: number = 10) {
   try {
     const res = await api.enrollment.getByUserID<Enrollment[]>()

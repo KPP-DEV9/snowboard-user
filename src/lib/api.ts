@@ -281,6 +281,16 @@ export const api = {
         method: "POST",
         body: JSON.stringify(data),
       }),
+    update: <T>(
+      id: string,
+      data: any,
+      options?: Omit<RequestInit, "method" | "body">,
+    ) =>
+      fetchWrapper<T>(`enrollments/${id}`, {
+        ...options,
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
     getByUserID: <T>(options?: Omit<RequestInit, "method" | "body">) =>
       fetchWrapper<T>(`enrollments/user`, {
         ...options,
@@ -302,6 +312,17 @@ export const api = {
         ...options,
         method: "GET",
         cache: "no-store",
+      }),
+  },
+  payment: {
+    create: <T>(
+      data: any,
+      options?: Omit<RequestInit, "method" | "body">,
+    ) =>
+      fetchWrapper<T>(`payments`, {
+        ...options,
+        method: "POST",
+        body: JSON.stringify(data),
       }),
   },
   rounds: {
