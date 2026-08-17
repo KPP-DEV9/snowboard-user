@@ -36,19 +36,18 @@ export default function PaymentClient({
   // Check if deposit was already paid
   const isDepositAlreadyPaid = Boolean(
     (enrollment?.deposit_amount && enrollment.deposit_amount > 0) ||
-      enrollment?.status === "deposit_paid" ||
-      enrollment?.status?.toLowerCase()?.includes("มัดจำ")
+    enrollment?.status === "deposit_paid" ||
+    enrollment?.status?.toLowerCase()?.includes("มัดจำ"),
   )
 
   const [paymentType, setPaymentType] = useState<"deposit" | "full">(
-    isDepositAlreadyPaid ? "full" : "deposit"
+    isDepositAlreadyPaid ? "full" : "deposit",
   )
 
   // Calculate prices
   const baseCoursePrice = (course.price || 0) - (course.discount || 0)
   const baseChildPrice = (course.child_price || 0) - (course.discount || 0)
-  const fallbackTotal =
-    baseCoursePrice * (adultsCount || 1) + baseChildPrice * (childrenCount || 0)
+  const fallbackTotal = baseCoursePrice * (adultsCount || 1) + baseChildPrice * (childrenCount || 0)
 
   const totalAmount = enrollment?.total_amount || (fallbackTotal > 0 ? fallbackTotal : 55372.5)
   const subtotal = totalAmount / 1.07
@@ -70,11 +69,22 @@ export default function PaymentClient({
       setLoading(true)
 
       const isDeposit = !isDepositAlreadyPaid && paymentType === "deposit"
-      const chosenDepositAmount = isDeposit ? depositAmount : (isDepositAlreadyPaid ? depositAmount : 0)
+      const chosenDepositAmount = isDeposit
+        ? depositAmount
+        : isDepositAlreadyPaid
+          ? depositAmount
+          : 0
       const newStatus = isDeposit ? "deposit_paid" : "paid"
+
+      const effectiveAdults = Number(enrollment?.adult_count || adultsCount || 1)
+      const effectiveChildren = Number(enrollment?.child_count ?? childrenCount ?? 0)
 
       if (enrollment?.id) {
         const res = await updateEnrollment(enrollment.id, {
+          course_id: enrollment.course_id || course.id,
+          round_id: enrollment.round_id || roundId || "",
+          adult_count: effectiveAdults,
+          child_count: effectiveChildren,
           deposit_amount: chosenDepositAmount,
           status: newStatus,
           total_amount: totalAmount,
@@ -91,10 +101,11 @@ export default function PaymentClient({
         const res = await createEnrollment({
           course_id: course.id,
           round_id: roundId || "",
-          adult_count: adultsCount || 1,
-          child_count: childrenCount || 0,
+          adult_count: effectiveAdults,
+          child_count: effectiveChildren,
           total_amount: totalAmount,
           deposit_amount: chosenDepositAmount,
+          req_total: 0,
         })
 
         if (!res.success) {
@@ -144,24 +155,68 @@ export default function PaymentClient({
 
         {/* Course Title & Price Summary */}
         <div className="mb-6">
-          <h2 className="text-white font-extrabold text-[17px] md:text-[19px] leading-snug mb-5">
+          <h2 className="text-white font-extrabold text-[17px] md:text-[19px] leading-snug mb-4">
             {course.title}
           </h2>
 
-          <div className="space-y-2 text-[15px]">
-            <div className="flex justify-between items-center text-white">
-              <span className="font-normal text-white/90">รายการทั้งหมด</span>
-              <span className="font-medium">฿ {numeral(subtotal).format("0,0.00")}</span>
+          <div className="space-y-2 text-[14px] md:text-[15px]">
+            {/* 1. Base trip cost for adults */}
+            <div className="flex justify-between items-center text-white/95">
+              <span className="font-normal">ค่าทริปผู้ใหญ่ ({adultsCount} ท่าน)</span>
+              <span className="font-medium">
+                ฿ {numeral(baseCoursePrice * (adultsCount || 1)).format("0,0.00")}
+              </span>
             </div>
 
-            <div className="flex justify-between items-center text-white">
-              <span className="font-normal text-white/90">ภาษี Vat 7%</span>
-              <span className="font-medium">฿ {numeral(vatAmount).format("0,0.00")}</span>
-            </div>
+            {/* 2. Base trip cost for children if any */}
+            {childrenCount > 0 && (
+              <div className="flex justify-between items-center text-white/95">
+                <span className="font-normal">ค่าทริปเด็ก ({childrenCount} ท่าน)</span>
+                <span className="font-medium">
+                  ฿ {numeral(baseChildPrice * childrenCount).format("0,0.00")}
+                </span>
+              </div>
+            )}
 
-            <div className="flex justify-between items-center text-white pt-1">
-              <span className="font-normal text-white/90">ยอดทั้งหมด</span>
-              <span className="font-bold">฿ {numeral(totalAmount).format("0,0.00")}</span>
+            {/* 3. Extra items (Requirement Transactions) */}
+            {enrollment?.requirement_transactions &&
+              enrollment.requirement_transactions.map((item, idx) => {
+                const isAsset = item.requirement_type === "ASSET"
+                const name = isAsset
+                  ? `${item.asset_master?.name || "เช่าอุปกรณ์"}${
+                      item.asset_master?.size ? ` (${item.asset_master.size})` : ""
+                    }`
+                  : item.option_master?.name || "บริการเพิ่มเติม"
+                const price = isAsset
+                  ? item.asset_master?.price || 0
+                  : item.option_master?.price || 0
+
+                return (
+                  <div key={item.id || idx} className="flex justify-between items-center text-white/95">
+                    <span className="font-normal truncate max-w-[270px]">• {name}</span>
+                    <span className="font-medium shrink-0">
+                      ฿ {numeral(price).format("0,0.00")}
+                    </span>
+                  </div>
+                )
+              })}
+
+            {/* Divider */}
+            <div className="border-t border-white/20 pt-2.5 mt-2 space-y-2">
+              <div className="flex justify-between items-center text-white">
+                <span className="font-normal text-white/90">รายการทั้งหมด</span>
+                <span className="font-medium">฿ {numeral(subtotal).format("0,0.00")}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-white">
+                <span className="font-normal text-white/90">ภาษี Vat 7%</span>
+                <span className="font-medium">฿ {numeral(vatAmount).format("0,0.00")}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-white pt-1">
+                <span className="font-normal text-white/90">ยอดทั้งหมด</span>
+                <span className="font-bold text-lg">฿ {numeral(totalAmount).format("0,0.00")}</span>
+              </div>
             </div>
           </div>
         </div>

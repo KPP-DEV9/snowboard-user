@@ -24,7 +24,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
   const adultsQuery = resolvedSearchParams.adults
   const childrenQuery = resolvedSearchParams.children
 
-  const total_user = Number(adultsQuery) + Number(childrenQuery)
+  const total_user = Number(adultsQuery) + Number(childrenQuery) || 0
 
   const { success, data: course } = await getCourseById(id, 0)
 

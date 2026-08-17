@@ -230,13 +230,19 @@ export default function BookingFormClient({
       setLoading(true)
 
       const formattedParticipants = participants.map((p) => {
-        const asset_options: { asset_options_id: string; requirement_type: string }[] = []
+        const asset_options: {
+          asset_options_id: string
+          requirement_type: string
+          price?: number
+        }[] = []
         if (p.rentedAssets) {
           Object.entries(p.rentedAssets).forEach(([assetId, isRented]) => {
             if (isRented) {
+              const assetObj = assets.find((a) => a.id === assetId)
               asset_options.push({
                 asset_options_id: assetId,
                 requirement_type: "ASSET",
+                price: assetObj?.price || 0,
               })
             }
           })
@@ -244,9 +250,11 @@ export default function BookingFormClient({
         if (p.rentedOptions) {
           Object.entries(p.rentedOptions).forEach(([optionId, isRented]) => {
             if (isRented) {
+              const optObj = options.find((o) => o.id === optionId)
               asset_options.push({
                 asset_options_id: optionId,
                 requirement_type: "OPTION",
+                price: optObj?.price || 0,
               })
             }
           })
@@ -261,6 +269,8 @@ export default function BookingFormClient({
             }
           } catch {}
         }
+
+        const reqTotal = asset_options.reduce((sum, item) => sum + (item.price || 0), 0)
 
         return {
           type: p.type === "adult" ? "ADULT" : "CHILD",
@@ -288,19 +298,21 @@ export default function BookingFormClient({
           glove_size_us: p.gloveSize || undefined,
           shoe_size_us: p.shoeSize && p.shoeSize !== "0" ? p.shoeSize : undefined,
           asset_options: asset_options.length > 0 ? asset_options : undefined,
+          req_total: reqTotal,
         }
       })
 
       const payload: CreateEnrollmentRequest = {
         course_id: course.id,
         round_id: roundId,
-        adult_count: adultsCount,
-        child_count: childrenCount,
+        adult_count: Number(adultsCount) || 1,
+        child_count: Number(childrenCount) || 0,
         total_amount: grandTotal,
         deposit_amount: 0,
         ski_equipment: false,
         snowboard_equipment: false,
         participants: formattedParticipants,
+        req_total: formattedParticipants.reduce((sum, item) => sum + (item.req_total || 0), 0),
       }
 
       const { success, error, data } = await createEnrollment(payload)
@@ -562,6 +574,52 @@ export default function BookingFormClient({
   )
 }
 
+const WEIGHT_OPTIONS = Array.from({ length: 121 }, (_, i) => (i + 30).toString())
+const HEIGHT_OPTIONS = Array.from({ length: 131 }, (_, i) => (i + 90).toString())
+const HAT_SIZE_OPTIONS = ["S", "M", "L", "XL", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10"]
+const GLOVE_SIZE_OPTIONS = [
+  "S",
+  "M",
+  "L",
+  "XL",
+  "6",
+  "6.5",
+  "7",
+  "7.5",
+  "8",
+  "8.5",
+  "9",
+  "9.5",
+  "10",
+]
+const SHOE_SIZE_OPTIONS = [
+  "3",
+  "3.5",
+  "4",
+  "4.5",
+  "5",
+  "5.5",
+  "6",
+  "6.5",
+  "7",
+  "7.5",
+  "8",
+  "8.5",
+  "9",
+  "9.5",
+  "10",
+  "10.5",
+  "11",
+  "11.5",
+  "12",
+  "12.5",
+  "13",
+  "13.5",
+  "14",
+  "14.5",
+  "15",
+]
+
 function ParticipantForm({
   data,
   onChange,
@@ -672,7 +730,7 @@ function ParticipantForm({
             value={data.firstName}
             onChange={(e) => onChange("firstName", e.target.value)}
             className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
-            placeholder="พัชราภา"
+            placeholder="ชื่อ"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -684,7 +742,7 @@ function ParticipantForm({
             value={data.lastName}
             onChange={(e) => onChange("lastName", e.target.value)}
             className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
-            placeholder="ภิรมย์ภักดี"
+            placeholder="นามสกุล"
           />
         </div>
       </div>
@@ -726,15 +784,13 @@ function ParticipantForm({
 
       {/* Row 6 */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-bold text-gray-800">
-          <span className="text-red-500">*</span>อีเมล์
-        </label>
+        <label className="text-xs font-bold text-gray-800">อีเมล์</label>
         <input
           type="email"
           value={data.email}
           onChange={(e) => onChange("email", e.target.value)}
           className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
-          placeholder="patcharapa1992@gmail.com"
+          placeholder="email@gmail.com"
         />
       </div>
 
@@ -794,7 +850,15 @@ function ParticipantForm({
               onChange={(e) => onChange("weight", e.target.value)}
               className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
-              <option value="65">65</option>
+              <option value="">เลือก</option>
+              {data.weight && !WEIGHT_OPTIONS.includes(data.weight) && (
+                <option value={data.weight}>{data.weight}</option>
+              )}
+              {WEIGHT_OPTIONS.map((w) => (
+                <option key={w} value={w}>
+                  {w}
+                </option>
+              ))}
             </select>
           </div>
           <div className="flex flex-col gap-1">
@@ -806,7 +870,15 @@ function ParticipantForm({
               onChange={(e) => onChange("height", e.target.value)}
               className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
-              <option value="171">171</option>
+              <option value="">เลือก</option>
+              {data.height && !HEIGHT_OPTIONS.includes(data.height) && (
+                <option value={data.height}>{data.height}</option>
+              )}
+              {HEIGHT_OPTIONS.map((h) => (
+                <option key={h} value={h}>
+                  {h}
+                </option>
+              ))}
             </select>
           </div>
           <div className="flex flex-col gap-1">
@@ -818,7 +890,15 @@ function ParticipantForm({
               onChange={(e) => onChange("hatSize", e.target.value)}
               className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
-              <option value="8.5">8.5</option>
+              <option value="">เลือก</option>
+              {data.hatSize && !HAT_SIZE_OPTIONS.includes(data.hatSize) && (
+                <option value={data.hatSize}>{data.hatSize}</option>
+              )}
+              {HAT_SIZE_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
           <div className="flex flex-col gap-1">
@@ -830,7 +910,15 @@ function ParticipantForm({
               onChange={(e) => onChange("gloveSize", e.target.value)}
               className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
-              <option value="8">8</option>
+              <option value="">เลือก</option>
+              {data.gloveSize && !GLOVE_SIZE_OPTIONS.includes(data.gloveSize) && (
+                <option value={data.gloveSize}>{data.gloveSize}</option>
+              )}
+              {GLOVE_SIZE_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
           <div className="flex flex-col gap-1">
@@ -842,7 +930,15 @@ function ParticipantForm({
               onChange={(e) => onChange("shoeSize", e.target.value)}
               className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
             >
-              <option value="7">7</option>
+              <option value="">เลือก</option>
+              {data.shoeSize && !SHOE_SIZE_OPTIONS.includes(data.shoeSize) && (
+                <option value={data.shoeSize}>{data.shoeSize}</option>
+              )}
+              {SHOE_SIZE_OPTIONS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -955,11 +1051,11 @@ function createEmptyParticipant(
     diseaseDetail: profile?.underlying_disease || "",
     hasAllergy: !!profile?.food_allergies,
     allergyDetail: profile?.food_allergies || "",
-    weight: profile?.weight?.toString() || "65",
-    height: profile?.height?.toString() || "171",
-    hatSize: profile?.head_size || "8.5",
-    gloveSize: profile?.glove_size || "8",
-    shoeSize: profile?.shoe_size || "7",
+    weight: profile?.weight?.toString() || "",
+    height: profile?.height?.toString() || "",
+    hatSize: profile?.head_size || "",
+    gloveSize: profile?.glove_size || "",
+    shoeSize: profile?.shoe_size || "",
     rentedAssets: {},
     rentedOptions: {},
     extraInsurance3: false,
