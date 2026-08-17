@@ -68,13 +68,13 @@ export async function getEnrollmentByUserID(page: number = 1, limit: number = 10
   }
 }
 
-export async function getEnrollmentByUserIDCountStatus(userId: string, status: string) {
+export async function getEnrollmentById(id: string) {
   try {
-    const res = await api.enrollment.getByUserIDCountStatus<number>(userId, status)
-    if (!res.success) {
+    const res = await api.enrollment.getById<Enrollment>(id)
+    if (!res.success || !res.data) {
       return {
         success: false,
-        error: res.message || "Failed to fetch enrollments",
+        error: res.message || "Failed to fetch enrollment",
       }
     }
     return {
@@ -84,7 +84,7 @@ export async function getEnrollmentByUserIDCountStatus(userId: string, status: s
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Failed to fetch enrollments",
+      error: error.message || "Failed to fetch enrollment",
     }
   }
 }

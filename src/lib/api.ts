@@ -287,6 +287,12 @@ export const api = {
         method: "GET",
         cache: "no-store",
       }),
+    getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`enrollments/${id}`, {
+        ...options,
+        method: "GET",
+        cache: "no-store",
+      }),
     getByUserIDCountStatus: <T>(
       user_id: string,
       status: string,

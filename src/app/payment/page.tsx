@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation"
 import { Card } from "@/components/Ui/Card/Card"
 
 import { PaymentButton } from "@/components/Button/PaymentButton"
+import { Inv } from "@/utils/Inv"
 
 interface PaymentPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -14,6 +15,9 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
   const resolvedSearchParams = await searchParams
   const courseId =
     typeof resolvedSearchParams.course_id === "string" ? resolvedSearchParams.course_id : ""
+  const adults = typeof resolvedSearchParams.adults === "string" ? resolvedSearchParams.adults : ""
+  const children =
+    typeof resolvedSearchParams.children === "string" ? resolvedSearchParams.children : ""
 
   if (!courseId) {
     return notFound()
@@ -152,7 +156,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
       <Breadcrumbs
         title={"ชำระเงิน"}
         step={"PAYMENT"}
-        urlBack={`/instructors/${123}/courses/${courseId}`}
+        urlBack={`/course/${courseId}/rounds?adults=${adults}&children=${children}`}
       />
 
       <div className="flex-1 flex flex-col items-center justify-center w-full max-w-md mx-auto">
@@ -167,7 +171,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
               <span className="text-[14px] text-gray-500 block mb-1">ยอดชำระเงิน</span>
               <span className="text-[28px] font-bold text-gray-900 tracking-tight">
-                {/* {`${Inv(course.price)}`} */}
+                {`${Inv(course.price)}`}
               </span>
             </div>
           </div>

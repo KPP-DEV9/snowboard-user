@@ -10,8 +10,17 @@ export interface Enrollment {
   user?: User
   course_id: string
   course?: Course
+  round_id?: string
+  round?: any
+  adult_count?: number
+  child_count?: number
+  total_amount?: number
+  deposit_amount?: number
+  ski_equipment?: boolean
+  snowboard_equipment?: boolean
   status: EnrollmentStatus
-  remaining_slots: number
+  remaining_slots?: number
+  participants?: EnrollmentParticipant[]
   payments?: Payment[]
   created_at: Date | string
   updated_at: Date | string
