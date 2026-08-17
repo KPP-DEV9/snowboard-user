@@ -133,7 +133,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                             เหลือ {round.total_user} ที่นั่ง
                           </div>
 
-                          {total_user < round?.total_user && (
+                          {total_user <= round?.total_user && (
                             <BookingButton
                               courseId={course.id}
                               roundId={round.id}
