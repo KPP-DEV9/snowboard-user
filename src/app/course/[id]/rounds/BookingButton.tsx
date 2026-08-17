@@ -12,7 +12,7 @@ interface BookingButtonProps {
   roundId: string
   adultPrice: number
   childPrice: number
-  availableSeats: number
+  // availableSeats: number
 }
 
 export default function BookingButton({
@@ -20,7 +20,6 @@ export default function BookingButton({
   roundId,
   adultPrice,
   childPrice,
-  availableSeats,
 }: BookingButtonProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -53,17 +52,20 @@ export default function BookingButton({
         participants: [],
       }
 
-      const { success, error } = await createEnrollment(payload)
+      const { success, error, data } = await createEnrollment(payload)
 
       if (!success) {
         setToast({ message: error || "เกิดข้อผิดพลาดในการจอง", type: "error" })
         return
       }
 
-      setToast({ message: "จองสำเร็จแล้ว! กำลังพาท่านไปยังรายการทริป...", type: "success" })
+      setToast({ message: "จองสำเร็จแล้ว! กำลังพาท่านไปยังหน้าชำระเงิน...", type: "success" })
       setTimeout(() => {
-        router.push("/mytrip")
-      }, 1500)
+        const enrollmentIdParam = data?.id ? `&enrollment_id=${data.id}` : ""
+        router.push(
+          `/payment/?course_id=${courseId}&round_id=${roundId}&adults=${adults}&children=${children}${enrollmentIdParam}`,
+        )
+      }, 1000)
     } catch (err: any) {
       setToast({ message: err?.message || "เกิดข้อผิดพลาดในการจอง", type: "error" })
     } finally {

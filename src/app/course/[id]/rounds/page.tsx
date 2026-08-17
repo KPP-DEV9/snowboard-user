@@ -139,7 +139,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                               roundId={round.id}
                               adultPrice={course.price - (course.discount || 0)}
                               childPrice={course.child_price - (course.discount || 0)}
-                              availableSeats={round.total}
+                              // availableSeats={round.total}
                             />
                           )}
                         </div>

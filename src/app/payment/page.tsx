@@ -94,18 +94,6 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
             <div className="absolute inset-0 bg-blue-500/10 mix-blend-overlay"></div>
           </div>
         )
-      // case "credit":
-      //   return (
-      //     <div className="flex flex-col items-center gap-2 mb-6">
-      //       <div className="flex items-center gap-2 bg-background-light dark:bg-background-dark rounded-full px-4 py-2">
-      //         <div className="flex items-center gap-1 text-gold">
-      //           <div className="w-2 h-2 bg-gold rounded-full animate-pulse"></div>
-      //           <span className="font-bold text-[26px]">{numeral(userCredit).format("0,0")}</span>
-      //         </div>
-      //         <span className="text-[12px] text-gray-400 mt-1 uppercase">คงเหลือ</span>
-      //       </div>
-      //     </div>
-      //   )
       case "bank_transfer":
         return (
           <div className="flex flex-col items-center pb-4">
@@ -174,8 +162,6 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
         </div>
 
         <Card className="px-6 pt-8 pb-4 w-full bg-white flex flex-col items-center shadow-xl shadow-gold/10 border-gold/30 rounded-3xl relative overflow-hidden group">
-          <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-gold via-yellow-400 to-gold"></div>
-
           {renderPaymentMethods()}
           <div className="text-center w-full">
             <div className="bg-gray-100 rounded-lg p-4 mb-2">
