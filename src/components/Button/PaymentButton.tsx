@@ -22,7 +22,13 @@ export function PaymentButton({ courseId, method }: PaymentButtonProps) {
   const handleCreateEnrollment = async () => {
     try {
       setLoading(true)
-      const { success, error } = await createEnrollment(courseId, 1, method)
+      const { success, error } = await createEnrollment({
+        course_id: courseId,
+        round_id: "",
+        adult_count: 1,
+        child_count: 0,
+        total_amount: 0,
+      })
       if (!success) {
         console.error(error)
         setToast({ message: error || "การชำระเงินล้มเหลว", type: "error" })

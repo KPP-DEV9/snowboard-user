@@ -1,4 +1,5 @@
 import { UserSchedule } from "@/types/userSchedule"
+import { CreateEnrollmentRequest } from "@/types/enrollment"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
 
@@ -272,19 +273,13 @@ export const api = {
   },
   enrollment: {
     create: <T>(
-      course_id: string,
-      remaining_slots: number,
-      payment_method: string,
+      data: CreateEnrollmentRequest,
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
       fetchWrapper<T>(`enrollments`, {
         ...options,
         method: "POST",
-        body: JSON.stringify({
-          course_id,
-          remaining_slots,
-          payment_method,
-        }),
+        body: JSON.stringify(data),
       }),
     getByUserID: <T>(options?: Omit<RequestInit, "method" | "body">) =>
       fetchWrapper<T>(`enrollments/user`, {

@@ -15,8 +15,8 @@ export default async function MyTripPage() {
     redirect("/signin")
   }
 
-  const { success, data } = await getEnrollmentByUserID(1, 100) // fetch up to 100 for now
-  const enrollments: Enrollment[] = success ? data?.data || [] : []
+  const { success, data } = await getEnrollmentByUserID(1, 10) // fetch up to 100 for now
+  const enrollments: Enrollment[] = success && Array.isArray(data?.data) ? data.data : []
 
   // Status mapping
   const getStatusBadge = (status: string) => {
@@ -80,15 +80,19 @@ export default async function MyTripPage() {
               </div>
             ) : (
               enrollments.map((enrollment) => {
-                const course = enrollment.course
-                if (!course) return null
+                const course = enrollment.course || ({} as any)
+                const totalAmount = course?.price || 0
 
-                const totalAmount = course.price || 0 // Assuming adult_price is the total price for simplicity, or we can calculate based on something else
-
-                const programType = course.course_type?.toLowerCase().includes("ski")
+                const programType = course?.course_type?.toLowerCase()?.includes("ski")
                   ? "Ski"
                   : "Snowboard"
                 const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"
+                const enrollmentCode = enrollment?.id
+                  ? (enrollment.id.includes("-")
+                      ? enrollment.id.split("-")[0]
+                      : enrollment.id
+                    ).toUpperCase()
+                  : "-"
 
                 return (
                   <Card
@@ -103,20 +107,20 @@ export default async function MyTripPage() {
                           {programType}
                         </span>
                         <span className="text-gray-400 text-xs font-medium">
-                          เลขที่รายการ {enrollment.id.split("-")[0].toUpperCase()}
+                          เลขที่รายการ {enrollmentCode}
                         </span>
                       </div>
 
                       <h3 className="text-gray-900 font-bold text-lg leading-snug mb-3">
-                        {course.title}
+                        {course?.title || "คอร์สเรียน"}
                       </h3>
 
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2 text-gray-500 text-[13px] font-medium">
-                          <MapPin size={16} /> {course.district}, {course.province}
+                          <MapPin size={16} /> {course?.district || "-"}, {course?.province || "-"}
                         </div>
                         <div className="flex items-center gap-2 text-gray-500 text-[13px] font-medium">
-                          <CalendarDays size={16} /> {RenderDate(course.start_date, "d MMMM yyyy")}
+                          <CalendarDays size={16} /> {RenderDate(course?.start_date, "d MMMM yyyy")}
                         </div>
                       </div>
                     </div>

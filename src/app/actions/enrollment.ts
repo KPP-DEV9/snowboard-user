@@ -4,17 +4,9 @@ import { api } from "@/lib/api"
 import { CreateEnrollmentRequest, Enrollment } from "@/types/enrollment"
 import { revalidatePath } from "next/cache"
 
-export async function createEnrollment(
-  course_id: string,
-  remaining_slots: number = 1,
-  payment_method: string,
-) {
+export async function createEnrollment(data: CreateEnrollmentRequest) {
   try {
-    const res = await api.enrollment.create<CreateEnrollmentRequest>(
-      course_id,
-      remaining_slots,
-      payment_method.toUpperCase(),
-    )
+    const res = await api.enrollment.create<Enrollment>(data)
 
     if (!res?.success) {
       return {
@@ -30,7 +22,7 @@ export async function createEnrollment(
   } catch (error: any) {
     return {
       success: false,
-      error: error.message || "Failed to fetch enrollments",
+      error: error.message || "Failed to create enrollment",
     }
   }
 }
@@ -38,16 +30,21 @@ export async function createEnrollment(
 export async function getEnrollmentByUserID(page: number = 1, limit: number = 10) {
   try {
     const res = await api.enrollment.getByUserID<Enrollment[]>()
-    if (!res.success) {
+
+    if (!res.success || !res.data) {
       return {
         success: false,
+        data: {
+          data: [],
+          total_pages: 1,
+        },
         error: res.message || "Failed to fetch enrollments",
       }
     }
 
-    const allEnrollments = res.data || []
+    const allEnrollments = Array.isArray(res.data) ? res.data : []
     const sortedEnrollments = allEnrollments.sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      (a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime(),
     )
     const totalPages = Math.ceil(sortedEnrollments.length / limit) || 1
     const paginatedEnrollments = sortedEnrollments.slice((page - 1) * limit, page * limit)
@@ -62,6 +59,10 @@ export async function getEnrollmentByUserID(page: number = 1, limit: number = 10
   } catch (error: any) {
     return {
       success: false,
+      data: {
+        data: [],
+        total_pages: 1,
+      },
       error: error.message || "Failed to fetch enrollments",
     }
   }

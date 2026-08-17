@@ -18,9 +18,43 @@ export interface Enrollment {
   deleted_at?: Date | string | null
 }
 
+export interface EnrollmentParticipantAssetOption {
+  asset_options_id: string
+  requirement_type: "ASSET" | "OPTION" | string
+}
+
+export interface EnrollmentParticipant {
+  type: "ADULT" | "CHILD" | string
+  line_id?: string
+  id_card?: string
+  passport_no?: string
+  nationality?: string
+  date_of_birth?: string
+  first_name: string
+  last_name: string
+  gender?: "MALE" | "FEMALE" | string
+  phone_number?: string
+  email?: string
+  has_medical_condition?: boolean
+  medical_condition_detail?: string
+  has_food_allergy?: boolean
+  food_allergy_detail?: string
+  weight_kg?: number
+  height_cm?: number
+  helmet_size_us?: string
+  glove_size_us?: string
+  shoe_size_us?: string
+  asset_options?: EnrollmentParticipantAssetOption[]
+}
+
 export interface CreateEnrollmentRequest {
   course_id: string
-  user_id: string
-  remaining_slots: number
-  payment_method: string
+  round_id: string
+  adult_count: number
+  child_count: number
+  total_amount: number
+  deposit_amount?: number
+  ski_equipment?: boolean
+  snowboard_equipment?: boolean
+  participants?: EnrollmentParticipant[]
 }

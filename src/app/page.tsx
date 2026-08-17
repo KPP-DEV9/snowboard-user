@@ -119,19 +119,12 @@ export default function MainPage() {
                   <Link
                     href={`/course/${item.id}`}
                     key={i}
-                    className="bg-white rounded-[1.5rem] overflow-hidden min-w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0 shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer"
+                    className="bg-white rounded-[1.5rem] overflow-hidden w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0 shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer"
                   >
                     <div className="relative h-[180px] lg:h-[200px] w-full bg-blue-100 overflow-hidden">
-                      <SlideImg
-                        images={
-                          item.image_urls && item.image_urls.length > 0
-                            ? item.image_urls
-                            : [
-                                "https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop",
-                              ]
-                        }
-                        alt="Indoor snowpark"
-                      />
+                      {item.image_urls && (
+                        <SlideImg images={item.image_urls} alt="Indoor snowpark" />
+                      )}
                       {item?.course_level && <Label text={item.course_level} />}
                     </div>
                     <div className="p-5 flex flex-col flex-1">
@@ -192,16 +185,9 @@ export default function MainPage() {
                     className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
                   >
                     <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
-                      <SlideImg
-                        images={
-                          item.image_urls && item.image_urls.length > 0
-                            ? item.image_urls
-                            : [
-                                "https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop",
-                              ]
-                        }
-                        alt="Changbaishan snow"
-                      />
+                      {item.image_urls && (
+                        <SlideImg images={item.image_urls} alt="Indoor snowpark" />
+                      )}
                       {item?.course_level && <Label text={item.course_level} />}
                     </div>
                     <div className="flex flex-col py-2 pr-2 md:pr-4 flex-1 h-full">

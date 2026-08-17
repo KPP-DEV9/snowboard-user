@@ -55,7 +55,7 @@ export default function SlideImg({ images, alt = "image" }: SlideImgProps) {
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {images.map((url, idx) => (
-          <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative">
+          <div key={idx} className="w-full h-full  flex-shrink-0 snap-center relative">
             <Image
               src={url}
               alt={`${alt} ${idx + 1}`}
@@ -75,7 +75,7 @@ export default function SlideImg({ images, alt = "image" }: SlideImgProps) {
           >
             <ChevronLeft size={18} />
           </button>
-          
+
           <button
             onClick={(e) => scrollTo(Math.min(images.length - 1, activeIndex + 1), e)}
             className={`absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 z-10`}
