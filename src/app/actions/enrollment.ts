@@ -5,28 +5,26 @@ import { CreateEnrollmentRequest, Enrollment } from "@/types/enrollment"
 import { revalidatePath } from "next/cache"
 
 export async function createEnrollment(data: CreateEnrollmentRequest) {
-  console.log("CreateEnrollmentRequest ===============> ", data)
+  try {
+    const res = await api.enrollment.create<Enrollment>(data)
 
-  // try {
-  //   const res = await api.enrollment.create<Enrollment>(data)
-
-  //   if (!res?.success) {
-  //     return {
-  //       success: false,
-  //       error: res.message || "Failed to create enrollment",
-  //     }
-  //   }
-  //   revalidatePath("/", "layout")
-  //   return {
-  //     success: true,
-  //     data: res.data,
-  //   }
-  // } catch (error: any) {
-  //   return {
-  //     success: false,
-  //     error: error.message || "Failed to create enrollment",
-  //   }
-  // }
+    if (!res?.success) {
+      return {
+        success: false,
+        error: res.message || "Failed to create enrollment",
+      }
+    }
+    revalidatePath("/", "layout")
+    return {
+      success: true,
+      data: res.data,
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Failed to create enrollment",
+    }
+  }
 }
 
 export async function updateEnrollment(

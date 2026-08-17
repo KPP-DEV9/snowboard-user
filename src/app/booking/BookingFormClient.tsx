@@ -19,6 +19,7 @@ import { User } from "@/types/user"
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
 import { createEnrollment } from "@/app/actions/enrollment"
+import { CreateEnrollmentRequest } from "@/types/enrollment"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"
@@ -251,36 +252,46 @@ export default function BookingFormClient({
           })
         }
 
+        let dob: string | undefined = undefined
+        if (p.birthDate) {
+          try {
+            const d = new Date(p.birthDate)
+            if (!isNaN(d.getTime())) {
+              dob = d.toISOString()
+            }
+          } catch {}
+        }
+
         return {
           type: p.type === "adult" ? "ADULT" : "CHILD",
           line_id: p.lineId || undefined,
           id_card: p.idCard || undefined,
-          nationality: p.nationality || undefined,
-          date_of_birth: p.birthDate ? new Date(p.birthDate).toISOString() : undefined,
+          nationality: p.nationality || "ไทย",
+          date_of_birth: dob,
           first_name: p.firstName || "",
           last_name: p.lastName || "",
           gender:
-            p.gender === "male"
+            p.gender?.toLowerCase() === "male"
               ? "MALE"
-              : p.gender === "female"
+              : p.gender?.toLowerCase() === "female"
                 ? "FEMALE"
-                : p.gender || undefined,
+                : p.gender?.toUpperCase() || undefined,
           phone_number: p.telephone || undefined,
           email: p.email || undefined,
           has_medical_condition: p.hasDisease,
           medical_condition_detail: p.hasDisease ? p.diseaseDetail : undefined,
           has_food_allergy: p.hasAllergy,
           food_allergy_detail: p.hasAllergy ? p.allergyDetail : undefined,
-          weight_kg: p.weight ? parseFloat(p.weight) : undefined,
-          height_cm: p.height ? parseFloat(p.height) : undefined,
+          weight_kg: p.weight && p.weight !== "0" ? parseFloat(p.weight) : undefined,
+          height_cm: p.height && p.height !== "0" ? parseFloat(p.height) : undefined,
           helmet_size_us: p.hatSize || undefined,
           glove_size_us: p.gloveSize || undefined,
-          shoe_size_us: p.shoeSize || undefined,
+          shoe_size_us: p.shoeSize && p.shoeSize !== "0" ? p.shoeSize : undefined,
           asset_options: asset_options.length > 0 ? asset_options : undefined,
         }
       })
 
-      const payload = {
+      const payload: CreateEnrollmentRequest = {
         course_id: course.id,
         round_id: roundId,
         adult_count: adultsCount,
@@ -378,7 +389,12 @@ export default function BookingFormClient({
       {/* Participant Accordions */}
       <div className="space-y-3 mb-6">
         {participants.map((p) => {
-          const title = p.type === "adult" ? `ผู้ใหญ่คนที่ ${p.index}` : `เด็กคนที่ ${p.index}`
+          const isBooker = p.type === "adult" && p.index === 1
+          const title = isBooker
+            ? "ข้อมูลผู้จอง (ตัวคุณ)"
+            : p.type === "adult"
+              ? `ผู้ร่วมทริป (ผู้ใหญ่คนที่ ${p.index})`
+              : `ผู้ร่วมทริป (เด็กคนที่ ${p.index})`
           const isOpen = openParticipantId === p.id
 
           return (
@@ -387,9 +403,7 @@ export default function BookingFormClient({
                 onClick={() => setOpenParticipantId(isOpen ? "" : p.id)}
                 className="w-full flex items-center justify-between p-5 text-left"
               >
-                <div className="font-bold text-gray-900">
-                  {isOpen ? `ข้อมูลผู้จอง (${title})` : `ผู้ร่วมทริป (${title})`}
-                </div>
+                <div className="font-bold text-gray-900">{title}</div>
                 {isOpen ? (
                   <ChevronUp size={20} className="text-gray-500" />
                 ) : (
@@ -928,24 +942,24 @@ function createEmptyParticipant(
     type,
     index,
     lineId: user?.line_user_id || "",
-    level: profile?.level || "",
+    level: profile?.level || "Level 1",
     idCard: profile?.id_card || profile?.passport_no || "",
-    nationality: profile?.nation || "",
+    nationality: profile?.nation || "ไทย",
     birthDate,
     firstName: profile?.first_name || "",
     lastName: profile?.last_name || "",
-    gender: profile?.sex === "Male" ? "male" : profile?.sex === "Female" ? "female" : "",
+    gender: profile?.sex?.toLowerCase() === "female" ? "female" : "male",
     telephone: profile?.telephone || "",
     email: profile?.email || "",
     hasDisease: !!profile?.underlying_disease,
     diseaseDetail: profile?.underlying_disease || "",
     hasAllergy: !!profile?.food_allergies,
     allergyDetail: profile?.food_allergies || "",
-    weight: profile?.weight?.toString() || "0",
-    height: profile?.height?.toString() || "0",
-    hatSize: profile?.head_size || "",
-    gloveSize: profile?.glove_size || "",
-    shoeSize: profile?.shoe_size || "0",
+    weight: profile?.weight?.toString() || "65",
+    height: profile?.height?.toString() || "171",
+    hatSize: profile?.head_size || "8.5",
+    gloveSize: profile?.glove_size || "8",
+    shoeSize: profile?.shoe_size || "7",
     rentedAssets: {},
     rentedOptions: {},
     extraInsurance3: false,
