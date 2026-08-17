@@ -112,14 +112,22 @@ export default function MainPage() {
               </h3>
             </div>
 
-            <div className="flex gap-6 overflow-x-auto pb-4 snap-x scrollbar-hide">
+            <div
+              className={`flex gap-6 pb-4 ${
+                course?.length === 1 ? "w-full" : "overflow-x-auto snap-x scrollbar-hide"
+              }`}
+            >
               {course?.map((item, i) => {
                 const { provinceName, districtName } = getLocationName(item.province, item.district)
                 return (
                   <Link
                     href={`/course/${item.id}`}
                     key={i}
-                    className="bg-white rounded-[1.5rem] overflow-hidden w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0 shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer"
+                    className={`bg-white rounded-[1.5rem] overflow-hidden ${
+                      course?.length === 1
+                        ? "w-full"
+                        : "w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0"
+                    } shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer`}
                   >
                     <div className="relative h-[180px] lg:h-[200px] w-full bg-blue-100 overflow-hidden">
                       {item.image_urls && (
