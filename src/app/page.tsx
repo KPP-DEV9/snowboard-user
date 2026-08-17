@@ -159,8 +159,9 @@ export default function MainPage() {
                           <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
                             ฿ {numeral(item.price).format("0,0")}
                           </div>
-                          <div className="text-[#E03131] font-extrabold text-xl md:text-2xl">
+                          <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
                             ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
+                            <span className="ml-1 text-gray-600 text-sm"> / คน</span>
                           </div>
                         </div>
                       </div>
@@ -225,11 +226,14 @@ export default function MainPage() {
                       <div className="mt-3 flex items-baseline gap-1">
                         <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
                         <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                          {numeral(item.price).format("0,0")}
+                          {numeral(item.price - (item.discount || 0)).format("0,0")}
                         </span>
-                        <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">
-                          /คน
-                        </span>
+                        {item.discount > 0 && (
+                          <span className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
+                            ฿ {numeral(item.price).format("0,0")}
+                          </span>
+                        )}
+                        <span className="text-gray-900 text-xs md:text-sm font-medium">/ คน</span>
                       </div>
                     </div>
                   </Link>
