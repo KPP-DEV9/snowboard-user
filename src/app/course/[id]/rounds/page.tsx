@@ -129,9 +129,15 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                         </div>
 
                         <div className="flex flex-col items-end gap-3 md:gap-4">
-                          <div className="bg-[#EAF3EA] text-[#798E75] px-3 py-1 rounded-full text-[11px] md:text-xs font-bold border border-[#798E75]/20">
-                            เหลือ {round.total_user} ที่นั่ง
-                          </div>
+                          {round.total_user > 0 ? (
+                            <p className="bg-[#EAF3EA] text-[#798E75] px-3 py-1 rounded-full text-[11px] md:text-xs font-bold border border-[#798E75]/20">
+                              เหลือ {round.total_user} ที่นั่ง
+                            </p>
+                          ) : (
+                            <p className="bg-gray-300 text-gray-500 px-3 py-1 px-8 rounded-full text-[11px] md:text-xs font-bold">
+                              เต็ม
+                            </p>
+                          )}
 
                           {total_user <= round?.total_user && (
                             <BookingButton
