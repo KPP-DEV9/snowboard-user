@@ -266,7 +266,7 @@ export default function BookingFormClient({
             <Edit size={16} className="text-blue-500 cursor-pointer" />
           </div>
         </div>
-        <div className="space-y-2 mb-4">
+        {/* <div className="space-y-2 mb-4">
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">ผู้ใหญ่ ({adultsCount} คน)</span>
             <span className="font-medium">฿ {adultsTotal.toLocaleString()}</span>
@@ -275,7 +275,7 @@ export default function BookingFormClient({
             <span className="text-gray-500">เด็ก ({childrenCount} คน)</span>
             <span className="font-medium">฿ {childrenTotal.toLocaleString()}</span>
           </div>
-        </div>
+        </div> */}
         <div className="flex justify-between font-bold text-[#448651] text-lg border-t border-gray-100 pt-4">
           <span>ราคารวม</span>
           <span>฿ {baseTotal.toLocaleString()}</span>

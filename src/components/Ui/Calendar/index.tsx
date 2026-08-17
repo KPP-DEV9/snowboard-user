@@ -25,7 +25,7 @@ export default function MyCalendar({
   return (
     <Card className="py-5 px-4 text-black">
       <div className="flex justify-between items-center mb-6">
-        <button onClick={prevMonth} className="w-6 h-6 flex items-center justify-center text-gold">
+        <button onClick={prevMonth} className="w-6 h-6 flex items-center justify-center">
           <svg
             width="24"
             height="24"
@@ -42,7 +42,7 @@ export default function MyCalendar({
         <div className="text-[16px] font-bold">
           {format(currentMonth, "MMMM yyyy", { locale: th })}
         </div>
-        <button onClick={nextMonth} className="w-6 h-6 flex items-center justify-center text-gold">
+        <button onClick={nextMonth} className="w-6 h-6 flex items-center justify-center">
           <svg
             width="24"
             height="24"

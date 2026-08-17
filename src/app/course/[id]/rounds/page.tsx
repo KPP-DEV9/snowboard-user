@@ -35,7 +35,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
   return (
     <LayoutPage isLicense={false}>
       <div className="min-h-screen bg-[#304B65] pb-24 font-sans selection:bg-[#568759]/30">
-        <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-6 max-w-7xl">
+        <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-10 max-w-7xl">
           {/* Header */}
           <div className="relative flex items-center justify-center mb-10">
             <Link
@@ -44,23 +44,22 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
             >
               <ArrowLeft size={20} className="stroke-[3]" /> ย้อนกลับ
             </Link>
-            <h1 className="text-xl md:text-2xl font-bold text-white">สรุปการจอง</h1>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             {/* Left Column: Course Info & Calendar */}
             <div className="lg:col-span-6 xl:col-span-6 flex flex-col w-full">
               <div className="mb-2 space-y-4">
+                <h1 className="text-2xl lg:text-3xl font-bold text-white leading-snug truncate">
+                  {course.title}
+                </h1>
+
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="bg-[#304B65] text-white font-bold rounded shadow-sm">
                     {course.course_type}
                   </span>
                   <LevelBadge level={course.course_level} />
                 </div>
-
-                <h2 className="text-2xl lg:text-3xl font-bold text-white leading-snug truncate">
-                  {course.title}
-                </h2>
 
                 <div className="flex flex-wrap items-center gap-3 md:gap-4 text-white/90 text-sm md:text-[15px] font-medium">
                   <div className="flex items-center gap-1.5">
