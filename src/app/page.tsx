@@ -154,17 +154,28 @@ export default function MainPage() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex justify-between items-end pt-4 border-t border-gray-100">
-                        <div>
-                          <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
-                            ฿ {numeral(item.price).format("0,0")}
-                          </div>
-                          <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
-                            ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
-                            <span className="ml-1 text-gray-600 text-sm"> / คน</span>
+                      {item.discount > 0 ? (
+                        <div className="flex justify-between items-endborder-t border-gray-100">
+                          <div>
+                            <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
+                              ฿ {numeral(item.price).format("0,0")}
+                            </div>
+                            <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
+                              ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
+                              <span className="ml-1 text-gray-600 text-sm"> / คน</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="flex justify-between items-end border-t border-gray-100">
+                          <div>
+                            <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
+                              ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
+                              <span className="ml-1 text-gray-600 text-sm"> / คน</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </Link>
                 )
@@ -223,18 +234,28 @@ export default function MainPage() {
                         </div>
                       </div>
 
-                      <div className="mt-3 flex items-baseline gap-1">
-                        <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
-                        <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                          {numeral(item.price - (item.discount || 0)).format("0,0")}
-                        </span>
-                        {item.discount > 0 && (
-                          <span className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
-                            ฿ {numeral(item.price).format("0,0")}
+                      {item.discount > 0 ? (
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
+                          <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
+                            {numeral(item.price - (item.discount || 0)).format("0,0")}
                           </span>
-                        )}
-                        <span className="text-gray-900 text-xs md:text-sm font-medium">/ คน</span>
-                      </div>
+                          {item.discount > 0 && (
+                            <span className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
+                              ฿ {numeral(item.price).format("0,0")}
+                            </span>
+                          )}
+                          <span className="text-gray-900 text-xs md:text-sm font-medium">/ คน</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
+                          <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
+                            {numeral(item.price - (item.discount || 0)).format("0,0")}
+                          </span>
+                          <span className="text-gray-900 text-xs md:text-sm font-medium">/ คน</span>
+                        </div>
+                      )}
                     </div>
                   </Link>
                 )

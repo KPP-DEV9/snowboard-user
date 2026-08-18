@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   ArrowLeft,
@@ -9,17 +9,16 @@ import {
   User as UserIcon,
   ChevronDown,
   ChevronUp,
-  Edit,
 } from "lucide-react"
 import { Course, HotelsMaster, RoomMaster } from "@/types/course"
 import { RenderDate } from "@/lib/date"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { User } from "@/types/user"
 
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
-import { createEnrollment } from "@/app/actions/enrollment"
-import { CreateEnrollmentRequest } from "@/types/enrollment"
+import { createEnrollment, updateEnrollment, getEnrollmentById } from "@/app/actions/enrollment"
+import { CreateEnrollmentRequest, Enrollment, EnrollmentParticipant } from "@/types/enrollment"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"
@@ -32,6 +31,7 @@ interface BookingFormClientProps {
   user?: any // Use 'any' or import 'User' type if possible. I'll import User from '@/types/user'
   assets: AssetMaster[]
   options: OptionMaster[]
+  enrollment?: Enrollment | null
 }
 
 // Interfaces for form state
@@ -80,8 +80,13 @@ export default function BookingFormClient({
   user,
   assets,
   options,
+  enrollment,
 }: BookingFormClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const enrollmentIdParam = searchParams.get("enrollment_id")
+  const currentEnrollmentId = enrollment?.id || enrollmentIdParam || undefined
+
   const getPrice = (price: number | undefined) =>
     (price || Number(course.price) || 0) - (course.discount || 0)
   const adultPrice = getPrice(course.price)
@@ -122,6 +127,37 @@ export default function BookingFormClient({
 
   // Initialize participants
   const [participants, setParticipants] = useState<ParticipantData[]>(() => {
+    if (enrollment?.participants && enrollment.participants.length > 0) {
+      const existingAdults = enrollment.participants.filter(
+        (p) => (p.type || "").toUpperCase() === "ADULT",
+      )
+      const existingChildren = enrollment.participants.filter(
+        (p) => (p.type || "").toUpperCase() === "CHILD",
+      )
+
+      const list: ParticipantData[] = []
+      const effectiveAdultCount = Math.max(adultsCount, existingAdults.length, 1)
+      for (let i = 1; i <= effectiveAdultCount; i++) {
+        const existingP = existingAdults[i - 1]
+        if (existingP) {
+          list.push(convertEnrollmentParticipantToData(existingP, "adult", i))
+        } else {
+          list.push(createEmptyParticipant("adult", i, i === 1 ? user : undefined))
+        }
+      }
+
+      const effectiveChildCount = Math.max(childrenCount, existingChildren.length)
+      for (let i = 1; i <= effectiveChildCount; i++) {
+        const existingP = existingChildren[i - 1]
+        if (existingP) {
+          list.push(convertEnrollmentParticipantToData(existingP, "child", i))
+        } else {
+          list.push(createEmptyParticipant("child", i))
+        }
+      }
+      return list
+    }
+
     const list: ParticipantData[] = []
     for (let i = 1; i <= adultsCount; i++) {
       list.push(createEmptyParticipant("adult", i, i === 1 ? user : undefined))
@@ -132,7 +168,43 @@ export default function BookingFormClient({
     return list
   })
 
-  // (Removed useEffect to prevent HMR weirdness, we rely entirely on initial state)
+  // Client-side fallback if enrollment wasn't passed via props but enrollment_id exists in URL
+  useEffect(() => {
+    if (!enrollment && enrollmentIdParam) {
+      getEnrollmentById(enrollmentIdParam).then((res) => {
+        if (res.success && res.data?.participants && res.data.participants.length > 0) {
+          const existingAdults = res.data.participants.filter(
+            (p) => (p.type || "").toUpperCase() === "ADULT",
+          )
+          const existingChildren = res.data.participants.filter(
+            (p) => (p.type || "").toUpperCase() === "CHILD",
+          )
+
+          const list: ParticipantData[] = []
+          const effectiveAdultCount = Math.max(adultsCount, existingAdults.length, 1)
+          for (let i = 1; i <= effectiveAdultCount; i++) {
+            const existingP = existingAdults[i - 1]
+            if (existingP) {
+              list.push(convertEnrollmentParticipantToData(existingP, "adult", i))
+            } else {
+              list.push(createEmptyParticipant("adult", i, i === 1 ? user : undefined))
+            }
+          }
+
+          const effectiveChildCount = Math.max(childrenCount, existingChildren.length)
+          for (let i = 1; i <= effectiveChildCount; i++) {
+            const existingP = existingChildren[i - 1]
+            if (existingP) {
+              list.push(convertEnrollmentParticipantToData(existingP, "child", i))
+            } else {
+              list.push(createEmptyParticipant("child", i))
+            }
+          }
+          setParticipants(list)
+        }
+      })
+    }
+  }, [enrollment, enrollmentIdParam, adultsCount, childrenCount, user])
 
   // Initialize rooms (start with 1)
   const [rooms, setRooms] = useState<RoomData[]>([
@@ -199,18 +271,6 @@ export default function BookingFormClient({
             }
           }
         })
-      }
-    })
-
-    rooms.forEach((r) => {
-      const selected = availableRooms.find((rm) => rm.id === r.selectedOption)
-      if (selected) {
-        extrasTotal += Number(selected.base_price) || 0
-        if (r.extraBed) {
-          extrasTotal += Number(selected.extra_price) || 500
-        }
-      } else if (r.extraBed) {
-        extrasTotal += 500
       }
     })
 
@@ -308,26 +368,52 @@ export default function BookingFormClient({
         adult_count: Number(adultsCount) || 1,
         child_count: Number(childrenCount) || 0,
         total_amount: grandTotal,
-        deposit_amount: 0,
+        deposit_amount: enrollment?.deposit_amount || 0,
         ski_equipment: false,
         snowboard_equipment: false,
         participants: formattedParticipants,
         req_total: formattedParticipants.reduce((sum, item) => sum + (item.req_total || 0), 0),
       }
 
-      const { success, error, data } = await createEnrollment(payload)
+      let resultEnrollmentId = currentEnrollmentId
 
-      if (!success) {
-        setToast({ message: error || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
-        return
+      if (currentEnrollmentId) {
+        const { success, error, data } = await updateEnrollment(currentEnrollmentId, {
+          ...payload,
+          status: enrollment?.status || "pending_payment",
+          deposit_amount: enrollment?.deposit_amount || 0,
+        })
+
+        if (!success) {
+          setToast({ message: error || "เกิดข้อผิดพลาดในการอัปเดตการจอง", type: "error" })
+          return
+        }
+
+        resultEnrollmentId = data?.id || currentEnrollmentId
+      } else {
+        const { success, error, data } = await createEnrollment(payload)
+
+        if (!success) {
+          setToast({ message: error || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
+          return
+        }
+
+        resultEnrollmentId = data?.id
       }
 
-      setToast({ message: "บันทึกการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน...", type: "success" })
+      setToast({
+        message: currentEnrollmentId
+          ? "อัปเดตการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน..."
+          : "บันทึกการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน...",
+        type: "success",
+      })
+
       setTimeout(() => {
-        const enrollmentIdParam = data?.id ? `&enrollment_id=${data.id}` : ""
-        router.push(
-          `/payment/?course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}${enrollmentIdParam}&method=credit`,
-        )
+        if (resultEnrollmentId) {
+          router.push(
+            `/payment/?enrollment_id=${resultEnrollmentId}&course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}&method=credit`,
+          )
+        }
       }, 1000)
     } catch (err: any) {
       setToast({ message: err?.message || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
@@ -379,7 +465,7 @@ export default function BookingFormClient({
           </div>
           <div className="flex items-center gap-2 font-bold text-gray-900">
             ผู้ใหญ่ {adultsCount}, เด็ก {childrenCount}{" "}
-            <Edit size={16} className="text-blue-500 cursor-pointer" />
+            {/* <Edit size={16} className="text-blue-500 cursor-pointer" /> */}
           </div>
         </div>
         {/* <div className="space-y-2 mb-4">
@@ -439,7 +525,7 @@ export default function BookingFormClient({
       </div>
 
       {/* Hotel Selection */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm mb-24 text-black">
+      {/* <div className="bg-white rounded-3xl p-6 shadow-sm mb-24 text-black">
         <div className="flex items-center gap-2 font-bold text-lg text-gray-900 mb-2">
           <svg
             className="w-5 h-5"
@@ -547,7 +633,7 @@ export default function BookingFormClient({
             เพิ่มห้องพัก <ChevronDown size={16} />
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* Fixed Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-transparent p-4 z-40 max-w-lg mx-auto">
@@ -758,13 +844,13 @@ function ParticipantForm({
               onClick={() => onChange("gender", "male")}
               className={`flex-1 py-2 text-xs font-bold rounded-lg border flex items-center justify-center gap-1 ${data.gender === "male" ? "bg-[#354359] text-white border-[#354359]" : "border-gray-200 text-black"}`}
             >
-              ♂ ชาย
+              ชาย
             </button>
             <button
               onClick={() => onChange("gender", "female")}
               className={`flex-1 py-2 text-xs font-bold rounded-lg border flex items-center justify-center gap-1 ${data.gender === "female" ? "bg-[#354359] text-white border-[#354359]" : "border-gray-200 text-black"}`}
             >
-              ♀ หญิง
+              หญิง
             </button>
           </div>
         </div>
@@ -970,11 +1056,17 @@ function ParticipantForm({
                   }}
                   className="text-blue-500"
                 />{" "}
-                <span className="text-sm text-black">
-                  {asset.name} (size: {asset.size})
-                </span>
+                {/* จุดสำคัญ: กล่อง Scroll ต้องเป็น Block และใส่ min-w-0 */}
+                <label
+                  htmlFor={`opt-${asset.id}`}
+                  className="block min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-sm text-black cursor-pointer select-none"
+                >
+                  {asset.name}
+                </label>
               </div>
-              <span className="text-sm font-medium text-black">
+
+              {/* ฝั่งขวา: ราคาล็อกไม่ให้โดนเบียด */}
+              <span className="text-sm font-medium text-black shrink-0 pl-2">
                 ฿{asset.price.toLocaleString()}
               </span>
             </label>
@@ -990,23 +1082,34 @@ function ParticipantForm({
         </div>
         <div className="space-y-2">
           {options.map((option) => (
-            <label key={option.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div key={option.id} className="flex items-center justify-between gap-3 py-1.5 w-full">
+              {/* ฝั่งซ้าย: จัดกรอบ Checkbox + ข้อความ */}
+              <div className="flex items-center gap-2 min-w-0 flex-1">
                 <input
                   type="checkbox"
+                  id={`opt-${option.id}`}
                   checked={!!data.rentedOptions?.[option.id]}
                   onChange={(e) => {
                     const newRented = { ...data.rentedOptions, [option.id]: e.target.checked }
                     onChange("rentedOptions", newRented)
                   }}
-                  className="text-blue-500"
-                />{" "}
-                <span className="text-sm text-black">{option.name}</span>
+                  className="w-4 h-4 text-blue-500 rounded shrink-0 cursor-pointer"
+                />
+
+                {/* จุดสำคัญ: กล่อง Scroll ต้องเป็น Block และใส่ min-w-0 */}
+                <label
+                  htmlFor={`opt-${option.id}`}
+                  className="block min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-sm text-black cursor-pointer select-none"
+                >
+                  {option.name}
+                </label>
               </div>
-              <span className="text-sm font-medium text-black">
+
+              {/* ฝั่งขวา: ราคาล็อกไม่ให้โดนเบียด */}
+              <span className="text-sm font-medium text-black shrink-0 pl-2">
                 ฿{option.price.toLocaleString()}
               </span>
-            </label>
+            </div>
           ))}
         </div>
       </div>
@@ -1058,6 +1161,68 @@ function createEmptyParticipant(
     shoeSize: profile?.shoe_size || "",
     rentedAssets: {},
     rentedOptions: {},
+    extraInsurance3: false,
+    extraInsurance1: false,
+    extraPhoto: false,
+  }
+}
+
+function convertEnrollmentParticipantToData(
+  p: EnrollmentParticipant,
+  type: "adult" | "child",
+  index: number,
+): ParticipantData {
+  let birthDate = ""
+  if (p.date_of_birth) {
+    try {
+      const d = new Date(p.date_of_birth)
+      if (!isNaN(d.getTime())) {
+        birthDate = format(d, "yyyy-MM-dd")
+      } else {
+        birthDate = p.date_of_birth.slice(0, 10)
+      }
+    } catch {
+      birthDate = p.date_of_birth.slice(0, 10)
+    }
+  }
+
+  const rentedAssets: Record<string, boolean> = {}
+  const rentedOptions: Record<string, boolean> = {}
+  if (p.asset_options && Array.isArray(p.asset_options)) {
+    p.asset_options.forEach((opt) => {
+      if (opt.requirement_type === "ASSET" || (opt as any).requirement_type === "asset") {
+        rentedAssets[opt.asset_options_id] = true
+      } else if (opt.requirement_type === "OPTION" || (opt as any).requirement_type === "option") {
+        rentedOptions[opt.asset_options_id] = true
+      }
+    })
+  }
+
+  return {
+    id: `${type}-${index}`,
+    type,
+    index,
+    lineId: p.line_id || "",
+    level: (p as any).level || "Level 1",
+    idCard: p.id_card || p.passport_no || "",
+    nationality: p.nationality || "ไทย",
+    birthDate,
+    firstName: p.first_name || "",
+    lastName: p.last_name || "",
+    gender: p.gender?.toLowerCase() === "female" ? "female" : "male",
+    telephone: p.phone_number || "",
+    email: p.email || "",
+    hasDisease: Boolean(p.has_medical_condition || p.medical_condition_detail),
+    diseaseDetail: p.medical_condition_detail || "",
+    hasAllergy: Boolean(p.has_food_allergy || p.food_allergy_detail),
+    allergyDetail: p.food_allergy_detail || "",
+    weight: p.weight_kg ? p.weight_kg.toString() : "",
+    height: p.height_cm ? p.height_cm.toString() : "",
+    hatSize: p.helmet_size_us || "",
+    gloveSize: p.glove_size_us || "",
+    shoeSize: p.shoe_size_us ? p.shoe_size_us.toString() : "",
+    rentedAssets,
+    rentedOptions,
     extraInsurance3: false,
     extraInsurance1: false,
     extraPhoto: false,

@@ -79,9 +79,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
   const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"
 
-  const enrollmentCode = enrollment.id
-    ? (enrollment.id.includes("-") ? enrollment.id.split("-")[0] : enrollment.id).toUpperCase()
-    : "-"
+  // const enrollmentCode = enrollment.id
+  //   ? (enrollment.id.includes("-") ? enrollment.id.split("-")[0] : enrollment.id).toUpperCase()
+  //   : "-"
 
   const statusLower = (enrollment.status || "").toLowerCase()
   const isDepositPaid =
@@ -142,9 +142,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             >
               <ArrowLeft size={20} className="stroke-[3]" /> ย้อนกลับ
             </Link>
-            <div className="text-white/80 text-xs md:text-sm font-medium">
+            {/* <div className="text-white/80 text-xs md:text-sm font-medium">
               เลขที่รายการ: <span className="font-bold text-white">#{enrollmentCode}</span>
-            </div>
+            </div> */}
           </div>
 
           {/* Main Course Info Card */}

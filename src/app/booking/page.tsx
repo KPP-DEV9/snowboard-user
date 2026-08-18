@@ -2,6 +2,7 @@ import { getCourseById } from "@/app/actions/course"
 import { getSession } from "@/app/actions/auth"
 import { getAssetMasters } from "@/app/actions/assetMaster"
 import { getOptionMasters } from "@/app/actions/optionMaster"
+import { getEnrollmentById } from "@/app/actions/enrollment"
 import { notFound, redirect } from "next/navigation"
 import BookingFormClient from "./BookingFormClient"
 
@@ -11,16 +12,35 @@ interface BookingPageProps {
 
 export default async function BookingPage({ searchParams }: BookingPageProps) {
   const resolvedSearchParams = await searchParams
+  const enrollmentId =
+    typeof resolvedSearchParams.enrollment_id === "string"
+      ? resolvedSearchParams.enrollment_id
+      : ""
+
+  let enrollment = null
+  if (enrollmentId) {
+    const res = await getEnrollmentById(enrollmentId)
+    if (res.success && res.data) {
+      enrollment = res.data
+    }
+  }
+
   const courseId =
-    typeof resolvedSearchParams.course_id === "string" ? resolvedSearchParams.course_id : ""
+    (typeof resolvedSearchParams.course_id === "string" ? resolvedSearchParams.course_id : "") ||
+    enrollment?.course_id ||
+    ""
   const roundId =
-    typeof resolvedSearchParams.round_id === "string" ? resolvedSearchParams.round_id : ""
+    (typeof resolvedSearchParams.round_id === "string" ? resolvedSearchParams.round_id : "") ||
+    enrollment?.round_id ||
+    ""
   const adults =
-    typeof resolvedSearchParams.adults === "string" ? parseInt(resolvedSearchParams.adults, 10) : 1
+    typeof resolvedSearchParams.adults === "string"
+      ? parseInt(resolvedSearchParams.adults, 10)
+      : enrollment?.adult_count || 1
   const childrenCount =
     typeof resolvedSearchParams.children === "string"
       ? parseInt(resolvedSearchParams.children, 10)
-      : 0
+      : enrollment?.child_count || 0
 
   if (!courseId) {
     return notFound()
@@ -48,6 +68,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
         user={session.user}
         assets={assets || []}
         options={options || []}
+        enrollment={enrollment}
       />
     </div>
   )

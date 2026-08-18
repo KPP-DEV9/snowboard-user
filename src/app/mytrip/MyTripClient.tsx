@@ -188,10 +188,10 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               const badgeBg = isSki ? "bg-[#E67E22]" : "bg-[#0066FF]"
 
               // Generate clean code matching AE0342349-E032 format
-              const shortId = enrollment.id
-                ? enrollment.id.replace(/-/g, "").substring(0, 4).toUpperCase()
-                : "E032"
-              const itemCode = `AE0342349-${shortId}`
+              // const shortId = enrollment.id
+              //   ? enrollment.id.replace(/-/g, "").substring(0, 4).toUpperCase()
+              //   : "E032"
+              // const itemCode = `AE0342349-${shortId}`
 
               const statusLower = (enrollment.status || "").toLowerCase()
               const isPaid =
@@ -222,9 +222,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     >
                       {programType}
                     </span>
-                    <span className="text-gray-400 text-[13px] font-medium">
+                    {/* <span className="text-gray-400 text-[13px] font-medium">
                       เลขที่รายการ {itemCode}
-                    </span>
+                    </span> */}
                   </div>
 
                   {/* Title */}

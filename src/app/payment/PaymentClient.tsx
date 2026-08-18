@@ -9,7 +9,7 @@ import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { Course } from "@/types/course"
 import { Enrollment } from "@/types/enrollment"
-import { createEnrollment, updateEnrollment } from "@/app/actions/enrollment"
+import { updateEnrollment } from "@/app/actions/enrollment"
 
 interface PaymentClientProps {
   course: Course
@@ -47,15 +47,41 @@ export default function PaymentClient({
   // Calculate prices
   const baseCoursePrice = (course.price || 0) - (course.discount || 0)
   const baseChildPrice = (course.child_price || 0) - (course.discount || 0)
-  const fallbackTotal = baseCoursePrice * (adultsCount || 1) + baseChildPrice * (childrenCount || 0)
 
-  const totalAmount = enrollment?.total_amount || (fallbackTotal > 0 ? fallbackTotal : 55372.5)
-  const subtotal = totalAmount / 1.07
-  const vatAmount = totalAmount - subtotal
+  // 1. Adults trip cost
+  const adultSubtotal = baseCoursePrice * (adultsCount || 1)
+
+  // 2. Children trip cost
+  const childSubtotal = baseChildPrice * (childrenCount || 0)
+
+  // 3. Extra items (Requirement Transactions)
+  const extrasSubtotal =
+    enrollment?.requirement_transactions && enrollment.requirement_transactions.length > 0
+      ? enrollment.requirement_transactions.reduce((sum, item) => {
+          const price =
+            item.requirement_type === "ASSET"
+              ? Number(item.asset_master?.price) || 0
+              : Number(item.option_master?.price) || 0
+          return sum + price
+        }, 0)
+      : Number(enrollment?.req_total) || 0
+
+  // รายการทั้งหมด (Subtotal = sum of all listed items)
+  const subtotal = adultSubtotal + childSubtotal + extrasSubtotal
+
+  // ภาษี Vat 7%
+  const vatAmount = subtotal * 0.07
+
+  // ยอดทั้งหมด (Grand Total)
+  const totalAmount = subtotal + vatAmount
+
+  // มัดจำ 30% ของยอดทั้งหมด
   const depositAmount =
     enrollment?.deposit_amount && enrollment.deposit_amount > 0
       ? enrollment.deposit_amount
       : totalAmount * 0.3
+
+  // ยอดคงเหลือ
   const remainingAmount = Math.max(0, totalAmount - depositAmount)
 
   const currentPayAmount = isDepositAlreadyPaid
@@ -89,7 +115,6 @@ export default function PaymentClient({
           status: newStatus,
           total_amount: totalAmount,
         })
-
         if (!res.success) {
           setToast({
             message: res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระเงิน",
@@ -98,23 +123,11 @@ export default function PaymentClient({
           return
         }
       } else {
-        const res = await createEnrollment({
-          course_id: course.id,
-          round_id: roundId || "",
-          adult_count: effectiveAdults,
-          child_count: effectiveChildren,
-          total_amount: totalAmount,
-          deposit_amount: chosenDepositAmount,
-          req_total: 0,
+        setToast({
+          message: "ไม่พบข้อมูลการจอง!",
+          type: "error",
         })
-
-        if (!res.success) {
-          setToast({
-            message: res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูลการชำระเงิน",
-            type: "error",
-          })
-          return
-        }
+        router.push(backUrl)
       }
 
       setToast({
@@ -135,9 +148,7 @@ export default function PaymentClient({
     }
   }
 
-  const backUrl = enrollment?.id
-    ? `/mytrip`
-    : `/course/${course.id}/rounds?adults=${adultsCount}&children=${childrenCount}`
+  const backUrl = `/booking/?enrollment_id=${enrollment?.id}&course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}`
 
   return (
     <div className="min-h-screen bg-[#2D455D] pb-32 font-sans selection:bg-[#568759]/30">
@@ -163,18 +174,14 @@ export default function PaymentClient({
             {/* 1. Base trip cost for adults */}
             <div className="flex justify-between items-center text-white/95">
               <span className="font-normal">ค่าทริปผู้ใหญ่ ({adultsCount} ท่าน)</span>
-              <span className="font-medium">
-                ฿ {numeral(baseCoursePrice * (adultsCount || 1)).format("0,0.00")}
-              </span>
+              <span className="font-medium">฿ {numeral(adultSubtotal).format("0,0.00")}</span>
             </div>
 
             {/* 2. Base trip cost for children if any */}
             {childrenCount > 0 && (
               <div className="flex justify-between items-center text-white/95">
                 <span className="font-normal">ค่าทริปเด็ก ({childrenCount} ท่าน)</span>
-                <span className="font-medium">
-                  ฿ {numeral(baseChildPrice * childrenCount).format("0,0.00")}
-                </span>
+                <span className="font-medium">฿ {numeral(childSubtotal).format("0,0.00")}</span>
               </div>
             )}
 
@@ -192,7 +199,10 @@ export default function PaymentClient({
                   : item.option_master?.price || 0
 
                 return (
-                  <div key={item.id || idx} className="flex justify-between items-center text-white/95">
+                  <div
+                    key={item.id || idx}
+                    className="flex justify-between items-center text-white/95"
+                  >
                     <span className="font-normal truncate max-w-[270px]">• {name}</span>
                     <span className="font-medium shrink-0">
                       ฿ {numeral(price).format("0,0.00")}

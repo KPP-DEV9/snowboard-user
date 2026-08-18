@@ -26,6 +26,7 @@ export interface Enrollment {
   updated_at: Date | string
   deleted_at?: Date | string | null
   requirement_transactions?: RequirementItem[]
+  req_total?: number
 }
 
 export interface EnrollmentParticipantAssetOption {
