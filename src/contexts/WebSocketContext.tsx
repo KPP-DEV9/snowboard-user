@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, ReactNode } from "react"
+import { createContext, useContext, ReactNode } from "react"
 import { useWebSocket, type WebSocketMessage } from "@/hooks/useWebSocket"
 
 interface WebSocketContextType {
@@ -20,11 +20,7 @@ interface WebSocketProviderProps {
 export function WebSocketProvider({ children, userId }: WebSocketProviderProps) {
   const webSocket = useWebSocket(userId)
 
-  return (
-    <WebSocketContext.Provider value={webSocket}>
-      {children}
-    </WebSocketContext.Provider>
-  )
+  return <WebSocketContext.Provider value={webSocket}>{children}</WebSocketContext.Provider>
 }
 
 export function useWebSocketContext() {

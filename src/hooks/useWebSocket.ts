@@ -96,21 +96,21 @@ export const useWebSocket = (userId: string | undefined): UseWebSocketReturn => 
     return ws
   }, [userId])
 
-  useEffect(() => {
-    const ws = connect()
+  // useEffect(() => {
+  //   const ws = connect()
 
-    return () => {
-      if (heartbeatRef.current) {
-        clearInterval(heartbeatRef.current)
-      }
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
-      }
-      if (ws) {
-        ws.close()
-      }
-    }
-  }, [connect])
+  //   return () => {
+  //     if (heartbeatRef.current) {
+  //       clearInterval(heartbeatRef.current)
+  //     }
+  //     if (reconnectTimeoutRef.current) {
+  //       clearTimeout(reconnectTimeoutRef.current)
+  //     }
+  //     if (ws) {
+  //       ws.close()
+  //     }
+  //   }
+  // }, [connect])
 
   const sendMessage = useCallback(
     (message: string) => {
