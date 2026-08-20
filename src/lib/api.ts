@@ -2,7 +2,6 @@ import { UserSchedule } from "@/types/userSchedule"
 import { CreateEnrollmentRequest } from "@/types/enrollment"
 
 const RAW_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
-const BASE_URL = RAW_BASE_URL.replace(/\/+$/, "").replace(/\/v1\/user$/, "")
 
 export interface ApiResponse<T = any> {
   success: boolean
@@ -18,7 +17,7 @@ async function fetchWrapper<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<ApiResponse<T>> {
-  const url = `${BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
+  const url = `${RAW_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
 
   // Default headers
   const headers = new Headers(options.headers || {})
