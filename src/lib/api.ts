@@ -1,7 +1,7 @@
 import { UserSchedule } from "@/types/userSchedule"
 import { CreateEnrollmentRequest } from "@/types/enrollment"
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
 
 export interface ApiResponse<T = any> {
   success: boolean
@@ -110,7 +110,7 @@ export const api = {
   },
   users: {
     updateProfile: <T>(body: any, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`users/me`, {
+      fetchWrapper<T>(`v1/user/users/me`, {
         ...options,
         method: "PUT",
         body: JSON.stringify(body),
@@ -123,7 +123,7 @@ export const api = {
       filters?: Record<string, any>,
       options?: Omit<RequestInit, "method" | "body">,
     ) => {
-      let url = `courses?page=${page}&limit=${limit}`
+      let url = `v1/user/courses?page=${page}&limit=${limit}`
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
           if (value !== undefined && value !== null && value !== "") {
@@ -150,13 +150,13 @@ export const api = {
       total_user: number,
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`courses/${id}?total_user=${total_user}`, {
+      fetchWrapper<T>(`v1/user/courses/${id}?total_user=${total_user}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     // getCourseByInstructorId: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-    //   fetchWrapper<T>(`courses/instructor/${id}`, {
+    //   fetchWrapper<T>(`v1/user/courses/instructor/${id}`, {
     //     ...options,
     //     method: "GET",
     //     cache: "no-store",
@@ -164,7 +164,7 @@ export const api = {
   },
   credit: {
     get: <T>(options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`credits/me`, {
+      fetchWrapper<T>(`v1/user/credits/me`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -172,13 +172,13 @@ export const api = {
   },
   creditPackages: {
     getAll: <T>(page = 1, limit = 10, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`credit-packages?page=${page}&limit=${limit}`, {
+      fetchWrapper<T>(`v1/user/credit-packages?page=${page}&limit=${limit}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`credit-packages/${id}`, {
+      fetchWrapper<T>(`v1/user/credit-packages/${id}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -187,7 +187,7 @@ export const api = {
       body: { user_id: string; package_id: string },
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`credit-transactions/purchase`, {
+      fetchWrapper<T>(`v1/user/credit-transactions/purchase`, {
         ...options,
         method: "POST",
         body: JSON.stringify(body),
@@ -195,13 +195,13 @@ export const api = {
   },
   instructor: {
     getAll: <T>(page = 1, limit = 10, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`instructors?page=${page}&limit=${limit}`, {
+      fetchWrapper<T>(`v1/user/instructors?page=${page}&limit=${limit}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`instructors/${id}`, {
+      fetchWrapper<T>(`v1/user/instructors/${id}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -209,7 +209,7 @@ export const api = {
   },
   user_schedule: {
     getByUserID: <T>(userId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<UserSchedule[]>(`user-schedules/user/${userId}`, {
+      fetchWrapper<UserSchedule[]>(`v1/user/user-schedules/user/${userId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -217,7 +217,7 @@ export const api = {
   },
   classes: {
     getByCourseId: <T>(courseId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`classes/course/${courseId}`, {
+      fetchWrapper<T>(`v1/user/classes/course/${courseId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -229,76 +229,75 @@ export const api = {
       body: any,
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`booking/${id}`, {
+      fetchWrapper<T>(`v1/user/booking/${id}`, {
         ...options,
         method: "PUT",
         body: JSON.stringify(body),
       }),
     getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`booking/${id}`, {
+      fetchWrapper<T>(`v1/user/booking/${id}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getByUserID: <T>(userId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<[]>(`booking/user/${userId}`, {
+      fetchWrapper<[]>(`v1/user/booking/user/${userId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getUserClassesByUserID: <T>(userId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<[]>(`booking/user/${userId}`, {
+      fetchWrapper<[]>(`v1/user/booking/user/${userId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getUserClassesSummary: <T>(userId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`booking/booking-summary/${userId}`, {
+      fetchWrapper<T>(`v1/user/booking/booking-summary/${userId}`, {
         ...options,
         method: "GET",
         cache: "default",
       }),
     getByClassesID: <T>(classesId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`booking/class/${classesId}`, {
+      fetchWrapper<T>(`v1/user/booking/class/${classesId}`, {
         ...options,
         method: "GET",
         cache: "default",
       }),
     // getUserClassesPast: <T>(userId: string, options?: Omit<RequestInit, "method" | "body">) =>
-    //   fetchWrapper<T>(`user-classs/past/${userId}`, {
+    //   fetchWrapper<T>(`v1/user/user-classs/past/${userId}`, {
     //     ...options,
     //     method: "GET",
     //     cache: "default",
     //   }),
   },
   enrollment: {
-    create: <T>(
-      data: CreateEnrollmentRequest,
-      options?: Omit<RequestInit, "method" | "body">,
-    ) =>
-      fetchWrapper<T>(`enrollments`, {
+    create: <T>(data: CreateEnrollmentRequest, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v1/user/enrollments`, {
         ...options,
         method: "POST",
         body: JSON.stringify(data),
       }),
-    update: <T>(
-      id: string,
-      data: any,
-      options?: Omit<RequestInit, "method" | "body">,
-    ) =>
-      fetchWrapper<T>(`enrollments/${id}`, {
+    update: <T>(id: string, data: any, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v1/user/enrollments/${id}`, {
         ...options,
         method: "PUT",
         body: JSON.stringify(data),
       }),
     getByUserID: <T>(options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`enrollments/user`, {
+      fetchWrapper<T>(`v1/user/enrollments/user`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`enrollments/${id}`, {
+      fetchWrapper<T>(`v1/user/enrollments/${id}`, {
+        ...options,
+        method: "GET",
+        cache: "no-store",
+      }),
+    getByIdForBooking: <T>(enrollmentId: string, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v2/user/enrollments/tour/${enrollmentId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -308,18 +307,15 @@ export const api = {
       status: string,
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`enrollments/user-count-past/${user_id}/${status}`, {
+      fetchWrapper<T>(`v1/user/enrollments/user-count-past/${user_id}/${status}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
   },
   payment: {
-    create: <T>(
-      data: any,
-      options?: Omit<RequestInit, "method" | "body">,
-    ) =>
-      fetchWrapper<T>(`payments`, {
+    create: <T>(data: any, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v1/user/payments`, {
         ...options,
         method: "POST",
         body: JSON.stringify(data),
@@ -331,7 +327,7 @@ export const api = {
       start_date: string,
       options?: Omit<RequestInit, "method" | "body">,
     ) => {
-      let url = `rounds/class/${classesId}/${start_date}`
+      let url = `v1/user/rounds/class/${classesId}/${start_date}`
       return fetchWrapper<T>(url, {
         ...options,
         method: "GET",
@@ -341,13 +337,13 @@ export const api = {
   },
   events: {
     getAll: <T>(page = 1, limit = 10, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`events?page=${page}&limit=${limit}`, {
+      fetchWrapper<T>(`v1/user/events?page=${page}&limit=${limit}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`events/${id}`, {
+      fetchWrapper<T>(`v1/user/events/${id}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -358,13 +354,13 @@ export const api = {
       body: { user_id: string; event_id: string; status: string },
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`user-events`, {
+      fetchWrapper<T>(`v1/user/user-events`, {
         ...options,
         method: "POST",
         body: JSON.stringify(body),
       }),
     getByUserEventID: <T>(eventId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`user-events/event/${eventId}`, {
+      fetchWrapper<T>(`v1/user/user-events/event/${eventId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -375,7 +371,7 @@ export const api = {
       limit = 10,
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`user-events/user/${userId}?page=${page}&limit=${limit}`, {
+      fetchWrapper<T>(`v1/user/user-events/user/${userId}?page=${page}&limit=${limit}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -384,7 +380,7 @@ export const api = {
       body: { event_id: string; status: string },
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`user-events/interest`, {
+      fetchWrapper<T>(`v1/user/user-events/interest`, {
         ...options,
         method: "POST",
         body: JSON.stringify(body),
@@ -394,7 +390,7 @@ export const api = {
       status: string,
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
-      fetchWrapper<T>(`user-events/find/${eventId}?status=${status}`, {
+      fetchWrapper<T>(`v1/user/user-events/find/${eventId}?status=${status}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -402,13 +398,13 @@ export const api = {
   },
   feedbacks: {
     getByBookingId: <T>(bookingId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`feedbacks/booking/${bookingId}`, {
+      fetchWrapper<T>(`v1/user/feedbacks/booking/${bookingId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
       }),
     create: <T>(body: any, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`feedbacks`, {
+      fetchWrapper<T>(`v1/user/feedbacks`, {
         ...options,
         method: "POST",
         body: JSON.stringify(body),
@@ -422,7 +418,7 @@ export const api = {
       options?: Omit<RequestInit, "method" | "body">,
     ) =>
       fetchWrapper<T>(
-        `ratings/check?instructor_id=${instructorId}&user_id=${userId}&booking_id=${bookingId}`,
+        `v1/user/ratings/check?instructor_id=${instructorId}&user_id=${userId}&booking_id=${bookingId}`,
         {
           ...options,
           method: "GET",
@@ -430,7 +426,7 @@ export const api = {
         },
       ),
     create: <T>(body: any, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`ratings`, {
+      fetchWrapper<T>(`v1/user/ratings`, {
         ...options,
         method: "POST",
         body: JSON.stringify(body),
@@ -438,7 +434,7 @@ export const api = {
   },
   analytics: {
     getById: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`analytics/${id}`, {
+      fetchWrapper<T>(`v1/user/analytics/${id}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -446,7 +442,7 @@ export const api = {
   },
   swingAnalyses: {
     getByBookingId: <T>(bookingId: string, options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`swing-analyses/booking/${bookingId}`, {
+      fetchWrapper<T>(`v1/user/swing-analyses/booking/${bookingId}`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -454,7 +450,7 @@ export const api = {
   },
   userBalances: {
     getMyBalances: <T>(options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`user-balances/me`, {
+      fetchWrapper<T>(`v1/user/user-balances/me`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -462,7 +458,7 @@ export const api = {
   },
   contacts: {
     getAll: <T>(options?: Omit<RequestInit, "method" | "body">) =>
-      fetchWrapper<T>(`contacts`, {
+      fetchWrapper<T>(`v1/user/contacts`, {
         ...options,
         method: "GET",
         cache: "no-store",
@@ -475,7 +471,7 @@ export const api = {
       course_type = "",
       options?: Omit<RequestInit, "method" | "body">,
     ) => {
-      let url = `asset-masters?page=${page}&limit=${limit}`
+      let url = `v1/user/asset-masters?page=${page}&limit=${limit}`
       if (course_type) url += `&course_type=${course_type}`
       return fetchWrapper<T>(url, {
         ...options,
@@ -485,12 +481,8 @@ export const api = {
     },
   },
   optionMasters: {
-    getAll: <T>(
-      page = 1,
-      limit = 10,
-      options?: Omit<RequestInit, "method" | "body">,
-    ) => {
-      let url = `option-masters?page=${page}&limit=${limit}`
+    getAll: <T>(page = 1, limit = 10, options?: Omit<RequestInit, "method" | "body">) => {
+      let url = `v1/user/option-masters?page=${page}&limit=${limit}`
       return fetchWrapper<T>(url, {
         ...options,
         method: "GET",

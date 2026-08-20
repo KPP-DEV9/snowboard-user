@@ -17,7 +17,12 @@ import { User } from "@/types/user"
 
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
-import { createEnrollment, updateEnrollment, getEnrollmentById } from "@/app/actions/enrollment"
+import {
+  createEnrollment,
+  updateEnrollment,
+  getEnrollmentById,
+  getEnrollmentByIdForBooking,
+} from "@/app/actions/enrollment"
 import { CreateEnrollmentRequest, Enrollment, EnrollmentParticipant } from "@/types/enrollment"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
@@ -125,91 +130,84 @@ export default function BookingFormClient({
   const hotelName = primaryHotel?.name || "โรงแรม Steigenberger"
   const defaultOption = availableRooms[0]?.id || ""
 
-  // Initialize participants
-  const [participants, setParticipants] = useState<ParticipantData[]>(() => {
-    if (enrollment?.participants && enrollment.participants.length > 0) {
-      const existingAdults = enrollment.participants.filter(
+  // Helper to build participants list
+  const buildParticipantsList = (
+    enroll?: Enrollment | null,
+    targetAdults: number = adultsCount,
+    targetChildren: number = childrenCount,
+  ): ParticipantData[] => {
+    const enrollParticipants = enroll?.participants || []
+    if (enrollParticipants.length > 0) {
+      const existingAdults = enrollParticipants.filter(
         (p) => (p.type || "").toUpperCase() === "ADULT",
       )
-      const existingChildren = enrollment.participants.filter(
+      const existingChildren = enrollParticipants.filter(
         (p) => (p.type || "").toUpperCase() === "CHILD",
       )
 
       const list: ParticipantData[] = []
-      const effectiveAdultCount = Math.max(adultsCount, existingAdults.length, 1)
+      const effectiveAdultCount = Math.max(targetAdults, existingAdults.length, 1)
       for (let i = 1; i <= effectiveAdultCount; i++) {
         const existingP = existingAdults[i - 1]
         if (existingP) {
-          list.push(convertEnrollmentParticipantToData(existingP, "adult", i))
+          list.push(
+            convertEnrollmentParticipantToData(existingP, "adult", i, enroll, assets, options),
+          )
         } else {
-          list.push(createEmptyParticipant("adult", i, i === 1 ? user : undefined))
+          list.push(
+            createEmptyParticipant("adult", i, i === 1 ? user : undefined, enroll, assets, options),
+          )
         }
       }
 
-      const effectiveChildCount = Math.max(childrenCount, existingChildren.length)
+      const effectiveChildCount = Math.max(targetChildren, existingChildren.length)
       for (let i = 1; i <= effectiveChildCount; i++) {
         const existingP = existingChildren[i - 1]
         if (existingP) {
-          list.push(convertEnrollmentParticipantToData(existingP, "child", i))
+          list.push(
+            convertEnrollmentParticipantToData(existingP, "child", i, enroll, assets, options),
+          )
         } else {
-          list.push(createEmptyParticipant("child", i))
+          list.push(createEmptyParticipant("child", i, undefined, enroll, assets, options))
         }
       }
       return list
     }
 
     const list: ParticipantData[] = []
-    for (let i = 1; i <= adultsCount; i++) {
-      list.push(createEmptyParticipant("adult", i, i === 1 ? user : undefined))
+    for (let i = 1; i <= targetAdults; i++) {
+      list.push(
+        createEmptyParticipant("adult", i, i === 1 ? user : undefined, enroll, assets, options),
+      )
     }
-    for (let i = 1; i <= childrenCount; i++) {
-      list.push(createEmptyParticipant("child", i))
+    for (let i = 1; i <= targetChildren; i++) {
+      list.push(createEmptyParticipant("child", i, undefined, enroll, assets, options))
     }
     return list
-  })
+  }
 
-  // Client-side fallback if enrollment wasn't passed via props but enrollment_id exists in URL
+  // Initialize participants
+  const [participants, setParticipants] = useState<ParticipantData[]>(() =>
+    buildParticipantsList(enrollment, adultsCount, childrenCount),
+  )
+
+  // Synchronize participants when enrollment, adults/children count, or assets/options change
   useEffect(() => {
-    if (!enrollment && enrollmentIdParam) {
-      getEnrollmentById(enrollmentIdParam).then((res) => {
-        if (res.success && res.data?.participants && res.data.participants.length > 0) {
-          const existingAdults = res.data.participants.filter(
-            (p) => (p.type || "").toUpperCase() === "ADULT",
-          )
-          const existingChildren = res.data.participants.filter(
-            (p) => (p.type || "").toUpperCase() === "CHILD",
-          )
-
-          const list: ParticipantData[] = []
-          const effectiveAdultCount = Math.max(adultsCount, existingAdults.length, 1)
-          for (let i = 1; i <= effectiveAdultCount; i++) {
-            const existingP = existingAdults[i - 1]
-            if (existingP) {
-              list.push(convertEnrollmentParticipantToData(existingP, "adult", i))
-            } else {
-              list.push(createEmptyParticipant("adult", i, i === 1 ? user : undefined))
-            }
-          }
-
-          const effectiveChildCount = Math.max(childrenCount, existingChildren.length)
-          for (let i = 1; i <= effectiveChildCount; i++) {
-            const existingP = existingChildren[i - 1]
-            if (existingP) {
-              list.push(convertEnrollmentParticipantToData(existingP, "child", i))
-            } else {
-              list.push(createEmptyParticipant("child", i))
-            }
-          }
-          setParticipants(list)
+    if (enrollment) {
+      setParticipants(buildParticipantsList(enrollment, adultsCount, childrenCount))
+    } else if (enrollmentIdParam) {
+      getEnrollmentByIdForBooking(enrollmentIdParam).then((res) => {
+        if (res.success && res.data) {
+          setParticipants(buildParticipantsList(res.data, adultsCount, childrenCount))
         }
       })
     }
-  }, [enrollment, enrollmentIdParam, adultsCount, childrenCount, user])
+  }, [enrollment, enrollmentIdParam, adultsCount, childrenCount, user, assets, options])
 
   // Initialize rooms (start with 1)
-  const [rooms, setRooms] = useState<RoomData[]>([
-    { id: "r1", roomIndex: 1, selectedOption: defaultOption, extraBed: false },
-  ])
+  // const [rooms, setRooms] = useState<RoomData[]>([
+  //   { id: "r1", roomIndex: 1, selectedOption: defaultOption, extraBed: false },
+  // ])
 
   // Accordion state (first one open)
   const [openParticipantId, setOpenParticipantId] = useState<string>(participants[0]?.id || "")
@@ -218,33 +216,33 @@ export default function BookingFormClient({
     setParticipants((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)))
   }
 
-  const handleRoomChange = (id: string, field: keyof RoomData, value: any) => {
-    setRooms((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)))
-  }
+  // const handleRoomChange = (id: string, field: keyof RoomData, value: any) => {
+  //   setRooms((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)))
+  // }
 
-  const addRoom = () => {
-    setRooms((prev) => [
-      ...prev,
-      {
-        id: `r${prev.length + 1}_${Date.now()}`,
-        roomIndex: prev.length + 1,
-        selectedOption: defaultOption,
-        extraBed: false,
-      },
-    ])
-  }
+  // const addRoom = () => {
+  //   setRooms((prev) => [
+  //     ...prev,
+  //     {
+  //       id: `r${prev.length + 1}_${Date.now()}`,
+  //       roomIndex: prev.length + 1,
+  //       selectedOption: defaultOption,
+  //       extraBed: false,
+  //     },
+  //   ])
+  // }
 
-  const removeRoom = (id: string) => {
-    if (rooms.length <= 1) return
-    setRooms((prev) =>
-      prev
-        .filter((r) => r.id !== id)
-        .map((r, idx) => ({
-          ...r,
-          roomIndex: idx + 1,
-        })),
-    )
-  }
+  // const removeRoom = (id: string) => {
+  //   if (rooms.length <= 1) return
+  //   setRooms((prev) =>
+  //     prev
+  //       .filter((r) => r.id !== id)
+  //       .map((r, idx) => ({
+  //         ...r,
+  //         roomIndex: idx + 1,
+  //       })),
+  //   )
+  // }
 
   // Cost calculations
   const calculateExtras = () => {
@@ -392,22 +390,18 @@ export default function BookingFormClient({
         resultEnrollmentId = data?.id || currentEnrollmentId
       } else {
         const { success, error, data } = await createEnrollment(payload)
-
         if (!success) {
           setToast({ message: error || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
           return
         }
-
         resultEnrollmentId = data?.id
       }
-
       setToast({
         message: currentEnrollmentId
           ? "อัปเดตการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน..."
           : "บันทึกการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน...",
         type: "success",
       })
-
       setTimeout(() => {
         if (resultEnrollmentId) {
           router.push(
@@ -1117,10 +1111,65 @@ function ParticipantForm({
   )
 }
 
+function extractRentedRequirements(
+  p?: any,
+  _index: number = 1,
+  enrollment?: Enrollment | null,
+  _assets: AssetMaster[] = [],
+  _options: OptionMaster[] = [],
+) {
+  const rentedAssets: Record<string, boolean> = {}
+  const rentedOptions: Record<string, boolean> = {}
+
+  // Collect requirement items from enrollment.requirement_transactions
+  const reqItems: any[] = []
+
+  // From participant level
+  if (p) {
+    if (Array.isArray(p.asset_options)) reqItems.push(...p.asset_options)
+    if (Array.isArray(p.requirement_transactions)) reqItems.push(...p.requirement_transactions)
+  }
+
+  // From enrollment root level
+  if (enrollment?.requirement_transactions && Array.isArray(enrollment.requirement_transactions)) {
+    reqItems.push(...enrollment.requirement_transactions)
+  }
+
+  // Map: asset_options_id → rentedAssets (ASSET) or rentedOptions (OPTION)
+  for (const item of reqItems) {
+    if (!item) continue
+    const id = item.asset_options_id
+    if (!id) continue
+
+    const type = String(item.requirement_type || "").toUpperCase()
+    if (type === "ASSET") {
+      rentedAssets[id] = true
+    } else if (type === "OPTION") {
+      rentedOptions[id] = true
+    }
+  }
+
+  console.log(
+    "[extractRentedRequirements] reqItems:",
+    reqItems.length,
+    "enrollment?.requirement_transactions:",
+    enrollment?.requirement_transactions?.length,
+    "rentedAssets:",
+    rentedAssets,
+    "rentedOptions:",
+    rentedOptions,
+  )
+
+  return { rentedAssets, rentedOptions }
+}
+
 function createEmptyParticipant(
   type: "adult" | "child",
   index: number,
   user?: User,
+  enrollment?: Enrollment | null,
+  assets: AssetMaster[] = [],
+  options: OptionMaster[] = [],
 ): ParticipantData {
   const profile = user?.user_profile
 
@@ -1135,6 +1184,14 @@ function createEmptyParticipant(
       birthDate = ""
     }
   }
+
+  const { rentedAssets, rentedOptions } = extractRentedRequirements(
+    undefined,
+    index,
+    enrollment,
+    assets,
+    options,
+  )
 
   return {
     id: `${type}-${index}`,
@@ -1159,8 +1216,8 @@ function createEmptyParticipant(
     hatSize: profile?.head_size || "",
     gloveSize: profile?.glove_size || "",
     shoeSize: profile?.shoe_size || "",
-    rentedAssets: {},
-    rentedOptions: {},
+    rentedAssets,
+    rentedOptions,
     extraInsurance3: false,
     extraInsurance1: false,
     extraPhoto: false,
@@ -1168,59 +1225,80 @@ function createEmptyParticipant(
 }
 
 function convertEnrollmentParticipantToData(
-  p: EnrollmentParticipant,
+  p: any,
   type: "adult" | "child",
   index: number,
+  enrollment?: Enrollment | null,
+  assets: AssetMaster[] = [],
+  options: OptionMaster[] = [],
 ): ParticipantData {
   let birthDate = ""
-  if (p.date_of_birth) {
+  const rawDob = p.date_of_birth || p.dateOfBirth || p.birth_date || p.birthDate
+  if (rawDob) {
     try {
-      const d = new Date(p.date_of_birth)
+      const d = new Date(rawDob)
       if (!isNaN(d.getTime())) {
         birthDate = format(d, "yyyy-MM-dd")
       } else {
-        birthDate = p.date_of_birth.slice(0, 10)
+        birthDate = String(rawDob).slice(0, 10)
       }
     } catch {
-      birthDate = p.date_of_birth.slice(0, 10)
+      birthDate = String(rawDob).slice(0, 10)
     }
   }
 
-  const rentedAssets: Record<string, boolean> = {}
-  const rentedOptions: Record<string, boolean> = {}
-  if (p.asset_options && Array.isArray(p.asset_options)) {
-    p.asset_options.forEach((opt) => {
-      if (opt.requirement_type === "ASSET" || (opt as any).requirement_type === "asset") {
-        rentedAssets[opt.asset_options_id] = true
-      } else if (opt.requirement_type === "OPTION" || (opt as any).requirement_type === "option") {
-        rentedOptions[opt.asset_options_id] = true
-      }
-    })
-  }
+  const { rentedAssets, rentedOptions } = extractRentedRequirements(
+    p,
+    index,
+    enrollment,
+    assets,
+    options,
+  )
 
   return {
-    id: `${type}-${index}`,
+    id: p.id || `${type}-${index}`,
     type,
     index,
-    lineId: p.line_id || "",
-    level: (p as any).level || "Level 1",
-    idCard: p.id_card || p.passport_no || "",
+    lineId: p.line_id || p.lineId || p.line_user_id || "",
+    level: p.level || p.course_level || "Level 1",
+    idCard: p.id_card || p.idCard || p.passport_no || p.passportNo || "",
     nationality: p.nationality || "ไทย",
     birthDate,
-    firstName: p.first_name || "",
-    lastName: p.last_name || "",
-    gender: p.gender?.toLowerCase() === "female" ? "female" : "male",
-    telephone: p.phone_number || "",
+    firstName: p.first_name || p.firstName || "",
+    lastName: p.last_name || p.lastName || "",
+    gender: (p.gender || "").toLowerCase() === "female" ? "female" : "male",
+    telephone: p.phone_number || p.phoneNumber || p.telephone || p.phone || "",
     email: p.email || "",
-    hasDisease: Boolean(p.has_medical_condition || p.medical_condition_detail),
-    diseaseDetail: p.medical_condition_detail || "",
-    hasAllergy: Boolean(p.has_food_allergy || p.food_allergy_detail),
-    allergyDetail: p.food_allergy_detail || "",
-    weight: p.weight_kg ? p.weight_kg.toString() : "",
-    height: p.height_cm ? p.height_cm.toString() : "",
-    hatSize: p.helmet_size_us || "",
-    gloveSize: p.glove_size_us || "",
-    shoeSize: p.shoe_size_us ? p.shoe_size_us.toString() : "",
+    hasDisease: Boolean(
+      p.has_medical_condition ||
+      p.hasDisease ||
+      p.medical_condition_detail ||
+      p.diseaseDetail ||
+      p.underlying_disease,
+    ),
+    diseaseDetail: p.medical_condition_detail || p.diseaseDetail || p.underlying_disease || "",
+    hasAllergy: Boolean(
+      p.has_food_allergy ||
+      p.hasAllergy ||
+      p.food_allergy_detail ||
+      p.allergyDetail ||
+      p.food_allergies,
+    ),
+    allergyDetail: p.food_allergy_detail || p.allergyDetail || p.food_allergies || "",
+    weight:
+      p.weight_kg != null ? p.weight_kg.toString() : p.weight != null ? p.weight.toString() : "",
+    height:
+      p.height_cm != null ? p.height_cm.toString() : p.height != null ? p.height.toString() : "",
+    hatSize: p.helmet_size_us || p.hat_size || p.hatSize || p.helmet_size || p.head_size || "",
+    gloveSize: p.glove_size_us || p.glove_size || p.gloveSize || "",
+    shoeSize:
+      p.shoe_size_us != null
+        ? p.shoe_size_us.toString()
+        : p.shoe_size != null
+          ? p.shoe_size.toString()
+          : p.shoeSize != null
+            ? p.shoeSize.toString()
+            : "",
     rentedAssets,
     rentedOptions,
     extraInsurance3: false,

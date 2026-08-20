@@ -26,7 +26,7 @@ export default function LoginPage() {
         .getProfile()
         .then(async (profile) => {
           try {
-            const response = await api.line.post<{ token: string }>("/auth/line", {
+            const response = await api.line.post<{ token: string }>("/v1/user/auth/line", {
               line_user_id: profile.userId,
               name: profile.displayName,
               email: liff.getDecodedIDToken()?.email || "",

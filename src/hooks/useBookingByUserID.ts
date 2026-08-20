@@ -36,19 +36,13 @@ export function useBookingByUserID(userId: string | undefined) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/bookings/user/${userId}`,
-        {
-          cache: "no-store",
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error("Failed to fetch bookings");
+      const res = await api.booking.getByUserID(userId);
+      if (!res.success) {
+        throw new Error(res.message || "Failed to fetch bookings");
       }
 
-      const data = await res.json();
-      setBookings(data.data as Booking[]);
+      const data = res.data;
+      setBookings(data as Booking[]);
     } catch (err: any) {
       setError(err.message || "An error occurred while fetching bookings");
     } finally {

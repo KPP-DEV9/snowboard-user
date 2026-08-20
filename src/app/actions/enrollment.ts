@@ -119,3 +119,24 @@ export async function getEnrollmentById(id: string) {
     }
   }
 }
+
+export async function getEnrollmentByIdForBooking(enrollmentId: string) {
+  try {
+    const res = await api.enrollment.getByIdForBooking<Enrollment>(enrollmentId)
+    if (!res.success || !res.data) {
+      return {
+        success: false,
+        error: res.message || "Failed to fetch enrollment",
+      }
+    }
+    return {
+      success: true,
+      data: res.data,
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Failed to fetch enrollment",
+    }
+  }
+}
