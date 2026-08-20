@@ -195,13 +195,14 @@ export default function BookingFormClient({
   useEffect(() => {
     if (enrollment) {
       setParticipants(buildParticipantsList(enrollment, adultsCount, childrenCount))
-    } else if (enrollmentIdParam) {
-      getEnrollmentByIdForBooking(enrollmentIdParam).then((res) => {
-        if (res.success && res.data) {
-          setParticipants(buildParticipantsList(res.data, adultsCount, childrenCount))
-        }
-      })
     }
+    // else if (enrollmentIdParam) {
+    //   getEnrollmentByIdForBooking(enrollmentIdParam).then((res) => {
+    //     if (res.success && res.data) {
+    //       setParticipants(buildParticipantsList(res.data, adultsCount, childrenCount))
+    //     }
+    //   })
+    // }
   }, [enrollment, enrollmentIdParam, adultsCount, childrenCount, user, assets, options])
 
   // Initialize rooms (start with 1)
