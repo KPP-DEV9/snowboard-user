@@ -27,7 +27,12 @@ export const useWebSocket = (userId: string | undefined): UseWebSocketReturn => 
     if (!userId) return
 
     // Use environment variable for WebSocket URL or fallback to localhost
-    const baseUrl = process.env.NEXT_PUBLIC_WS_URL?.replace("https", "wss")
+    const rawWs = process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:3001/api"
+    const baseUrl = rawWs
+      .replace(/^https:\/\//i, "wss://")
+      .replace(/^http:\/\//i, "ws://")
+      .replace(/\/+$/, "")
+      .replace(/\/v1\/user$/, "")
     const wsUrl = `${baseUrl}/v1/user/ws?userId=${userId}`
 
     const ws = new WebSocket(wsUrl)

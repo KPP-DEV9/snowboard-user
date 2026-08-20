@@ -72,6 +72,7 @@ export default function LoginPage() {
     if (!liff.isLoggedIn()) {
       if (process.env.NODE_ENV === "development") {
         liff.login({ redirectUri: "https://localhost:3000/signin" })
+        // liff.login({ redirectUri: window.location.href })
       } else {
         liff.login()
       }
