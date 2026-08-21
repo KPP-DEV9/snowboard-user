@@ -20,8 +20,6 @@ export default async function ContactPage() {
   const rawContacts =
     res?.contacts || res?.data?.contacts || res?.data || (Array.isArray(res) ? res : [])
 
-  console.log("res ================> ", res?.contacts)
-
   const allContacts: Contact[] = Array.isArray(rawContacts) ? rawContacts : []
 
   // Filter active contacts

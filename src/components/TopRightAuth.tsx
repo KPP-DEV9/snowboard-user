@@ -29,7 +29,7 @@ export default function TopRightAuth() {
   return (
     <Link
       href="/signin"
-      className="absolute top-2 right-2 text-[#4F7354] px-3 py-1 rounded-lg font-bold text-xs shadow-md hover:bg-gray-50 transition-all z-50"
+      className="absolute top-2 right-2 text-[#5cc16a] px-3 py-1 rounded-lg font-bold text-xs shadow-md hover:bg-gray-50 transition-all z-50"
     >
       เข้าสู่ระบบ
     </Link>

@@ -1,8 +1,7 @@
 import { getCourseById } from "@/app/actions/course"
 import { getSession } from "@/app/actions/auth"
 import { getEnrollmentById } from "@/app/actions/enrollment"
-import { getAssetMasters } from "@/app/actions/assetMaster"
-import { getOptionMasters } from "@/app/actions/optionMaster"
+
 import { notFound, redirect } from "next/navigation"
 import LayoutPage from "@/components/Layout"
 import PaymentClient from "./PaymentClient"
