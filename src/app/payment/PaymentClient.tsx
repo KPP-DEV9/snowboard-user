@@ -130,9 +130,9 @@ export default function PaymentClient({
         type: "success",
       })
 
-      // setTimeout(() => {
-      //   router.push("/mytrip")
-      // }, 1000)
+      setTimeout(() => {
+        router.push("/mytrip")
+      }, 1000)
     } catch (err: any) {
       setToast({
         message: err?.message || "เกิดข้อผิดพลาดในการชำระเงิน",
