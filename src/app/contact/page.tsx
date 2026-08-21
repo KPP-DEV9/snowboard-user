@@ -8,17 +8,44 @@ export const dynamic = "force-dynamic"
 
 interface Contact {
   id: string
-  type: string // "contact" | "social"
+  type: string // "contact" | "personal" | "social"
   name: string // "phone" | "line" | "email" | "facebook" | "instagram" | "tiktok"
   value: string
+  is_active?: boolean
+  isActive?: boolean
 }
 
 export default async function ContactPage() {
   const res: any = await api.contacts.getAll()
-  const allContacts: Contact[] = res?.contacts || []
+  const rawContacts =
+    res?.contacts || res?.data?.contacts || res?.data || (Array.isArray(res) ? res : [])
 
-  const contactList = allContacts.filter((c) => c.type === "contact")
-  const socialList = allContacts.filter((c) => c.type === "social")
+  console.log("res ================> ", res?.contacts)
+
+  const allContacts: Contact[] = Array.isArray(rawContacts) ? rawContacts : []
+
+  // Filter active contacts
+  const activeContacts = allContacts.filter(
+    (c) =>
+      c &&
+      c.is_active !== false &&
+      c.isActive !== false &&
+      typeof c.value === "string" &&
+      c.value.trim() !== "",
+  )
+
+  const contactList = activeContacts.filter(
+    (c) =>
+      c.type?.toLowerCase() === "contact" ||
+      c.type?.toLowerCase() === "personal" ||
+      ["phone", "tel", "line", "email"].includes(c.name?.toLowerCase()),
+  )
+
+  const socialList = activeContacts.filter(
+    (c) =>
+      c.type?.toLowerCase() === "social" ||
+      ["facebook", "instagram", "tiktok"].includes(c.name?.toLowerCase()),
+  )
 
   return (
     <LayoutPage isLicense={false}>
@@ -36,7 +63,9 @@ export default async function ContactPage() {
 
             <div className="space-y-0">
               {contactList.map((contact) => {
-                if (contact.name === "phone") {
+                const contactName = contact.name?.toLowerCase()
+
+                if (contactName === "phone" || contactName === "tel") {
                   return (
                     <a
                       key={contact.id}
@@ -55,7 +84,8 @@ export default async function ContactPage() {
                     </a>
                   )
                 }
-                if (contact.name === "line") {
+
+                if (contactName === "line") {
                   return (
                     <a
                       key={contact.id}
@@ -80,7 +110,8 @@ export default async function ContactPage() {
                     </a>
                   )
                 }
-                if (contact.name === "email") {
+
+                if (contactName === "email") {
                   return (
                     <a
                       key={contact.id}
@@ -99,6 +130,7 @@ export default async function ContactPage() {
                     </a>
                   )
                 }
+
                 return null
               })}
             </div>
@@ -109,11 +141,16 @@ export default async function ContactPage() {
                 <h3 className="font-bold text-gray-900 text-lg mb-4">Social</h3>
                 <div className="flex items-center gap-3">
                   {socialList.map((link) => {
-                    if (link.name === "facebook") {
+                    const socialName = link.name?.toLowerCase()
+                    const linkUrl = link.value.startsWith("http")
+                      ? link.value
+                      : `https://${link.value}`
+
+                    if (socialName === "facebook") {
                       return (
                         <a
                           key={link.id}
-                          href={link.value}
+                          href={linkUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="hover:opacity-80 transition-opacity"
@@ -124,18 +161,25 @@ export default async function ContactPage() {
                         </a>
                       )
                     }
-                    if (link.name === "instagram") {
+
+                    if (socialName === "instagram") {
                       return (
                         <a
                           key={link.id}
-                          href={link.value}
+                          href={linkUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="hover:opacity-80 transition-opacity"
                         >
                           <svg viewBox="0 0 24 24" className="w-[42px] h-[42px]">
                             <defs>
-                              <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                              <linearGradient
+                                id={`ig-grad-${link.id}`}
+                                x1="0%"
+                                y1="100%"
+                                x2="100%"
+                                y2="0%"
+                              >
                                 <stop offset="0%" stopColor="#f09433" />
                                 <stop offset="25%" stopColor="#e6683c" />
                                 <stop offset="50%" stopColor="#dc2743" />
@@ -143,7 +187,12 @@ export default async function ContactPage() {
                                 <stop offset="100%" stopColor="#bc1888" />
                               </linearGradient>
                             </defs>
-                            <rect width="24" height="24" rx="12" fill="url(#ig-grad)" />
+                            <rect
+                              width="24"
+                              height="24"
+                              rx="12"
+                              fill={`url(#ig-grad-${link.id})`}
+                            />
                             <path
                               fill="#fff"
                               d="M16 6H8c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-4 9.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm3.5-5.5c-.41 0-.75-.34-.75-.75s.34-.75.75-.75.75.34.75.75-.34.75-.75.75z"
@@ -153,11 +202,12 @@ export default async function ContactPage() {
                         </a>
                       )
                     }
-                    if (link.name === "tiktok") {
+
+                    if (socialName === "tiktok") {
                       return (
                         <a
                           key={link.id}
-                          href={link.value}
+                          href={linkUrl}
                           target="_blank"
                           rel="noreferrer"
                           className="hover:opacity-80 transition-opacity"
@@ -172,6 +222,7 @@ export default async function ContactPage() {
                         </a>
                       )
                     }
+
                     return null
                   })}
                 </div>

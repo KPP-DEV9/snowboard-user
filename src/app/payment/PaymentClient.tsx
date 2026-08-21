@@ -94,12 +94,7 @@ export default function PaymentClient({
     try {
       setLoading(true)
 
-      const isDeposit = !isDepositAlreadyPaid && paymentType === "deposit"
-      const chosenDepositAmount = isDeposit
-        ? depositAmount
-        : isDepositAlreadyPaid
-          ? depositAmount
-          : 0
+      const isDeposit = paymentType === "deposit" ? true : false
       const newStatus = isDeposit ? "deposit_paid" : "paid"
 
       const effectiveAdults = Number(enrollment?.adult_count || adultsCount || 1)
@@ -111,9 +106,9 @@ export default function PaymentClient({
           round_id: enrollment.round_id || roundId || "",
           adult_count: effectiveAdults,
           child_count: effectiveChildren,
-          deposit_amount: chosenDepositAmount,
           status: newStatus,
-          total_amount: totalAmount,
+          deposit_amount: isDeposit ? depositAmount : 0,
+          total_amount: isDeposit ? 0 : totalAmount,
         })
         if (!res.success) {
           setToast({
