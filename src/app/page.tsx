@@ -13,7 +13,7 @@ import { useEffect, useState } from "react"
 import { Course } from "@/types/course"
 import LayoutPage from "@/components/Layout"
 import Label from "@/components/Ui/Label"
-import { Provinces } from "@/constants/location"
+import { getLocationName } from "@/constants/location"
 import TopRightAuth from "@/components/TopRightAuth"
 
 export type CategoryType = "SNOWBOARD" | "SKI"
@@ -56,14 +56,6 @@ export default function MainPage() {
   useEffect(() => {
     handleSearch()
   }, [])
-
-  const getLocationName = (provinceCode?: string, districtCode?: string) => {
-    const provinceData = Provinces.find((p) => p.code === provinceCode)
-    const provinceName = provinceData?.name_th || provinceCode
-    const districtData = provinceData?.cities?.find((c) => c.code === districtCode)
-    const districtName = districtData?.name_th || districtCode
-    return { provinceName, districtName }
-  }
 
   return (
     <LayoutPage>
@@ -186,7 +178,7 @@ export default function MainPage() {
           {/* Snowboard Trips Section */}
           <div className="w-full flex flex-col">
             <div className="flex justify-between items-end mb-6 px-2">
-              <h3 className="text-white text-2xl font-bold tracking-wide">ทริป Snowboard</h3>
+              <h3 className="text-white text-2xl font-bold tracking-wide">ทริป {courseType}</h3>
               <Link
                 href="/all-course"
                 className="text-[#B3C8A4] font-bold hover:text-white transition-colors text-lg"
