@@ -69,28 +69,37 @@ export default function SlideImg({ images, alt = "image" }: SlideImgProps) {
       {images.length > 1 && (
         <>
           <button
+            type="button"
             onClick={(e) => scrollTo(Math.max(0, activeIndex - 1), e)}
-            className={`absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 z-10`}
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm shadow-md flex items-center justify-center text-gray-800 opacity-90 md:opacity-0 md:group-hover:opacity-100 transition-opacity disabled:opacity-0 z-10 cursor-pointer"
             disabled={activeIndex === 0}
+            aria-label="Previous image"
           >
-            <ChevronLeft size={18} />
+            <ChevronLeft size={20} />
           </button>
 
           <button
+            type="button"
             onClick={(e) => scrollTo(Math.min(images.length - 1, activeIndex + 1), e)}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/80 backdrop-blur-sm shadow-md flex items-center justify-center text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 z-10`}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm shadow-md flex items-center justify-center text-gray-800 opacity-90 md:opacity-0 md:group-hover:opacity-100 transition-opacity disabled:opacity-0 z-10 cursor-pointer"
             disabled={activeIndex === images.length - 1}
+            aria-label="Next image"
           >
-            <ChevronRight size={18} />
+            <ChevronRight size={20} />
           </button>
 
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
+          <div className="absolute bottom-2.5 left-0 right-0 flex justify-center items-center gap-1.5 z-10">
             {images.map((_, idx) => (
-              <div
+              <button
+                type="button"
                 key={idx}
-                className={`w-1.5 h-1.5 rounded-full transition-colors shadow-sm ${
-                  idx === activeIndex ? "bg-white" : "bg-white/50"
+                onClick={(e) => scrollTo(idx, e)}
+                className={`transition-all rounded-full cursor-pointer shadow-sm ${
+                  idx === activeIndex
+                    ? "bg-white w-4 h-1.5"
+                    : "bg-white/60 w-1.5 h-1.5 hover:bg-white/90"
                 }`}
+                aria-label={`Slide ${idx + 1}`}
               />
             ))}
           </div>

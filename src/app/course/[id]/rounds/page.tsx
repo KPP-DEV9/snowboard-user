@@ -9,6 +9,7 @@ import { format } from "date-fns"
 import LevelBadge from "@/components/LevelBadge"
 import BookingButton from "./BookingButton"
 import LayoutPage from "@/components/Layout"
+import { getLocationName } from "@/constants/location"
 
 interface CourseRoundsPageProps {
   params: Promise<{ id: string }>
@@ -31,6 +32,12 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
   if (!success || !course) {
     return notFound()
   }
+
+  const { provinceName, districtName } = getLocationName(
+    course.province,
+    course.district,
+    course.nation,
+  )
 
   return (
     <LayoutPage isLicense={false}>
@@ -63,7 +70,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
 
                 <div className="flex flex-wrap items-center gap-3 md:gap-4 text-white/90 text-sm md:text-[15px] font-medium">
                   <div className="flex items-center gap-1.5">
-                    <MapPin size={18} /> {course.district}, {course.province}
+                    <MapPin size={18} /> {districtName ? `${districtName}, ` : ""}{provinceName}
                   </div>
                   <div className="hidden md:block text-white/50">|</div>
                   <div className="flex items-center gap-1.5">

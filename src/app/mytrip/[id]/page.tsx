@@ -22,6 +22,7 @@ import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import { Card } from "@/components/Ui/Card/Card"
 import LayoutPage from "@/components/Layout"
+import { getLocationName } from "@/constants/location"
 
 interface MyTripDetailPageProps {
   params: Promise<{ id: string }>
@@ -166,36 +167,46 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               {course?.title || "รายละเอียดการจองคอร์สเรียน"}
             </h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 bg-gray-50/80 p-4 rounded-2xl border border-gray-100">
-              <div className="flex items-center gap-2.5">
-                <MapPin size={18} className="text-[#F04E23] shrink-0" />
-                <span>
-                  {course?.district || "-"}, {course?.province || "-"}
-                </span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <CalendarDays size={18} className="text-[#304B65] shrink-0" />
-                <span>
-                  {RenderDate(course?.start_date, "d MMMM yyyy")} -{" "}
-                  {RenderDate(course?.end_date, "d MMMM yyyy")}
-                </span>
-              </div>
-              {enrollment.round && (
-                <div className="flex items-center gap-2.5">
-                  <Clock size={18} className="text-[#798E75] shrink-0" />
-                  <span>
-                    เวลา {RenderDate(enrollment.round.start_date, "HH:mm")} -{" "}
-                    {RenderDate(enrollment.round.end_date, "HH:mm")}
-                  </span>
+            {(() => {
+              const { provinceName, districtName } = getLocationName(
+                course?.province,
+                course?.district,
+                course?.nation,
+              )
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 bg-gray-50/80 p-4 rounded-2xl border border-gray-100">
+                  <div className="flex items-center gap-2.5">
+                    <MapPin size={18} className="text-[#F04E23] shrink-0" />
+                    <span>
+                      {districtName ? `${districtName}, ` : ""}
+                      {provinceName || "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <CalendarDays size={18} className="text-[#304B65] shrink-0" />
+                    <span>
+                      {RenderDate(course?.start_date, "d MMMM yyyy")} -{" "}
+                      {RenderDate(course?.end_date, "d MMMM yyyy")}
+                    </span>
+                  </div>
+                  {enrollment.round && (
+                    <div className="flex items-center gap-2.5">
+                      <Clock size={18} className="text-[#798E75] shrink-0" />
+                      <span>
+                        เวลา {RenderDate(enrollment.round.start_date, "HH:mm")} -{" "}
+                        {RenderDate(enrollment.round.end_date, "HH:mm")}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2.5">
+                    <Users size={18} className="text-gray-500 shrink-0" />
+                    <span>
+                      ผู้ใหญ่ {adultCount} ท่าน {childCount > 0 ? `, เด็ก ${childCount} ท่าน` : ""}
+                    </span>
+                  </div>
                 </div>
-              )}
-              <div className="flex items-center gap-2.5">
-                <Users size={18} className="text-gray-500 shrink-0" />
-                <span>
-                  ผู้ใหญ่ {adultCount} ท่าน {childCount > 0 ? `, เด็ก ${childCount} ท่าน` : ""}
-                </span>
-              </div>
-            </div>
+              )
+            })()}
           </Card>
 
           {/* Pricing & Payment Summary Card */}

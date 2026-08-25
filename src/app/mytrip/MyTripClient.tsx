@@ -7,6 +7,7 @@ import { ArrowLeft, MapPin, CalendarDays, ChevronDown } from "lucide-react"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import { Enrollment } from "@/types/enrollment"
+import { getLocationName } from "@/constants/location"
 
 interface MyTripClientProps {
   enrollments: Enrollment[]
@@ -206,6 +207,12 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               const isDepositPaid =
                 statusLower === "deposit_paid" || statusLower.includes("มัดจำแล้ว")
 
+              const { provinceName, districtName } = getLocationName(
+                course?.province,
+                course?.district,
+                course?.nation,
+              )
+
               // Determine payment link
               const paymentUrl = `/payment/?course_id=${course?.id || enrollment.course_id}&round_id=${enrollment.round_id || ""}&enrollment_id=${enrollment.id}&adults=${enrollment.adult_count || 1}&children=${enrollment.child_count || 0}`
 
@@ -237,8 +244,8 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
                       <MapPin size={15} className="text-gray-400 shrink-0" />
                       <span>
-                        {course?.district ? `${course.district}, ` : ""}
-                        {course?.province || "โตเกียว, ญี่ปุ่น"}
+                        {districtName ? `${districtName}, ` : ""}
+                        {provinceName || "โตเกียว, ญี่ปุ่น"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">

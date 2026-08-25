@@ -27,6 +27,7 @@ import { CreateEnrollmentRequest, Enrollment, EnrollmentParticipant } from "@/ty
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"
+import { getLocationName } from "@/constants/location"
 
 interface BookingFormClientProps {
   course: Course
@@ -91,6 +92,12 @@ export default function BookingFormClient({
   const searchParams = useSearchParams()
   const enrollmentIdParam = searchParams.get("enrollment_id")
   const currentEnrollmentId = enrollment?.id || enrollmentIdParam || undefined
+
+  const { provinceName, districtName } = getLocationName(
+    course.province,
+    course.district,
+    course.nation,
+  )
 
   const getPrice = (price: number | undefined) =>
     (price || Number(course.price) || 0) - (course.discount || 0)
@@ -431,16 +438,11 @@ export default function BookingFormClient({
       </div>
 
       <div className="mb-6 space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="bg-[#304B65] text-white text-[11px] font-bold px-3 py-1 rounded shadow-sm">
-            {course.course_type}
-          </span>
-          <span className="text-white/60 text-xs">AE0342349</span>
-        </div>
         <h2 className="text-2xl font-bold text-white leading-snug">{course.title}</h2>
         <div className="flex flex-col gap-1.5 text-white/90 text-sm font-medium">
           <div className="flex items-center gap-2">
-            <MapPin size={16} /> {course.district || ""}, {course.province || ""}
+            <MapPin size={16} /> {districtName ? `${districtName}, ` : ""}
+            {provinceName}
           </div>
           <div className="flex items-center gap-2">
             <CalendarDays size={16} /> {RenderDate(course.start_date, "d MMMM yyyy")} -{" "}

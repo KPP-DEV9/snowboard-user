@@ -531,3 +531,31 @@ export const Provinces = [
     ],
   },
 ]
+
+export const getLocationName = (
+  provinceCode?: string,
+  districtCode?: string,
+  nationId?: string,
+) => {
+  let provinceData = Provinces.find((p) => p.code === provinceCode)
+
+  if (!provinceData && districtCode) {
+    provinceData = Provinces.find((p) => p.cities?.some((c) => c.code === districtCode))
+  }
+
+  const provinceName = provinceData?.name_th || provinceCode || ""
+  const districtData = provinceData?.cities?.find((c) => c.code === districtCode)
+  const districtName = districtData?.name_th || districtCode || ""
+
+  const nationData = Nations.find((n) => n.id === (nationId || provinceData?.nation_id))
+  const nationName = nationData?.name_th || nationId || ""
+
+  return {
+    provinceName,
+    districtName,
+    nationName,
+    provinceData,
+    districtData,
+    nationData,
+  }
+}

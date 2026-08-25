@@ -6,7 +6,7 @@ import Image from "next/image"
 import { RenderDate } from "@/lib/date"
 import CourseBookingWidget from "@/components/CourseBookingWidget"
 import LayoutPage from "@/components/Layout"
-import { Provinces } from "@/constants/location"
+import { getLocationName } from "@/constants/location"
 import SlideImg from "@/components/Ui/SlideImg"
 
 interface CourseDetailsPageProps {
@@ -23,10 +23,11 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
     return notFound()
   }
 
-  const provinceData = Provinces.find((p) => p.code === course.province)
-  const provinceName = provinceData?.name_th || course.province
-  const districtData = provinceData?.cities?.find((c) => c.code === course.district)
-  const districtName = districtData?.name_th || course.district
+  const { provinceName, districtName } = getLocationName(
+    course.province,
+    course.district,
+    course.nation,
+  )
 
   return (
     <LayoutPage isLicense={false}>
@@ -46,7 +47,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                     ]
               }
             />
-            <div className="absolute inset-0 bg-black/10" />
+            <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           </div>
 
           {/* Back Button */}
@@ -61,11 +62,6 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="w-full px-6 md:px-8 lg:px-12 mx-auto pt-6 max-w-3xl">
             <div className="flex flex-col w-full">
-              {/* Subtitle / ID */}
-              <div className="text-gray-400 text-[13px] font-medium mb-1.5">
-                {course?.course_level}
-              </div>
-
               {/* Title */}
               <h1 className="text-[22px] md:text-3xl font-extrabold text-gray-900 mb-5 leading-tight">
                 {course.title}

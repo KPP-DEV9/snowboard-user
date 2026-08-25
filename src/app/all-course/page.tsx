@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, CalendarDays, User, BadgeCheck } from "lucide-react"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import Image from "next/image"
+import SlideImg from "@/components/Ui/SlideImg"
 
 export default async function AllCoursePage() {
   const toures = await getCourses()
@@ -37,12 +38,7 @@ export default async function AllCoursePage() {
                 className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
               >
                 <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
-                  <Image
-                    src="https://images.unsplash.com/photo-1565992441121-4367c2967103?q=80&w=400&auto=format&fit=crop"
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  {item.image_urls && <SlideImg images={item.image_urls} alt="Indoor snowpark" />}
                   <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#304B65] text-white text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-1.5 rounded shadow-sm">
                     {item.course_type?.toLowerCase().includes("ski") ? "Ski" : "Snowboard"}
                   </div>
