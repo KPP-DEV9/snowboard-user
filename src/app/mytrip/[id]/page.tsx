@@ -23,6 +23,7 @@ import numeral from "numeral"
 import { Card } from "@/components/Ui/Card/Card"
 import LayoutPage from "@/components/Layout"
 import { getLocationName } from "@/constants/location"
+import { Vat } from "@/utils/Inv"
 
 interface MyTripDetailPageProps {
   params: Promise<{ id: string }>
@@ -74,7 +75,8 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     enrollment.child_count ||
     participants.filter((p) => (p.type || "").toUpperCase() === "CHILD").length ||
     0
-  const totalAmount = enrollment.total_amount || course?.price || 0
+  const rawTotal = enrollment.total_amount || course?.price || 0
+  const totalAmount = rawTotal * Vat
   const depositAmount = enrollment.deposit_amount || 0
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"

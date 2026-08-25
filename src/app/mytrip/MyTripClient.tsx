@@ -8,6 +8,7 @@ import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import { Enrollment } from "@/types/enrollment"
 import { getLocationName } from "@/constants/location"
+import { Vat } from "@/utils/Inv"
 
 interface MyTripClientProps {
   enrollments: Enrollment[]
@@ -180,9 +181,10 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
           ) : (
             filteredEnrollments.map((enrollment) => {
               const course = enrollment.course
-              const totalAmount = enrollment.total_amount || course?.price || 55372.5
+              const rawTotal = enrollment.total_amount || course?.price || 55372.5
+              const totalAmount = rawTotal * Vat
               const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
-              const remainingAmount = totalAmount - depositAmount
+              const remainingAmount = Math.max(0, totalAmount - depositAmount)
 
               const isSki = course?.course_type?.toLowerCase()?.includes("ski")
               const programType = isSki ? "Ski" : "Snowboard"
@@ -259,7 +261,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     {/* Scenario 3: Fully Paid */}
                     {isPaid ? (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                        <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
@@ -272,7 +274,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     ) : isCancelled ? (
                       /* Scenario 4: Cancelled */
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                        <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
@@ -286,7 +288,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                       /* Scenario 1: Deposit Paid, Balance Pending */
                       <>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                          <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
                           </span>
@@ -330,7 +332,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                       /* Scenario 2: Deposit Pending (Default Pending) */
                       <>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                          <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
                           </span>
