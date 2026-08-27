@@ -9,6 +9,7 @@ import numeral from "numeral"
 import { Enrollment } from "@/types/enrollment"
 import { getLocationName } from "@/constants/location"
 import { Vat } from "@/utils/Inv"
+import SlideImg from "@/components/Ui/SlideImg"
 
 interface MyTripClientProps {
   enrollments: Enrollment[]
@@ -222,8 +223,15 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 <div
                   key={enrollment.id}
                   onClick={() => router.push(`/mytrip/${enrollment.id}`)}
-                  className="bg-white rounded-[1.75rem] p-5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer text-black"
+                  className="bg-white rounded-[1.75rem] p-5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer text-black overflow-hidden"
                 >
+                  {/* Course Images */}
+                  {course?.image_urls && course.image_urls.length > 0 && (
+                    <div className="relative w-full h-[160px] md:h-[190px] overflow-hidden rounded-2xl mb-3.5 shadow-xs">
+                      <SlideImg images={course.image_urls} alt={course.title} />
+                    </div>
+                  )}
+
                   {/* Top Row: Badge + Code */}
                   <div className="flex items-center gap-2 mb-2">
                     <span
