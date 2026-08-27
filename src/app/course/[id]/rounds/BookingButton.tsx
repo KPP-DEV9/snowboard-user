@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { X, Minus, Plus } from "lucide-react"
+import { X, CalendarDays, Clock } from "lucide-react"
 import { Course } from "@/types/course"
+import { RenderDate } from "@/lib/date"
 
 interface BookingButtonProps {
   course: Course
@@ -27,6 +28,8 @@ export default function BookingButton({
   const [isOpen, setIsOpen] = useState(false)
   const [adults, setAdults] = useState(Number(adultsQuery || 1))
   const [children, setChildren] = useState(Number(childrenQuery || 0))
+
+  const selectedRound = course.rounds?.find((r) => r.id === roundId)
 
   const totalPrice = adults * adultPrice + children * childPrice
 
@@ -61,65 +64,62 @@ export default function BookingButton({
               <X size={20} />
             </button>
 
-            <div className="p-6 md:p-8 flex flex-col gap-6">
-              <h2 className="text-center text-[19px] font-bold text-black mt-2">
-                คอนเฟิร์มจำนวนผู้จอง
-              </h2>
+            <div className="p-6 md:p-8 flex flex-col gap-5">
+              <div className="text-center mt-1">
+                <h2 className="text-[19px] font-bold text-black">ยืนยันการจองรอบ</h2>
+                {selectedRound && (
+                  <div className="mt-2.5 text-xs md:text-[13px] text-gray-600 space-y-1 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
+                    <div className="flex items-center justify-center gap-1.5 font-bold text-gray-800">
+                      <CalendarDays size={15} className="text-[#304B65]" />
+                      <span>วันที่ {RenderDate(selectedRound.start_date, "d MMMM yyyy")}</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-1.5 font-bold text-[#798E75]">
+                      <Clock size={15} />
+                      <span>
+                        เวลา {RenderDate(selectedRound.start_date, "HH:mm")} -{" "}
+                        {RenderDate(selectedRound.end_date, "HH:mm")}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Adult */}
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <div className="font-bold text-black text-[17px]">ผู้ใหญ่</div>
-                  <div className="text-gray-400 text-[13px]">
-                    ฿ {adultPrice.toLocaleString()} / ท่าน
+              {adults > 0 && (
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <div className="font-bold text-black text-[17px]">ผู้ใหญ่</div>
+                    <div className="text-gray-400 text-[13px]">
+                      ฿ {adultPrice.toLocaleString()} / ท่าน
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-full px-1 py-1 border border-gray-100">
+                    <div className="font-bold w-4 text-center text-[15px] text-black">{adults}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 bg-gray-50 rounded-full px-1 py-1 border border-gray-100">
-                  <button
-                    onClick={() => setAdults((prev) => Math.max(1, prev - 1))}
-                    className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-gray-300 transition-colors"
-                  >
-                    <Minus size={16} className="stroke-[3]" />
-                  </button>
-                  <div className="font-bold w-4 text-center text-[15px] text-black">{adults}</div>
-                  <button
-                    onClick={() => setAdults((prev) => prev + 1)}
-                    className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-gray-300 transition-colors"
-                  >
-                    <Plus size={16} className="stroke-[3]" />
-                  </button>
-                </div>
-              </div>
+              )}
 
               {/* Children */}
-              <div className="flex items-center justify-between py-2 border-t border-gray-100 pt-6">
-                <div>
-                  <div className="font-bold text-black text-[17px]">
-                    เด็ก{" "}
-                    <span className="text-gray-400 text-[12px] font-medium ml-1">
-                      อายุน้อยกว่า 12 ปี
-                    </span>
+              {children > 0 && (
+                <div className="flex items-center justify-between py-2 border-t border-gray-100 pt-6">
+                  <div>
+                    <div className="font-bold text-black text-[17px]">
+                      เด็ก{" "}
+                      <span className="text-gray-400 text-[12px] font-medium ml-1">
+                        อายุน้อยกว่า 12 ปี
+                      </span>
+                    </div>
+                    <div className="text-gray-400 text-[13px]">
+                      ฿ {childPrice.toLocaleString()} / ท่าน
+                    </div>
                   </div>
-                  <div className="text-gray-400 text-[13px]">
-                    ฿ {childPrice.toLocaleString()} / ท่าน
+                  <div className="flex items-center gap-3 bg-gray-50 rounded-full px-1 py-1 border border-gray-100">
+                    <div className="font-bold w-4 text-center text-[15px] text-black">
+                      {children}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 bg-gray-50 rounded-full px-1 py-1 border border-gray-100">
-                  <button
-                    onClick={() => setChildren((prev) => Math.max(0, prev - 1))}
-                    className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-gray-300 transition-colors"
-                  >
-                    <Minus size={16} className="stroke-[3]" />
-                  </button>
-                  <div className="font-bold w-4 text-center text-[15px] text-black">{children}</div>
-                  <button
-                    onClick={() => setChildren((prev) => prev + 1)}
-                    className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center hover:bg-gray-300 transition-colors"
-                  >
-                    <Plus size={16} className="stroke-[3]" />
-                  </button>
-                </div>
-              </div>
+              )}
 
               {/* Total Price */}
               <div className="flex items-center justify-between py-2 border-t border-gray-100 pt-6">
