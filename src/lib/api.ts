@@ -490,4 +490,20 @@ export const api = {
       })
     },
   },
+  terms_conditions: {
+    create: <T>(
+      body: {
+        user_id?: string
+        terms_conditions_master_id: string
+        accept: boolean
+        enrollment_id?: string
+      },
+      options?: Omit<RequestInit, "method" | "body">,
+    ) =>
+      fetchWrapper<T>(`v1/user/terms-conditions`, {
+        ...options,
+        method: "POST",
+        body: JSON.stringify(body),
+      }),
+  },
 }

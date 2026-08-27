@@ -17,6 +17,8 @@ import {
   User as UserIcon,
   ShieldAlert,
   Sparkles,
+  Package,
+  ShieldCheck,
 } from "lucide-react"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
@@ -24,6 +26,7 @@ import { Card } from "@/components/Ui/Card/Card"
 import LayoutPage from "@/components/Layout"
 import { getLocationName } from "@/constants/location"
 import { Vat } from "@/utils/Inv"
+import SlideImg from "@/components/Ui/SlideImg"
 
 interface MyTripDetailPageProps {
   params: Promise<{ id: string }>
@@ -66,25 +69,43 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
   }
 
   const course = enrollment.course
-  const participants = enrollment.participants || []
+
+  // Normalize terms_conditions
+  const rawTerms = enrollment.terms_conditions || []
+  const termsConditions = Array.isArray(rawTerms) ? rawTerms : rawTerms ? [rawTerms] : []
+  const courseTermsMaster = course?.terms_conditions_master || []
+
+  // Normalize guests from enrollment.guest, enrollment.guests, or enrollment.participants
+  const rawGuests = enrollment.guest || enrollment.guests || enrollment.participants || []
+  const guests = Array.isArray(rawGuests) ? rawGuests : rawGuests ? [rawGuests] : []
+
   const adultCount =
     enrollment.adult_count ||
-    participants.filter((p) => (p.type || "").toUpperCase() === "ADULT").length ||
+    guests.filter((g: any) => (g.type || "").toUpperCase() === "ADULT").length ||
     1
   const childCount =
     enrollment.child_count ||
-    participants.filter((p) => (p.type || "").toUpperCase() === "CHILD").length ||
+    guests.filter((g: any) => (g.type || "").toUpperCase() === "CHILD").length ||
     0
+
+  const requirementTransactions = enrollment.requirement_transactions || []
+  const extrasSubtotal =
+    requirementTransactions.length > 0
+      ? requirementTransactions.reduce((sum, item) => {
+          const price =
+            item.requirement_type === "ASSET"
+              ? Number(item.asset_master?.price) || 0
+              : Number(item.option_master?.price) || 0
+          return sum + price
+        }, 0)
+      : Number(enrollment.req_total) || 0
+
   const rawTotal = enrollment.total_amount || course?.price || 0
   const totalAmount = rawTotal * Vat
   const depositAmount = enrollment.deposit_amount || 0
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
   const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"
-
-  // const enrollmentCode = enrollment.id
-  //   ? (enrollment.id.includes("-") ? enrollment.id.split("-")[0] : enrollment.id).toUpperCase()
-  //   : "-"
 
   const statusLower = (enrollment.status || "").toLowerCase()
   const isDepositPaid =
@@ -145,13 +166,17 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             >
               <ArrowLeft size={20} className="stroke-[3]" /> ย้อนกลับ
             </Link>
-            {/* <div className="text-white/80 text-xs md:text-sm font-medium">
-              เลขที่รายการ: <span className="font-bold text-white">#{enrollmentCode}</span>
-            </div> */}
           </div>
 
           {/* Main Course Info Card */}
-          <Card className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-none mb-6 text-black">
+          <Card className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-none mb-6 text-black overflow-hidden">
+            {/* Course Images Slider */}
+            {course?.image_urls && course.image_urls.length > 0 && (
+              <div className="relative w-full h-[220px] md:h-[300px] overflow-hidden rounded-2xl mb-5 shadow-sm">
+                <SlideImg images={course.image_urls} alt={course.title} />
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <div className="flex items-center gap-2">
                 <span className={`${tagColor} text-white text-xs font-bold px-3 py-1 rounded-md`}>
@@ -226,6 +251,14 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   {childCount > 0 ? `, เด็ก ${childCount}` : ""})
                 </span>
               </div>
+              {extrasSubtotal > 0 && (
+                <div className="flex justify-between text-gray-600">
+                  <span>อุปกรณ์และบริการเสริม</span>
+                  <span className="font-bold text-gray-900">
+                    ฿ {numeral(extrasSubtotal).format("0,0.00")}
+                  </span>
+                </div>
+              )}
               {depositAmount > 0 && (
                 <div className="flex justify-between text-gray-600">
                   <span>ยอดมัดจำที่ชำระ</span>
@@ -274,113 +307,258 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             )}
           </Card>
 
-          {/* Participants Detail Card */}
-          {participants.length > 0 && (
+          {/* Requirement Transactions Card (อุปกรณ์และบริการเสริม) */}
+          {requirementTransactions.length > 0 && (
+            <Card className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-none mb-6 text-black">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
+                  <Package size={20} className="text-[#304B65]" />
+                  รายการอุปกรณ์และบริการเสริม ({requirementTransactions.length} รายการ)
+                </h3>
+              </div>
+
+              <div className="space-y-3">
+                {requirementTransactions.map((item, idx) => {
+                  const isAsset = item.requirement_type === "ASSET"
+                  const name = isAsset
+                    ? `${item.asset_master?.name || "เช่าอุปกรณ์"}${
+                        item.asset_master?.size ? ` (ไซส์ ${item.asset_master.size})` : ""
+                      }`
+                    : item.option_master?.name || "บริการเพิ่มเติม"
+                  const price = isAsset
+                    ? Number(item.asset_master?.price) || 0
+                    : Number(item.option_master?.price) || 0
+
+                  return (
+                    <div
+                      key={item.id || idx}
+                      className="flex items-center justify-between p-3.5 bg-gray-50 rounded-2xl border border-gray-100 text-sm"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-white text-[#304B65] flex items-center justify-center shadow-xs border border-gray-200 shrink-0">
+                          {isAsset ? (
+                            <Package size={16} />
+                          ) : (
+                            <Sparkles size={16} className="text-amber-500" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-bold text-gray-900">{name}</div>
+                          <div className="text-xs text-gray-400">
+                            {isAsset ? "อุปกรณ์เช่า" : "บริการเสริม / ออฟชั่น"}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="font-bold text-[#448651] text-base shrink-0">
+                        ฿ {numeral(price).format("0,0.00")}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="flex justify-between items-center pt-4 mt-4 border-t border-gray-100 text-sm">
+                <span className="font-bold text-gray-700">ยอดรวมอุปกรณ์และบริการเสริม</span>
+                <span className="font-bold text-gray-900 text-base">
+                  ฿ {numeral(extrasSubtotal).format("0,0.00")}
+                </span>
+              </div>
+            </Card>
+          )}
+
+          {/* Guest / Participants Detail Cards */}
+          {guests.length > 0 && (
             <div className="space-y-4 mb-8">
               <h3 className="text-white font-bold text-lg px-1 flex items-center gap-2">
-                <Users size={20} /> รายชื่อผู้ร่วมทริป ({participants.length} ท่าน)
+                <Users size={20} /> ข้อมูลผู้ร่วมทริป ({guests.length} ท่าน)
               </h3>
 
-              {participants.map((p, idx) => (
-                <Card
-                  key={idx}
-                  className="bg-white rounded-3xl p-6 shadow-md border-none text-black space-y-4"
-                >
-                  <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold text-sm">
-                        {idx + 1}
+              {guests.map((g: any, idx: number) => {
+                const fullName =
+                  `${g.first_name || ""} ${g.last_name || ""}`.trim() ||
+                  g.name ||
+                  `ผู้ร่วมทริปท่านที่ ${idx + 1}`
+                const isAdult = (g.type || "").toUpperCase() === "ADULT" || !g.type
+                const phone = g.phone_number || g.phone || g.tel
+                const lineId = g.line_id || g.lineId
+                const idCard = g.id_card || g.idCard || g.passport_no
+                const dob = g.date_of_birth || g.birth_date
+                const hasMedical = g.has_medical_condition || g.has_disease
+                const medicalDetail = g.medical_condition_detail || g.disease_detail
+                const hasAllergy = g.has_food_allergy || g.has_allergy
+                const allergyDetail = g.food_allergy_detail || g.allergy_detail
+
+                const helmetSize = g.helmet_size_us || g.hat_size || g.hatSize
+                const gloveSize = g.glove_size_us || g.glove_size || g.gloveSize
+                const shoeSize = g.shoe_size_us || g.shoe_size || g.shoeSize
+                const height = g.height_cm || g.height
+                const weight = g.weight_kg || g.weight
+
+                return (
+                  <Card
+                    key={g.id || idx}
+                    className="bg-white rounded-3xl p-6 shadow-md border-none text-black space-y-4"
+                  >
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#304B65] text-white flex items-center justify-center font-bold text-sm">
+                          {idx + 1}
+                        </div>
+                        <span className="font-bold text-gray-900 text-base">{fullName}</span>
                       </div>
-                      <span className="font-bold text-gray-900 text-base">
-                        {p.first_name} {p.last_name}
+                      <span className="bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">
+                        {isAdult ? "ผู้ใหญ่" : "เด็ก"}
                       </span>
                     </div>
-                    <span className="bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full">
-                      {p.type === "ADULT" || p.type === "adult" ? "ผู้ใหญ่" : "เด็ก"}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm text-gray-600">
-                    {p.phone_number && (
-                      <div className="flex items-center gap-2">
-                        <Phone size={15} className="text-gray-400" />
-                        <span>เบอร์โทร: {p.phone_number}</span>
-                      </div>
-                    )}
-                    {p.email && (
-                      <div className="flex items-center gap-2">
-                        <Mail size={15} className="text-gray-400" />
-                        <span>อีเมล: {p.email}</span>
-                      </div>
-                    )}
-                    {p.line_id && (
-                      <div className="flex items-center gap-2">
-                        <UserIcon size={15} className="text-gray-400" />
-                        <span>Line ID: {p.line_id}</span>
-                      </div>
-                    )}
-                    {p.id_card && (
-                      <div className="flex items-center gap-2">
-                        <span>บัตร ปชช./พาสปอร์ต: {p.id_card}</span>
-                      </div>
-                    )}
-                    {p.nationality && (
-                      <div className="flex items-center gap-2">
-                        <span>สัญชาติ: {p.nationality}</span>
-                      </div>
-                    )}
-                    {p.date_of_birth && (
-                      <div className="flex items-center gap-2">
-                        <span>วันเกิด: {RenderDate(p.date_of_birth, "d MMMM yyyy")}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Medical / Food Allergy */}
-                  {(p.has_medical_condition || p.has_food_allergy) && (
-                    <div className="bg-red-50/70 border border-red-100 rounded-2xl p-3.5 text-xs text-red-800 space-y-1.5">
-                      {p.has_medical_condition && (
-                        <div className="flex items-start gap-2">
-                          <ShieldAlert size={16} className="text-red-500 shrink-0 mt-0.5" />
-                          <span>
-                            <strong>โรคประจำตัว:</strong>{" "}
-                            {p.medical_condition_detail || "มีโรคประจำตัว"}
-                          </span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm text-gray-600">
+                      {phone && (
+                        <div className="flex items-center gap-2">
+                          <Phone size={15} className="text-gray-400 shrink-0" />
+                          <span>เบอร์โทร: {phone}</span>
                         </div>
                       )}
-                      {p.has_food_allergy && (
-                        <div className="flex items-start gap-2">
-                          <ShieldAlert size={16} className="text-red-500 shrink-0 mt-0.5" />
+                      {g.email && (
+                        <div className="flex items-center gap-2">
+                          <Mail size={15} className="text-gray-400 shrink-0" />
+                          <span>อีเมล: {g.email}</span>
+                        </div>
+                      )}
+                      {lineId && (
+                        <div className="flex items-center gap-2">
+                          <UserIcon size={15} className="text-gray-400 shrink-0" />
+                          <span>Line ID: {lineId}</span>
+                        </div>
+                      )}
+                      {idCard && (
+                        <div className="flex items-center gap-2">
+                          <span>บัตร ปชช./พาสปอร์ต: {idCard}</span>
+                        </div>
+                      )}
+                      {g.nationality && (
+                        <div className="flex items-center gap-2">
+                          <span>สัญชาติ: {g.nationality}</span>
+                        </div>
+                      )}
+                      {dob && (
+                        <div className="flex items-center gap-2">
+                          <span>วันเกิด: {RenderDate(dob, "d MMMM yyyy")}</span>
+                        </div>
+                      )}
+                      {g.gender && (
+                        <div className="flex items-center gap-2">
                           <span>
-                            <strong>แพ้อาหาร:</strong> {p.food_allergy_detail || "มีอาการแพ้อาหาร"}
+                            เพศ:{" "}
+                            {g.gender === "MALE" || g.gender === "male"
+                              ? "ชาย"
+                              : g.gender === "FEMALE" || g.gender === "female"
+                                ? "หญิง"
+                                : g.gender}
                           </span>
                         </div>
                       )}
                     </div>
-                  )}
 
-                  {/* Sizes & Equipment */}
-                  {(p.helmet_size_us ||
-                    p.glove_size_us ||
-                    p.shoe_size_us ||
-                    p.height_cm ||
-                    p.weight_kg) && (
-                    <div className="bg-gray-50 rounded-2xl p-3.5 text-xs text-gray-700">
-                      <div className="font-bold text-gray-900 mb-2 flex items-center gap-1.5">
-                        <Sparkles size={14} className="text-amber-500" /> ข้อมูลไซส์ & อุปกรณ์
+                    {/* Medical / Food Allergy */}
+                    {(hasMedical || hasAllergy) && (
+                      <div className="bg-red-50/70 border border-red-100 rounded-2xl p-3.5 text-xs text-red-800 space-y-1.5">
+                        {hasMedical && (
+                          <div className="flex items-start gap-2">
+                            <ShieldAlert size={16} className="text-red-500 shrink-0 mt-0.5" />
+                            <span>
+                              <strong>โรคประจำตัว:</strong> {medicalDetail || "มีโรคประจำตัว"}
+                            </span>
+                          </div>
+                        )}
+                        {hasAllergy && (
+                          <div className="flex items-start gap-2">
+                            <ShieldAlert size={16} className="text-red-500 shrink-0 mt-0.5" />
+                            <span>
+                              <strong>แพ้อาหาร:</strong> {allergyDetail || "มีอาการแพ้อาหาร"}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-                        {p.height_cm ? <span>ส่วนสูง: {p.height_cm} ซม.</span> : null}
-                        {p.weight_kg ? <span>น้ำหนัก: {p.weight_kg} กก.</span> : null}
-                        {p.helmet_size_us ? <span>ไซส์หมวก: {p.helmet_size_us}</span> : null}
-                        {p.glove_size_us ? <span>ไซส์ถุงมือ: {p.glove_size_us}</span> : null}
-                        {p.shoe_size_us ? <span>ไซส์รองเท้า: {p.shoe_size_us}</span> : null}
+                    )}
+
+                    {/* Sizes & Equipment */}
+                    {(helmetSize || gloveSize || shoeSize || height || weight) && (
+                      <div className="bg-gray-50 rounded-2xl p-3.5 text-xs text-gray-700">
+                        <div className="font-bold text-gray-900 mb-2 flex items-center gap-1.5">
+                          <Sparkles size={14} className="text-amber-500" /> ข้อมูลไซส์ & อุปกรณ์
+                        </div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                          {height ? <span>ส่วนสูง: {height} ซม.</span> : null}
+                          {weight ? <span>น้ำหนัก: {weight} กก.</span> : null}
+                          {helmetSize ? <span>ไซส์หมวก: {helmetSize}</span> : null}
+                          {gloveSize ? <span>ไซส์ถุงมือ: {gloveSize}</span> : null}
+                          {shoeSize ? <span>ไซส์รองเท้า: {shoeSize}</span> : null}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </Card>
-              ))}
+                    )}
+                  </Card>
+                )
+              })}
             </div>
+          )}
+
+          {/* Terms & Conditions Card */}
+          {((termsConditions && termsConditions.length > 0) ||
+            (courseTermsMaster && courseTermsMaster.length > 0)) && (
+            <Card className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-none mb-8 text-black">
+              <div className="border-b border-gray-100 pb-3 mb-4">
+                <h3 className="font-bold text-gray-900 flex items-center mb-3">
+                  <ShieldCheck size={20} className="text-[#304B65]" />
+                  ข้อตกลงและเงื่อนไข (Terms & Conditions)
+                </h3>
+                <span className="flex items-center w-fit gap-1 bg-green-50 text-[#448651] text-xs font-bold px-3 py-1 rounded-full border border-green-200">
+                  <CheckCircle2 size={14} /> ยอมรับแล้ว
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {termsConditions && termsConditions.length > 0
+                  ? termsConditions.map((term: any, idx: number) => {
+                      const conditionText =
+                        term.terms_conditions_master?.conditions ||
+                        term.conditions ||
+                        term.condition ||
+                        "ยอมรับข้อตกลงและเงื่อนไขการจองคอร์ส"
+
+                      return (
+                        <div
+                          key={term.id || idx}
+                          className="p-4 bg-gray-50/80 rounded-2xl border border-gray-100 text-xs md:text-sm text-gray-800 space-y-1"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-gray-500 text-xs">
+                              ข้อที่ {idx + 1}
+                            </span>
+                            {term.created_at && (
+                              <span className="text-[11px] text-gray-400">
+                                ยอมรับเมื่อ {RenderDate(term.created_at, "d MMM yyyy HH:mm")}
+                              </span>
+                            )}
+                          </div>
+                          <div className="leading-relaxed whitespace-pre-wrap text-xs">
+                            {conditionText}
+                          </div>
+                        </div>
+                      )
+                    })
+                  : courseTermsMaster.map((master: any, idx: number) => (
+                      <div
+                        key={master.id || idx}
+                        className="p-4 bg-gray-50/80 rounded-2xl border border-gray-100 text-xs text-gray-800 space-y-1"
+                      >
+                        <div className="font-bold text-gray-500 text-xs">ข้อที่ {idx + 1}</div>
+                        <div className="leading-relaxed whitespace-pre-wrap font-medium text-xs">
+                          {master.conditions}
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            </Card>
           )}
         </div>
       </div>

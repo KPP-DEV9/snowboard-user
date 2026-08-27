@@ -3,9 +3,10 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { X, Minus, Plus } from "lucide-react"
+import { Course } from "@/types/course"
 
 interface BookingButtonProps {
-  courseId: string
+  course: Course
   roundId: string
   adultPrice: number
   childPrice: number
@@ -13,7 +14,7 @@ interface BookingButtonProps {
 }
 
 export default function BookingButton({
-  courseId,
+  course,
   roundId,
   adultPrice,
   childPrice,
@@ -30,10 +31,16 @@ export default function BookingButton({
   const totalPrice = adults * adultPrice + children * childPrice
 
   const handleConfirm = () => {
-    router.push(
-      `/booking?course_id=${courseId}&round_id=${roundId}&adults=${adults}&children=${children}`,
-    )
+    if (course?.id) {
+      router.push(
+        `/course/${course.id}/terms?round_id=${roundId}&adults=${adults}&children=${children}`,
+      )
+    }
   }
+
+  // router.push(
+  //   `/booking?course_id=${courseId}&round_id=${roundId}&adults=${adults}&children=${children}`,
+  // )
 
   return (
     <>

@@ -1,6 +1,7 @@
 import { Course } from "./course"
 import { Payment } from "./payment"
 import { User } from "./user"
+import { TermsConditions } from "./termsConditions"
 
 type EnrollmentStatus = "pending_payment" | "deposit_paid" | "paid" | "cancelled" | string
 
@@ -21,12 +22,30 @@ export interface Enrollment {
   status: EnrollmentStatus
   remaining_slots?: number
   participants?: EnrollmentParticipant[]
+  guest?: EnrollmentGuest[] | EnrollmentGuest
+  guests?: EnrollmentGuest[]
   payments?: Payment[]
+  terms_conditions?: TermsConditions[] | TermsConditions
   created_at: Date | string
   updated_at: Date | string
   deleted_at?: Date | string | null
   requirement_transactions?: RequirementItem[]
   req_total?: number
+}
+
+export interface EnrollmentGuest extends Partial<EnrollmentParticipant> {
+  id?: string
+  enrollment_id?: string
+  phone?: string
+  tel?: string
+  birth_date?: string
+  has_disease?: boolean
+  disease_detail?: string
+  has_allergy?: boolean
+  allergy_detail?: string
+  hat_size?: string
+  glove_size?: string
+  shoe_size?: string
 }
 
 export interface EnrollmentParticipantAssetOption {

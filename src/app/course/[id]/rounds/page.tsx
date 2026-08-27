@@ -70,7 +70,8 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
 
                 <div className="flex flex-wrap items-center gap-3 md:gap-4 text-white/90 text-sm md:text-[15px] font-medium">
                   <div className="flex items-center gap-1.5">
-                    <MapPin size={18} /> {districtName ? `${districtName}, ` : ""}{provinceName}
+                    <MapPin size={18} /> {districtName ? `${districtName}, ` : ""}
+                    {provinceName}
                   </div>
                   <div className="hidden md:block text-white/50">|</div>
                   <div className="flex items-center gap-1.5">
@@ -148,7 +149,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
 
                           {total_user <= round?.total_user && (
                             <BookingButton
-                              courseId={course.id}
+                              course={course}
                               roundId={round.id}
                               adultPrice={course.price - (course.discount || 0)}
                               childPrice={course.child_price - (course.discount || 0)}

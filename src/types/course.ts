@@ -30,9 +30,18 @@ export interface Course {
   max_users: number
   rounds?: Round[]
   hotels?: HotelsMaster[]
+  terms_conditions_master?: TermsConditionsMaster[]
   course_rooms?: CourseRoom[]
   course_hotels?: CourseHotel[]
   is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface TermsConditionsMaster {
+  id: string
+  conditions: string
+  course_id: string
   created_at: string
   updated_at: string
 }

@@ -18,7 +18,6 @@ import { User } from "@/types/user"
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
 import {
-  createEnrollment,
   updateEnrollment,
   getEnrollmentById,
   getEnrollmentByIdForBooking,
@@ -381,35 +380,29 @@ export default function BookingFormClient({
         req_total: formattedParticipants.reduce((sum, item) => sum + (item.req_total || 0), 0),
       }
 
-      let resultEnrollmentId = currentEnrollmentId
-
-      if (currentEnrollmentId) {
-        const { success, error, data } = await updateEnrollment(currentEnrollmentId, {
-          ...payload,
-          status: enrollment?.status || "pending_payment",
-          deposit_amount: enrollment?.deposit_amount || 0,
-        })
-
-        if (!success) {
-          setToast({ message: error || "เกิดข้อผิดพลาดในการอัปเดตการจอง", type: "error" })
-          return
-        }
-
-        resultEnrollmentId = data?.id || currentEnrollmentId
-      } else {
-        const { success, error, data } = await createEnrollment(payload)
-        if (!success) {
-          setToast({ message: error || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
-          return
-        }
-        resultEnrollmentId = data?.id
+      if (!currentEnrollmentId) {
+        setToast({ message: "ไม่พบข้อมูลการจอง กรุณาทำรายการใหม่อีกครั้ง", type: "error" })
+        return
       }
+
+      const { success, error, data } = await updateEnrollment(currentEnrollmentId, {
+        ...payload,
+        status: enrollment?.status || "pending_payment",
+        deposit_amount: enrollment?.deposit_amount || 0,
+      })
+
+      if (!success) {
+        setToast({ message: error || "เกิดข้อผิดพลาดในการอัปเดตการจอง", type: "error" })
+        return
+      }
+
+      const resultEnrollmentId = data?.id || currentEnrollmentId
+
       setToast({
-        message: currentEnrollmentId
-          ? "อัปเดตการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน..."
-          : "บันทึกการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน...",
+        message: "อัปเดตการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน...",
         type: "success",
       })
+
       setTimeout(() => {
         if (resultEnrollmentId) {
           router.push(
@@ -647,7 +640,7 @@ export default function BookingFormClient({
               <span>กำลังดำเนินการ...</span>
             </>
           ) : (
-            <span>สรุปการจอง &rarr;</span>
+            <span>ยืนยันจองทริป &rarr;</span>
           )}
         </button>
       </div>

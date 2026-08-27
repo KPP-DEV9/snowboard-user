@@ -102,6 +102,7 @@ export async function getEnrollmentByUserID(page: number = 1, limit: number = 10
 export async function getEnrollmentById(id: string) {
   try {
     const res = await api.enrollment.getById<Enrollment>(id)
+
     if (!res.success || !res.data) {
       return {
         success: false,
