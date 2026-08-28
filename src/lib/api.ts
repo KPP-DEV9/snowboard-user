@@ -506,4 +506,18 @@ export const api = {
         body: JSON.stringify(body),
       }),
   },
+  images: {
+    uploadR2: <T>(formData: FormData, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v1/user/images-upload/r2`, {
+        ...options,
+        method: "POST",
+        body: formData,
+      }),
+    uploadS3: <T>(formData: FormData, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v1/user/images-upload/s3`, {
+        ...options,
+        method: "POST",
+        body: formData,
+      }),
+  },
 }

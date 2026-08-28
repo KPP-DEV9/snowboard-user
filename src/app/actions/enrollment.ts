@@ -33,6 +33,7 @@ export async function updateEnrollment(
     status?: string
     deposit_amount?: number
     total_amount?: number
+    slip_url?: string
   },
 ) {
   try {

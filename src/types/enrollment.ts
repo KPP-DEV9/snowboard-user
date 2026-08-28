@@ -31,6 +31,7 @@ export interface Enrollment {
   deleted_at?: Date | string | null
   requirement_transactions?: RequirementItem[]
   req_total?: number
+  slip_url?: string
 }
 
 export interface EnrollmentGuest extends Partial<EnrollmentParticipant> {
