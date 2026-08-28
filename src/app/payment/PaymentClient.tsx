@@ -184,7 +184,6 @@ export default function PaymentClient({
 
       const effectiveAdults = Number(enrollment?.adult_count || adultsCount || 1)
       const effectiveChildren = Number(enrollment?.child_count ?? childrenCount ?? 0)
-
       if (enrollment?.id) {
         const res = await updateEnrollment(enrollment.id, {
           course_id: enrollment.course_id || course.id,
