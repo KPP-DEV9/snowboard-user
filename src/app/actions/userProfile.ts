@@ -45,7 +45,7 @@ export async function updateUserProfile(data: any) {
     const updatedUser: User = {
       ...user,
       nickname: data.nickname || user.nickname,
-      profile_image: data.image_profile || user.profile_image,
+      profile_image: data.profile_image || data.image_profile || user.profile_image,
       user_profile: {
         ...currentUserProfile,
         first_name: data.first_name || currentUserProfile.first_name,
@@ -58,10 +58,26 @@ export async function updateUserProfile(data: any) {
         head_size: data.head_size || currentUserProfile.head_size,
         glove_size: data.glove_size || currentUserProfile.glove_size,
         shoe_size: data.shoe_size || currentUserProfile.shoe_size,
-        food_allergies: data.has_allergy ? data.allergy_detail || "" : "",
-        underlying_disease: data.has_disease ? data.disease_detail || "" : "",
+        food_allergies:
+          data.food_allergies !== undefined
+            ? data.food_allergies
+            : data.has_allergy
+              ? data.allergy_detail || ""
+              : "",
+        underlying_disease:
+          data.underlying_disease !== undefined
+            ? data.underlying_disease
+            : data.has_disease
+              ? data.disease_detail || ""
+              : "",
         sex:
-          data.sex === "male" ? "Male" : data.sex === "female" ? "Female" : currentUserProfile.sex,
+          data.sex === "Male" || data.sex === "Female" || data.sex === "Other"
+            ? data.sex
+            : data.sex === "male"
+              ? "Male"
+              : data.sex === "female"
+                ? "Female"
+                : currentUserProfile.sex,
         nation: data.nation || currentUserProfile.nation,
         id_card: data.id_card || currentUserProfile.id_card,
         passport_no: data.passport_no || currentUserProfile.passport_no,
@@ -85,7 +101,14 @@ export async function updateUserProfile(data: any) {
         shoe_size: data.shoe_size || "",
         food_allergies: data.food_allergies || "",
         underlying_disease: data.underlying_disease || "",
-        sex: data.sex === "male" ? "Male" : data.sex === "female" ? "Female" : "",
+        sex:
+          data.sex === "Male" || data.sex === "Female" || data.sex === "Other"
+            ? data.sex
+            : data.sex === "male"
+              ? "Male"
+              : data.sex === "female"
+                ? "Female"
+                : "",
         nation: data.nation || "",
         id_card: data.id_card || "",
         passport_no: data.passport_no || "",

@@ -20,7 +20,7 @@ export default function ProfileMenuClient({ user }: ProfileMenuClientProps) {
     <>
       <div className="flex flex-col">
         {/* Edit Profile Button */}
-        <button 
+        <button
           onClick={() => setIsModalOpen(true)}
           className="flex items-center justify-between py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors rounded-xl px-2 -mx-2"
         >
@@ -37,7 +37,7 @@ export default function ProfileMenuClient({ user }: ProfileMenuClientProps) {
         </button>
 
         {/* Logout Button */}
-        <button 
+        <button
           onClick={handleLogout}
           className="flex items-center justify-between py-5 hover:bg-gray-50 transition-colors rounded-xl px-2 -mx-2"
         >

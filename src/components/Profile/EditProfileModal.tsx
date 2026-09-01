@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { User } from "@/types/user"
+import { User, UserProfile } from "@/types/user"
 import { updateUserProfile } from "@/app/actions/userProfile"
 import { X, CalendarDays, ScanLine } from "lucide-react"
+import { NATIONALITIES, normalizeNationality } from "@/constants/nationality"
 
 interface EditProfileModalProps {
   user: User
@@ -11,41 +12,86 @@ interface EditProfileModalProps {
   onClose: () => void
 }
 
-export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProps) {
-  const [formData, setFormData] = useState({
-    // ข้อมูลจากระดับ User
-    nickname: user?.nickname || "",
-    image_profile: user?.profile_image || "",
+type ProfileSex = NonNullable<UserProfile["sex"]>
 
-    // ข้อมูลส่วนตัว / ข้อมูลติดต่อ
+interface ProfileFormData {
+  // User
+  nickname: string
+  profile_image: string
+
+  // UserProfile
+  first_name: string
+  last_name: string
+  telephone: string
+  email: string
+  sex: ProfileSex
+  birth_date: string
+  nation: string
+
+  // Documents & Address / Tax
+  id_card: string
+  passport_no: string
+  tax_id: string
+  address: string
+
+  // Skill & Body Measurements
+  level: string
+  weight: number | string
+  height: number | string
+  head_size: string
+  glove_size: string
+  shoe_size: string
+
+  // Health / Medical
+  has_disease: boolean
+  disease_detail: string
+  has_allergy: boolean
+  allergy_detail: string
+}
+
+function normalizeSex(val?: string | null): ProfileSex {
+  if (!val) return "Male"
+  const lower = val.toLowerCase()
+  if (lower === "female") return "Female"
+  if (lower === "other") return "Other"
+  return "Male"
+}
+
+function formatBirthDate(val?: string | null): string {
+  if (!val) return ""
+  return String(val).split("T")[0]
+}
+
+export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProps) {
+  const [formData, setFormData] = useState<ProfileFormData>({
+    // User
+    nickname: user?.nickname || "",
+    profile_image: user?.profile_image || "",
+
+    // UserProfile - ข้อมูลส่วนตัว / ติดต่อ
     first_name: user?.user_profile?.first_name || "",
     last_name: user?.user_profile?.last_name || "",
     email: user?.user_profile?.email || "",
     telephone: user?.user_profile?.telephone || "",
-    sex: user?.user_profile?.sex || "Male",
-    birth_date: user?.user_profile?.birth_date
-      ? (user.user_profile.birth_date instanceof Date
-          ? user.user_profile.birth_date.toISOString()
-          : String(user.user_profile.birth_date)
-        ).split("T")[0]
-      : "",
-    nation: user?.user_profile?.nation || "",
+    sex: normalizeSex(user?.user_profile?.sex),
+    birth_date: formatBirthDate(user?.user_profile?.birth_date),
+    nation: normalizeNationality(user?.user_profile?.nation),
 
-    // เอกสารประจำตัว & ข้อมูลภาษี/ที่อยู่ (เพิ่ม tax_id, address)
+    // UserProfile - เอกสารประจำตัว & ข้อมูลภาษี / ที่อยู่
     id_card: user?.user_profile?.id_card || "",
     passport_no: user?.user_profile?.passport_no || "",
     tax_id: user?.user_profile?.tax_id || "",
     address: user?.user_profile?.address || "",
 
-    // ทักษะ & ขนาดร่างกาย
+    // UserProfile - ทักษะ & ขนาดร่างกาย
     level: user?.user_profile?.level || "Beginner",
-    weight: user?.user_profile?.weight || 0,
-    height: user?.user_profile?.height || 0,
+    weight: user?.user_profile?.weight ?? 0,
+    height: user?.user_profile?.height ?? 0,
     head_size: user?.user_profile?.head_size || "",
     glove_size: user?.user_profile?.glove_size || "",
     shoe_size: user?.user_profile?.shoe_size || "",
 
-    // ข้อมูลสุขภาพ / ประวัติแพ้
+    // UserProfile - สุขภาพ / ประวัติแพ้
     has_disease: !!user?.user_profile?.underlying_disease,
     disease_detail: user?.user_profile?.underlying_disease || "",
     has_allergy: !!user?.user_profile?.food_allergies,
@@ -67,29 +113,33 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
     e.preventDefault()
     setIsLoading(true)
     try {
-      // NOTE: We only send fields that are supported by the backend right now
       const payload = {
-        // ข้อมูลส่วนตัว / ติดต่อ
+        // ข้อมูลระดับ User
+        nickname: formData.nickname || null,
+        profile_image: formData.profile_image || null,
+
+        // ข้อมูลระดับ UserProfile
         first_name: formData.first_name || null,
         last_name: formData.last_name || null,
         telephone: formData.telephone,
-        email: formData.email || null, // เพิ่ม
+        email: formData.email || null,
         sex: formData.sex,
         birth_date: formData.birth_date || null,
         nation: formData.nation,
-        // เอกสารประจำตัว & ข้อมูลภาษี/ที่อยู่
         id_card: formData.id_card || null,
         passport_no: formData.passport_no || null,
-        tax_id: formData.tax_id || null, // เพิ่ม
-        address: formData.address || null, // เพิ่ม
-        // ทักษะ & ไซส์ร่างกาย
+        tax_id: formData.tax_id || null,
+        address: formData.address || null,
         level: formData.level,
         weight: Number(formData.weight) || 0,
         height: Number(formData.height) || 0,
         head_size: formData.head_size,
         glove_size: formData.glove_size,
         shoe_size: formData.shoe_size,
-        // ประวัติสุขภาพ / แพ้อาหาร (แมปให้ตรงกับ json tag ของ Go)
+        has_disease: formData.has_disease,
+        disease_detail: formData.disease_detail,
+        has_allergy: formData.has_allergy,
+        allergy_detail: formData.allergy_detail,
         underlying_disease: formData.has_disease ? formData.disease_detail : "",
         food_allergies: formData.has_allergy ? formData.allergy_detail : "",
       }
@@ -191,10 +241,16 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-no-repeat bg-[position:right_1rem_center]"
                 >
                   <option value="" disabled>
-                    เลือก
+                    เลือกสัญชาติ (Select Nationality)
                   </option>
-                  <option value="thai">ไทย</option>
-                  <option value="other">อื่นๆ</option>
+                  {NATIONALITIES.map((n) => (
+                    <option key={n.value} value={n.value}>
+                      {n.label}
+                    </option>
+                  ))}
+                  {formData.nation && !NATIONALITIES.some((n) => n.value === formData.nation) && (
+                    <option value={formData.nation}>{formData.nation}</option>
+                  )}
                 </select>
               </div>
 
@@ -248,6 +304,18 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
             {/* Nickname & Telephone */}
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">ชื่อเล่น</label>
+                <input
+                  type="text"
+                  name="nickname"
+                  value={formData.nickname}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
+                  placeholder="ชื่อเล่น"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">เบอร์โทรศัพท์</label>
                 <input
                   type="tel"
@@ -258,30 +326,30 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   placeholder="080xxxxxxx"
                 />
               </div>
+            </div>
 
-              {/* Email */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-bold text-gray-900">อีเมล์</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
-                  placeholder="อีเมล..."
-                />
-              </div>
+            {/* Email */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-bold text-gray-900">อีเมล์</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
+                placeholder="อีเมล..."
+              />
             </div>
 
             {/* Gender */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-gray-900">เพศ</label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, sex: "male" }))}
+                  onClick={() => setFormData((prev) => ({ ...prev, sex: "Male" }))}
                   className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
-                    formData.sex === "male"
+                    formData.sex === "Male"
                       ? "bg-[#354359] text-white border-[#354359]"
                       : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
                   }`}
@@ -290,14 +358,25 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                 </button>
                 <button
                   type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, sex: "female" }))}
+                  onClick={() => setFormData((prev) => ({ ...prev, sex: "Female" }))}
                   className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
-                    formData.sex === "female"
+                    formData.sex === "Female"
                       ? "bg-[#354359] text-white border-[#354359]"
                       : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   <span className="text-lg">♀</span> หญิง
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFormData((prev) => ({ ...prev, sex: "Other" }))}
+                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
+                    formData.sex === "Other"
+                      ? "bg-[#354359] text-white border-[#354359]"
+                      : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="text-lg">⚧</span> อื่นๆ
                 </button>
               </div>
             </div>
@@ -389,7 +468,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     onChange={handleChange}
                     className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-no-repeat bg-[position:right_1rem_center]"
                   >
-                    <option value="00">00</option>
+                    <option value="0">0</option>
                     {Array.from({ length: 100 }, (_, i) => i + 30).map((w) => (
                       <option key={w} value={w.toString()}>
                         {w}
@@ -405,7 +484,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     onChange={handleChange}
                     className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px_12px] bg-no-repeat bg-[position:right_1rem_center]"
                   >
-                    <option value="00">00</option>
+                    <option value="0">0</option>
                     {Array.from({ length: 100 }, (_, i) => i + 100).map((h) => (
                       <option key={h} value={h.toString()}>
                         {h}
@@ -454,7 +533,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-sm font-bold text-gray-900">Size รองเท้า (us)</label>
+                  <label className="text-sm font-bold text-gray-900">Size รองเท้า (cm)</label>
                   <select
                     name="shoe_size"
                     value={formData.shoe_size}
@@ -464,11 +543,14 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     <option value="" disabled>
                       เลือก
                     </option>
-                    {Array.from({ length: 50 }, (_, i) => i + 10).map((size) => (
-                      <option key={size} value={size.toString()}>
-                        {size}
-                      </option>
-                    ))}
+                    {Array.from({ length: 93 }, (_, i) => {
+                      const size = (4 + i * 0.5).toString()
+                      return (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      )
+                    })}
                   </select>
                 </div>
               </div>
