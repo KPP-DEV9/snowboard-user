@@ -47,6 +47,7 @@ interface ParticipantData {
   lineId?: string
   level?: string
   idCard: string
+  passportNo: string
   nationality: string
   birthDate: string
   firstName: string
@@ -341,6 +342,7 @@ export default function BookingFormClient({
           type: p.type === "adult" ? "ADULT" : "CHILD",
           line_id: p.lineId || undefined,
           id_card: p.idCard || undefined,
+          passport_no: p.passportNo || undefined,
           nationality: p.nationality || "ไทย",
           date_of_birth: dob,
           first_name: p.firstName || "",
@@ -740,30 +742,40 @@ function ParticipantForm({
       </div>
 
       {/* Row 2 */}
-      <div className="flex flex-col gap-1">
-        <label className="text-xs font-bold text-gray-800">
-          <span className="text-red-500">*</span>เลขบัตรประชาชน/เลขพาสปอร์ต
-        </label>
-        <div className="relative">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold text-gray-800">เลขบัตรประชาชน</label>
+          <div className="relative">
+            <input
+              type="text"
+              value={data.idCard}
+              onChange={(e) => onChange("idCard", e.target.value)}
+              className="w-full bg-white border border-gray-200 rounded-lg p-2.5 pr-8 text-sm text-gray-900"
+              placeholder="เลขบัตรประชาชน 13 หลัก"
+            />
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 opacity-50 pointer-events-none">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M3 7v2a3 3 0 1 1 0 6v2c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-2a3 3 0 1 1 0-6V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-bold text-gray-800">เลขพาสปอร์ต</label>
           <input
             type="text"
-            value={data.idCard}
-            onChange={(e) => onChange("idCard", e.target.value)}
+            value={data.passportNo}
+            onChange={(e) => onChange("passportNo", e.target.value)}
             className="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
-            placeholder="1234567890123"
+            placeholder="เลขพาสปอร์ต"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-50">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M3 7v2a3 3 0 1 1 0 6v2c0 1.1.9 2 2 2h14a2 2 0 0 0 2-2v-2a3 3 0 1 1 0-6V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2z"></path>
-            </svg>
-          </div>
         </div>
       </div>
 
@@ -1195,7 +1207,8 @@ function createEmptyParticipant(
     index,
     lineId: user?.line_user_id || "",
     level: profile?.level || "Level 1",
-    idCard: profile?.id_card || profile?.passport_no || "",
+    idCard: profile?.id_card || "",
+    passportNo: profile?.passport_no || "",
     nationality: profile?.nation || "ไทย",
     birthDate,
     firstName: profile?.first_name || "",
@@ -1257,7 +1270,8 @@ function convertEnrollmentParticipantToData(
     index,
     lineId: p.line_id || p.lineId || p.line_user_id || "",
     level: p.level || p.course_level || "Level 1",
-    idCard: p.id_card || p.idCard || p.passport_no || p.passportNo || "",
+    idCard: p.id_card || p.idCard || "",
+    passportNo: p.passport_no || p.passportNo || "",
     nationality: p.nationality || "ไทย",
     birthDate,
     firstName: p.first_name || p.firstName || "",
