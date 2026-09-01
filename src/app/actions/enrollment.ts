@@ -142,3 +142,26 @@ export async function getEnrollmentByIdForBooking(enrollmentId: string) {
     }
   }
 }
+
+export async function cancelEnrollment(id: string) {
+  try {
+    const res = await api.enrollment.cancel(id)
+    if (!res?.success) {
+      return {
+        success: false,
+        error: res.message || "Failed to cancel enrollment",
+      }
+    }
+    revalidatePath("/", "layout")
+    revalidatePath("/mytrip", "page")
+    return {
+      success: true,
+      data: res.data,
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Failed to cancel enrollment",
+    }
+  }
+}

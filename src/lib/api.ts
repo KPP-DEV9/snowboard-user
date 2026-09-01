@@ -284,6 +284,11 @@ export const api = {
         method: "PUT",
         body: JSON.stringify(data),
       }),
+    cancel: <T>(id: string, options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v2/user/enrollments/cancel/${id}`, {
+        ...options,
+        method: "DELETE",
+      }),
     getByUserID: <T>(options?: Omit<RequestInit, "method" | "body">) =>
       fetchWrapper<T>(`v1/user/enrollments/user`, {
         ...options,

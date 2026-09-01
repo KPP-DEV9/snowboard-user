@@ -17,13 +17,14 @@ import { User } from "@/types/user"
 
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
-import { updateEnrollment } from "@/app/actions/enrollment"
+import { updateEnrollment, cancelEnrollment } from "@/app/actions/enrollment"
 import { CreateEnrollmentRequest, Enrollment } from "@/types/enrollment"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"
 import { getLocationName } from "@/constants/location"
 import { NATIONALITIES, normalizeNationality } from "@/constants/nationality"
+import { GLOVE_SIZE_OPTIONS, HAT_SIZE_OPTIONS, SHOE_SIZE_OPTIONS } from "@/constants/asset"
 
 interface BookingFormClientProps {
   course: Course
@@ -231,6 +232,7 @@ export default function BookingFormClient({
 
   const [loading, setLoading] = useState(false)
   const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
   const isConfirmedRef = useRef(false)
   const [toast, setToast] = useState<{
     message: string
@@ -264,10 +266,27 @@ export default function BookingFormClient({
     }
   }, [])
 
-  const handleConfirmLeave = () => {
-    isConfirmedRef.current = true
-    setShowCancelModal(false)
-    router.push(`/course/${course.id}/rounds`)
+  const handleConfirmLeave = async () => {
+    try {
+      setCancelling(true)
+      if (currentEnrollmentId) {
+        const res = await cancelEnrollment(currentEnrollmentId)
+        if (res.success) {
+          setToast({ message: "ยกเลิกการจองสำเร็จ", type: "success" })
+          setTimeout(() => {
+            router.push(`/course/${course.id}/rounds`)
+          }, 1500)
+        } else {
+          setToast({ message: "ยกเลิกการจองไม่สำเร็จ", type: "error" })
+        }
+      }
+    } catch (err) {
+      console.error("Failed to cancel enrollment:", err)
+    } finally {
+      isConfirmedRef.current = true
+      setShowCancelModal(false)
+      setCancelling(false)
+    }
   }
 
   const handleNext = async () => {
@@ -524,16 +543,18 @@ export default function BookingFormClient({
               <button
                 type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+                disabled={cancelling}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer disabled:opacity-50"
               >
                 ทำรายการต่อ
               </button>
               <button
                 type="button"
                 onClick={handleConfirmLeave}
-                className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-[#F04E23] hover:bg-[#D4411C] text-white transition-colors cursor-pointer"
+                disabled={cancelling}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-[#F04E23] hover:bg-[#D4411C] text-white transition-colors cursor-pointer disabled:opacity-50"
               >
-                ยกเลิกการจอง
+                {cancelling ? "กำลังยกเลิก..." : "ยกเลิกการจอง"}
               </button>
             </div>
           </div>
@@ -545,49 +566,6 @@ export default function BookingFormClient({
 
 const WEIGHT_OPTIONS = Array.from({ length: 121 }, (_, i) => (i + 30).toString())
 const HEIGHT_OPTIONS = Array.from({ length: 131 }, (_, i) => (i + 90).toString())
-const HAT_SIZE_OPTIONS = ["S", "M", "L", "XL", "6.5", "7", "7.5", "8", "8.5", "9", "9.5", "10"]
-const GLOVE_SIZE_OPTIONS = [
-  "S",
-  "M",
-  "L",
-  "XL",
-  "6",
-  "6.5",
-  "7",
-  "7.5",
-  "8",
-  "8.5",
-  "9",
-  "9.5",
-  "10",
-]
-const SHOE_SIZE_OPTIONS = [
-  "3",
-  "3.5",
-  "4",
-  "4.5",
-  "5",
-  "5.5",
-  "6",
-  "6.5",
-  "7",
-  "7.5",
-  "8",
-  "8.5",
-  "9",
-  "9.5",
-  "10",
-  "10.5",
-  "11",
-  "11.5",
-  "12",
-  "12.5",
-  "13",
-  "13.5",
-  "14",
-  "14.5",
-  "15",
-]
 
 function ParticipantForm({
   data,
@@ -689,10 +667,9 @@ function ParticipantForm({
                 {n.label}
               </option>
             ))}
-            {data.nationality &&
-              !NATIONALITIES.some((n) => n.value === data.nationality) && (
-                <option value={data.nationality}>{data.nationality}</option>
-              )}
+            {data.nationality && !NATIONALITIES.some((n) => n.value === data.nationality) && (
+              <option value={data.nationality}>{data.nationality}</option>
+            )}
           </select>
         </div>
         <div className="flex flex-col gap-1">
