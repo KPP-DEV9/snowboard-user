@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
+import { useState, useEffect, useRef } from "react"
 import {
   ArrowLeft,
   MapPin,
@@ -9,6 +8,7 @@ import {
   User as UserIcon,
   ChevronDown,
   ChevronUp,
+  AlertCircle,
 } from "lucide-react"
 import { Course, HotelsMaster, RoomMaster } from "@/types/course"
 import { RenderDate } from "@/lib/date"
@@ -17,29 +17,25 @@ import { User } from "@/types/user"
 
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
-import {
-  updateEnrollment,
-  getEnrollmentById,
-  getEnrollmentByIdForBooking,
-} from "@/app/actions/enrollment"
-import { CreateEnrollmentRequest, Enrollment, EnrollmentParticipant } from "@/types/enrollment"
+import { updateEnrollment } from "@/app/actions/enrollment"
+import { CreateEnrollmentRequest, Enrollment } from "@/types/enrollment"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"
 import { getLocationName } from "@/constants/location"
+import { NATIONALITIES, normalizeNationality } from "@/constants/nationality"
 
 interface BookingFormClientProps {
   course: Course
   roundId: string
   adultsCount: number
   childrenCount: number
-  user?: any // Use 'any' or import 'User' type if possible. I'll import User from '@/types/user'
+  user?: User
   assets: AssetMaster[]
   options: OptionMaster[]
   enrollment?: Enrollment | null
 }
 
-// Interfaces for form state
 interface ParticipantData {
   id: string
   type: "adult" | "child"
@@ -69,13 +65,6 @@ interface ParticipantData {
   extraInsurance3: boolean
   extraInsurance1: boolean
   extraPhoto: boolean
-}
-
-interface RoomData {
-  id: string
-  roomIndex: number
-  selectedOption: string
-  extraBed: boolean
 }
 
 export default function BookingFormClient({
@@ -131,11 +120,6 @@ export default function BookingFormClient({
       }
     })
   }
-
-  // Primary hotel name
-  const primaryHotel = hotelsList[0] || course.course_rooms?.[0]?.room_master?.hotel
-  const hotelName = primaryHotel?.name || "โรงแรม Steigenberger"
-  const defaultOption = availableRooms[0]?.id || ""
 
   // Helper to build participants list
   const buildParticipantsList = (
@@ -203,19 +187,7 @@ export default function BookingFormClient({
     if (enrollment) {
       setParticipants(buildParticipantsList(enrollment, adultsCount, childrenCount))
     }
-    // else if (enrollmentIdParam) {
-    //   getEnrollmentByIdForBooking(enrollmentIdParam).then((res) => {
-    //     if (res.success && res.data) {
-    //       setParticipants(buildParticipantsList(res.data, adultsCount, childrenCount))
-    //     }
-    //   })
-    // }
   }, [enrollment, enrollmentIdParam, adultsCount, childrenCount, user, assets, options])
-
-  // Initialize rooms (start with 1)
-  // const [rooms, setRooms] = useState<RoomData[]>([
-  //   { id: "r1", roomIndex: 1, selectedOption: defaultOption, extraBed: false },
-  // ])
 
   // Accordion state (first one open)
   const [openParticipantId, setOpenParticipantId] = useState<string>(participants[0]?.id || "")
@@ -223,34 +195,6 @@ export default function BookingFormClient({
   const handleParticipantChange = (id: string, field: keyof ParticipantData, value: any) => {
     setParticipants((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)))
   }
-
-  // const handleRoomChange = (id: string, field: keyof RoomData, value: any) => {
-  //   setRooms((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)))
-  // }
-
-  // const addRoom = () => {
-  //   setRooms((prev) => [
-  //     ...prev,
-  //     {
-  //       id: `r${prev.length + 1}_${Date.now()}`,
-  //       roomIndex: prev.length + 1,
-  //       selectedOption: defaultOption,
-  //       extraBed: false,
-  //     },
-  //   ])
-  // }
-
-  // const removeRoom = (id: string) => {
-  //   if (rooms.length <= 1) return
-  //   setRooms((prev) =>
-  //     prev
-  //       .filter((r) => r.id !== id)
-  //       .map((r, idx) => ({
-  //         ...r,
-  //         roomIndex: idx + 1,
-  //       })),
-  //   )
-  // }
 
   // Cost calculations
   const calculateExtras = () => {
@@ -286,10 +230,45 @@ export default function BookingFormClient({
   const grandTotal = baseTotal + calculateExtras()
 
   const [loading, setLoading] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const isConfirmedRef = useRef(false)
   const [toast, setToast] = useState<{
     message: string
     type: "success" | "error" | "warning"
   } | null>(null)
+
+  useEffect(() => {
+    // Push dummy history entry so browser back button triggers popstate before leaving
+    window.history.pushState({ bookingPage: true }, "", window.location.href)
+
+    const handlePopState = () => {
+      if (isConfirmedRef.current) return
+
+      // Keep user on the page and open confirmation modal
+      window.history.pushState({ bookingPage: true }, "", window.location.href)
+      setShowCancelModal(true)
+    }
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isConfirmedRef.current) return
+      e.preventDefault()
+      e.returnValue = ""
+    }
+
+    window.addEventListener("popstate", handlePopState)
+    window.addEventListener("beforeunload", handleBeforeUnload)
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState)
+      window.removeEventListener("beforeunload", handleBeforeUnload)
+    }
+  }, [])
+
+  const handleConfirmLeave = () => {
+    isConfirmedRef.current = true
+    setShowCancelModal(false)
+    router.push(`/course/${course.id}/rounds`)
+  }
 
   const handleNext = async () => {
     try {
@@ -343,7 +322,7 @@ export default function BookingFormClient({
           line_id: p.lineId || undefined,
           id_card: p.idCard || undefined,
           passport_no: p.passportNo || undefined,
-          nationality: p.nationality || "ไทย",
+          nationality: p.nationality || "ไทย (Thai)",
           date_of_birth: dob,
           first_name: p.firstName || "",
           last_name: p.lastName || "",
@@ -398,6 +377,7 @@ export default function BookingFormClient({
         return
       }
 
+      isConfirmedRef.current = true
       const resultEnrollmentId = data?.id || currentEnrollmentId
 
       setToast({
@@ -413,6 +393,7 @@ export default function BookingFormClient({
         }
       }, 1000)
     } catch (err: any) {
+      isConfirmedRef.current = false
       setToast({ message: err?.message || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
     } finally {
       setLoading(false)
@@ -423,12 +404,13 @@ export default function BookingFormClient({
     <div className="w-full max-w-lg mx-auto pt-6 px-4 pb-32">
       {/* Header */}
       <div className="relative flex items-center justify-center mb-8">
-        <Link
-          href={`/course/${course.id}/rounds`}
-          className="absolute left-0 text-white font-bold flex items-center gap-2 hover:opacity-80 transition-opacity text-sm"
+        <button
+          type="button"
+          onClick={() => setShowCancelModal(true)}
+          className="absolute left-0 text-white font-bold flex items-center gap-2 hover:opacity-80 transition-opacity text-sm cursor-pointer"
         >
           <ArrowLeft size={20} className="stroke-[3]" />
-        </Link>
+        </button>
         <h1 className="text-xl font-bold text-white">สรุปการจอง</h1>
       </div>
 
@@ -457,19 +439,8 @@ export default function BookingFormClient({
           </div>
           <div className="flex items-center gap-2 font-bold text-gray-900">
             ผู้ใหญ่ {adultsCount}, เด็ก {childrenCount}{" "}
-            {/* <Edit size={16} className="text-blue-500 cursor-pointer" /> */}
           </div>
         </div>
-        {/* <div className="space-y-2 mb-4">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">ผู้ใหญ่ ({adultsCount} คน)</span>
-            <span className="font-medium">฿ {adultsTotal.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-500">เด็ก ({childrenCount} คน)</span>
-            <span className="font-medium">฿ {childrenTotal.toLocaleString()}</span>
-          </div>
-        </div> */}
         <div className="flex justify-between font-bold text-[#448651] text-lg border-t border-gray-100 pt-4">
           <span>ราคารวม</span>
           <span>฿ {baseTotal.toLocaleString()}</span>
@@ -516,119 +487,8 @@ export default function BookingFormClient({
         })}
       </div>
 
-      {/* Hotel Selection */}
-      {/* <div className="bg-white rounded-3xl p-6 shadow-sm mb-24 text-black">
-        <div className="flex items-center gap-2 font-bold text-lg text-gray-900 mb-2">
-          <svg
-            className="w-5 h-5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path
-              d="M3 21h18M5 21V7l8-4v18M13 3l8 4v14M7 11h2M7 15h2M15 11h2M15 15h2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          เลือกห้องพัก
-        </div>
-        <div className="flex justify-between text-sm mb-6">
-          <span className="font-bold text-gray-900">{hotelName}</span>
-          <span className="text-[#798E75] font-bold">
-            ผู้ใหญ่ {adultsCount}, เด็ก {childrenCount}
-          </span>
-        </div>
-        <p className="text-xs text-gray-400 mb-6 leading-relaxed">
-          กรุณาเลือกห้องพักของคุณ โดยทางที่พักสามารถพักได้สูงสุด 2 ท่านต่อห้อง
-          (กรณีต้องการเพิ่มเตียงเสริม สามารถระบุได้ในตัวเลือก)
-        </p>
-
-        <div className="space-y-6 text-black">
-          {rooms.map((r) => {
-            const selectedRoom = availableRooms.find((rm) => rm.id === r.selectedOption)
-            const extraBedPrice = selectedRoom?.extra_price ? selectedRoom.extra_price : 500
-
-            return (
-              <div key={r.id} className="border-b border-gray-100 pb-5 last:border-b-0 last:pb-0">
-                <div className="flex justify-between items-center font-bold text-gray-900 mb-3 text-sm">
-                  <span>เลือกห้องพัก ห้องที่ {r.roomIndex}</span>
-                  {rooms.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeRoom(r.id)}
-                      className="text-red-500 text-xs font-normal hover:underline"
-                    >
-                      ลบห้องพัก
-                    </button>
-                  )}
-                </div>
-
-                {availableRooms.length === 0 ? (
-                  <div className="text-sm text-gray-400 py-2">ไม่มีข้อมูลห้องพัก</div>
-                ) : (
-                  <div className="space-y-3 mb-4">
-                    {availableRooms.map((room) => (
-                      <label
-                        key={room.id}
-                        className="flex items-center justify-between cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name={`room-option-${r.id}`}
-                            value={room.id}
-                            checked={r.selectedOption === room.id}
-                            onChange={() => handleRoomChange(r.id, "selectedOption", room.id)}
-                            className="text-blue-500"
-                          />
-                          <span className="text-sm text-gray-800">
-                            {room.room_type}
-                            {room.bed_type ? `, ${room.bed_type}` : ""}
-                          </span>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900">
-                          {room.base_price > 0 ? `฿${room.base_price.toLocaleString()}` : "฿0"}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-                <div className="font-bold text-sm text-gray-900 mb-2">
-                  ต้องการเตียงเสริมหรือไม่ ?
-                </div>
-                <label className="flex items-center justify-between cursor-pointer mb-2">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={r.extraBed}
-                      onChange={(e) => handleRoomChange(r.id, "extraBed", e.target.checked)}
-                      className="text-blue-500 rounded"
-                    />
-                    <span className="text-sm text-gray-800">เพิ่มเตียง</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    ฿ {extraBedPrice.toLocaleString()}
-                  </span>
-                </label>
-              </div>
-            )
-          })}
-
-          <button
-            type="button"
-            onClick={addRoom}
-            className="text-[#798E75] font-bold text-sm w-full text-left flex items-center justify-between mt-2 hover:opacity-80"
-          >
-            เพิ่มห้องพัก <ChevronDown size={16} />
-          </button>
-        </div>
-      </div> */}
-
       {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-transparent p-4 z-40 max-w-lg mx-auto">
+      <div className="fixed bottom-0 left-2 right-2 bg-transparent p-4 z-40 max-w-lg mx-auto">
         <button
           onClick={handleNext}
           disabled={loading}
@@ -648,6 +508,37 @@ export default function BookingFormClient({
       </div>
 
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-red-100 text-[#F04E23] flex items-center justify-center mb-4">
+              <AlertCircle size={32} />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">ต้องการยกเลิกการจองหรือไม่?</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              หากออกจากหน้านี้ ข้อมูลการจองที่คุณกรอกไว้จะไม่ได้รับการบันทึก
+            </p>
+            <div className="flex gap-3 w-full">
+              <button
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+              >
+                ทำรายการต่อ
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmLeave}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-sm bg-[#F04E23] hover:bg-[#D4411C] text-white transition-colors cursor-pointer"
+              >
+                ยกเลิกการจอง
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -790,8 +681,18 @@ function ParticipantForm({
             onChange={(e) => onChange("nationality", e.target.value)}
             className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
           >
-            <option value="ไทย">ไทย</option>
-            <option value="อื่นๆ">อื่นๆ</option>
+            <option value="" disabled>
+              เลือกสัญชาติ (Select Nationality)
+            </option>
+            {NATIONALITIES.map((n) => (
+              <option key={n.value} value={n.value}>
+                {n.label}
+              </option>
+            ))}
+            {data.nationality &&
+              !NATIONALITIES.some((n) => n.value === data.nationality) && (
+                <option value={data.nationality}>{data.nationality}</option>
+              )}
           </select>
         </div>
         <div className="flex flex-col gap-1">
@@ -1035,11 +936,7 @@ function ParticipantForm({
       {/* Equipment Rental */}
       <div className="mt-4 pt-4 border-t border-gray-100">
         <div className="flex justify-between items-center mb-2">
-          <h4 className="text-sm font-bold text-gray-900">
-            เช่าอุปกรณ์
-            {/* {assets?.[0]?.course_type} */}
-          </h4>
-          {/* <span className="text-xs font-bold text-[#798E75]">(฿ 1,040)</span> */}
+          <h4 className="text-sm font-bold text-gray-900">เช่าอุปกรณ์</h4>
         </div>
         <p className="text-[11px] text-gray-400 mb-3">
           (การเช่าอุปกรณ์สามารถจ่ายได้ในวันเดินทาง และค่าอุปกรณ์ที่ระบุเป็นต่อชิ้น
@@ -1058,7 +955,6 @@ function ParticipantForm({
                   }}
                   className="text-blue-500"
                 />{" "}
-                {/* จุดสำคัญ: กล่อง Scroll ต้องเป็น Block และใส่ min-w-0 */}
                 <label
                   htmlFor={`opt-${asset.id}`}
                   className="block min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-sm text-black cursor-pointer select-none"
@@ -1209,7 +1105,7 @@ function createEmptyParticipant(
     level: profile?.level || "Level 1",
     idCard: profile?.id_card || "",
     passportNo: profile?.passport_no || "",
-    nationality: profile?.nation || "ไทย",
+    nationality: normalizeNationality(profile?.nation) || "ไทย (Thai)",
     birthDate,
     firstName: profile?.first_name || "",
     lastName: profile?.last_name || "",
@@ -1272,7 +1168,7 @@ function convertEnrollmentParticipantToData(
     level: p.level || p.course_level || "Level 1",
     idCard: p.id_card || p.idCard || "",
     passportNo: p.passport_no || p.passportNo || "",
-    nationality: p.nationality || "ไทย",
+    nationality: normalizeNationality(p.nationality) || "ไทย (Thai)",
     birthDate,
     firstName: p.first_name || p.firstName || "",
     lastName: p.last_name || p.lastName || "",
