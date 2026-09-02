@@ -147,6 +147,8 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                             </p>
                           )}
 
+                          {console.log("AA==================> ", total_user, round?.total_user)}
+
                           {total_user <= round?.total_user && (
                             <BookingButton
                               course={course}

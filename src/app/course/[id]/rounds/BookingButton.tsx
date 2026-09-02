@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { X, CalendarDays, Clock } from "lucide-react"
 import { Course } from "@/types/course"
 import { RenderDate } from "@/lib/date"
+import numeral from "numeral"
 
 interface BookingButtonProps {
   course: Course
@@ -91,7 +92,7 @@ export default function BookingButton({
                   <div>
                     <div className="font-bold text-black text-[17px]">ผู้ใหญ่</div>
                     <div className="text-gray-400 text-[13px]">
-                      ฿ {adultPrice.toLocaleString()} / ท่าน
+                      ฿ {numeral(adultPrice).format("0,0")} / ท่าน
                     </div>
                   </div>
                   <div className="flex items-center gap-3 bg-gray-50 rounded-full px-1 py-1 border border-gray-100">
@@ -111,7 +112,7 @@ export default function BookingButton({
                       </span>
                     </div>
                     <div className="text-gray-400 text-[13px]">
-                      ฿ {childPrice.toLocaleString()} / ท่าน
+                      ฿ {numeral(childPrice).format("0,0")} / ท่าน
                     </div>
                   </div>
                   <div className="flex items-center gap-3 bg-gray-50 rounded-full px-1 py-1 border border-gray-100">
