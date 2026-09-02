@@ -77,7 +77,7 @@ export default function TermsClient({
     }
 
     const adultPrice = Math.max(0, (course.price || 0) - (course.discount || 0))
-    const childPrice = Math.max(0, (course.child_price || 0) - (course.discount || 0))
+    const childPrice = Math.max(0, course.child_price || 0)
     const totalAmount = Number(adults) * adultPrice + Number(childrenCount) * childPrice
 
     const enrollmentRes = await createEnrollment({

@@ -89,10 +89,8 @@ export default function BookingFormClient({
     course.nation,
   )
 
-  const getPrice = (price: number | undefined) =>
-    (price || Number(course.price) || 0) - (course.discount || 0)
-  const adultPrice = getPrice(course.price)
-  const childPrice = getPrice(course.child_price)
+  const adultPrice = Math.max(0, (Number(course.price) || 0) - (course.discount || 0))
+  const childPrice = Number(course.child_price) || 0
 
   // Base cost
   const adultsTotal = adultsCount * adultPrice
@@ -507,7 +505,7 @@ export default function BookingFormClient({
       </div>
 
       {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-2 right-2 bg-transparent p-4 z-40 max-w-lg mx-auto">
+      <div className="fixed bottom-0 left-0 right-0 bg-transparent p-4 z-40 max-w-[360px] mx-auto">
         <button
           onClick={handleNext}
           disabled={loading}

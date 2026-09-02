@@ -107,7 +107,7 @@ export default function PaymentClient({
 
   // Calculate prices
   const baseCoursePrice = (course.price || 0) - (course.discount || 0)
-  const baseChildPrice = (course.child_price || 0) - (course.discount || 0)
+  const baseChildPrice = course.child_price || 0
 
   // 1. Adults trip cost
   const adultSubtotal = baseCoursePrice * (adultsCount || 1)

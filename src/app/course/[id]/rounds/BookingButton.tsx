@@ -26,8 +26,9 @@ export default function BookingButton({
   const childrenQuery = searchParams.get("children")
 
   const [isOpen, setIsOpen] = useState(false)
-  const [adults, setAdults] = useState(Number(adultsQuery || 1))
-  const [children, setChildren] = useState(Number(childrenQuery || 0))
+
+  const adults = Number(adultsQuery || 1)
+  const children = Number(childrenQuery || 0)
 
   const selectedRound = course.rounds?.find((r) => r.id === roundId)
 

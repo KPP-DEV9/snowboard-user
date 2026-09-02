@@ -117,7 +117,7 @@ export default function CourseBookingWidget({
       </div>
 
       <div className="text-center text-white/60 text-[13px] font-medium -mt-2">
-        มัดจำ 20% ยอดชำระเต็ม
+        มัดจำ 30% ยอดชำระเต็ม
       </div>
 
       {/* Confirm Button */}

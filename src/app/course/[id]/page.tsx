@@ -100,7 +100,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
               <div className="mb-2">
                 <h2 className="text-[14px] font-bold text-gray-400 mb-1">เงื่อนไขการจอง</h2>
                 <div className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-wrap font-medium">
-                  ชำระเงินเพื่อยืนยันการจอง 20% ของราคาทริป โดยส่วนที่เหลือจะต้องชำระก่อนวันเดินทาง
+                  ชำระเงินเพื่อยืนยันการจอง 30% ของราคาทริป โดยส่วนที่เหลือจะต้องชำระก่อนวันเดินทาง
                   30 วัน โดยระบบจะทำการแจ้งเตือนให้ชำระเงินผ่าน Line Application
                   <br />
                   <span className="text-gray-600">**กรณีงดเดินทางขอสงวนสิทธิ์ในการคืนมัดจำ</span>
