@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { User, UserProfile } from "@/types/user"
 import { updateUserProfile } from "@/app/actions/userProfile"
 import { X, CalendarDays, ScanLine } from "lucide-react"
@@ -100,6 +100,15 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
 
   const [isLoading, setIsLoading] = useState(false)
 
+  useEffect(() => {
+    if (!isOpen) return
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = originalOverflow
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   const handleChange = (
@@ -159,8 +168,8 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
   }
 
   return (
-    <div className="fixed bottom-4 inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm pb-16">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden pb-16">
+      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] my-40">
         {/* Header */}
         <div className="flex justify-between items-center p-6 pb-2">
           <h2 className="text-xl font-bold text-[#4F7354]">แก้ไขข้อมูลโปรไฟล์</h2>
@@ -173,7 +182,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
         </div>
 
         {/* Form Content */}
-        <div className="p-6 overflow-y-auto">
+        <div className="p-6 overflow-y-auto overflow-x-hidden overscroll-contain touch-pan-y">
           <form id="edit-profile-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* ID Card */}
             <div className="flex flex-col gap-1.5">
