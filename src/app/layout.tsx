@@ -4,6 +4,7 @@ import "@/styles/globals.css"
 import { WebSocketProvider } from "@/contexts/WebSocketContext"
 import { getUser } from "./actions/auth"
 import ContactAdminButton from "@/components/ContactAdminButton"
+import TopRightAuth from "@/components/TopRightAuth"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,6 +29,7 @@ export default async function RootLayout({
         <main className="w-full mx-auto min-h-screen relative bg-background shadow-2xl overflow-x-hidden flex flex-col">
           <WebSocketProvider userId={user?.id}>
             <div className="flex-1">{children}</div>
+            <TopRightAuth initialUser={user} />
             <ContactAdminButton initialUser={user} />
           </WebSocketProvider>
         </main>

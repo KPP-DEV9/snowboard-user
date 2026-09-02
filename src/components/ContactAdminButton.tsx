@@ -14,23 +14,23 @@ interface ContactAdminButtonProps {
 export default function ContactAdminButton({ initialUser }: ContactAdminButtonProps) {
   const pathname = usePathname()
   const [user, setUser] = useState<UserType | null>(initialUser ?? null)
-  const [loading, setLoading] = useState(initialUser === undefined)
 
   useEffect(() => {
-    if (initialUser === undefined) {
-      getUser()
-        .then((u) => {
-          setUser(u as UserType)
-          setLoading(false)
-        })
-        .catch(() => {
-          setLoading(false)
-        })
+    if (initialUser !== undefined) {
+      setUser(initialUser)
     }
   }, [initialUser])
 
-  // ไม่แสดงถ้ากำลังโหลด, มีการล็อกอินแล้ว, หรืออยู่ในหน้า /contact อยู่แล้ว
-  if (loading || user || pathname === "/contact") {
+  useEffect(() => {
+    getUser()
+      .then((u) => {
+        setUser(u as UserType | null)
+      })
+      .catch(() => {})
+  }, [pathname])
+
+  // ไม่แสดงถ้ามีการล็อกอินแล้ว หรืออยู่ในหน้า /contact อยู่แล้ว
+  if (user || pathname === "/contact") {
     return null
   }
 

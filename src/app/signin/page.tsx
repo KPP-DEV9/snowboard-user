@@ -48,6 +48,7 @@ export default function LoginPage() {
 
               await setSession(response.data.token, userData)
               router.push("/")
+              router.refresh()
             } else {
               console.error("Login failed:", response.message)
               setToast({ message: response.message || "เข้าสู่ระบบล้มเหลว", type: "error" })

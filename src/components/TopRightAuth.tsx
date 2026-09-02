@@ -3,35 +3,49 @@
 import { useEffect, useState } from "react"
 import { getUser } from "@/app/actions/auth"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { LogIn } from "lucide-react"
 import { User as UserType } from "@/types/user"
 
-export default function TopRightAuth() {
-  const [user, setUser] = useState<UserType | null>(null)
-  const [loading, setLoading] = useState(true)
+interface TopRightAuthProps {
+  initialUser?: UserType | null
+}
+
+export default function TopRightAuth({ initialUser }: TopRightAuthProps) {
+  const pathname = usePathname()
+  const [user, setUser] = useState<UserType | null>(initialUser ?? null)
+
+  useEffect(() => {
+    if (initialUser !== undefined) {
+      setUser(initialUser)
+    }
+  }, [initialUser])
 
   useEffect(() => {
     getUser()
       .then((u) => {
-        setUser(u as UserType)
-        setLoading(false)
+        setUser(u as UserType | null)
       })
-      .catch(() => {
-        setLoading(false)
-      })
-  }, [])
+      .catch(() => {})
+  }, [pathname])
 
-  if (loading) return null
-
-  if (user) {
+  // ไม่แสดงถ้ามีการล็อกอินแล้ว หรืออยู่ในหน้า /signin อยู่แล้ว
+  if (user || pathname === "/signin") {
     return null
   }
 
   return (
     <Link
       href="/signin"
-      className="absolute top-2 right-2 text-[#5cc16a] px-3 py-1 rounded-lg font-bold text-xs shadow-md hover:bg-gray-50 transition-all z-50"
+      className="fixed bottom-6 left-6 z-50 flex items-center gap-2.5 bg-[#4F7354] hover:bg-[#3f5d44] text-white px-4 py-3 rounded-full shadow-[0_8px_25px_rgba(0,0,0,0.25)] hover:shadow-[0_12px_30px_rgba(79,115,84,0.4)] hover:scale-105 active:scale-95 transition-all duration-200 group border border-white/20 backdrop-blur-sm cursor-pointer"
+      title="เข้าสู่ระบบ"
+      aria-label="เข้าสู่ระบบ"
     >
-      เข้าสู่ระบบ
+      <div className="relative flex items-center justify-center">
+        <LogIn size={22} className="text-white" />
+        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#4F7354] rounded-full" />
+      </div>
+      <span className="text-sm font-bold tracking-wide">เข้าสู่ระบบ</span>
     </Link>
   )
 }
