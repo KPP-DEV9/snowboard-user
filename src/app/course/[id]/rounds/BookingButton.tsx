@@ -6,6 +6,7 @@ import { X, CalendarDays, Clock } from "lucide-react"
 import { Course } from "@/types/course"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
+import { Vat } from "@/utils/Inv"
 
 interface BookingButtonProps {
   course: Course
@@ -128,6 +129,13 @@ export default function BookingButton({
                 <div className="font-bold text-black text-[17px]">ราคารวม</div>
                 <div className="font-bold text-[#448651] text-[22px]">
                   ฿ {totalPrice.toLocaleString()}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between py-2">
+                <div className="font-bold text-black text-[17px]">ราคารวม(vat)</div>
+                <div className="font-bold text-[#448651] text-[22px]">
+                  ฿ {numeral(totalPrice * Vat).format("0,0.00")}
                 </div>
               </div>
 

@@ -168,8 +168,8 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden pb-16">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] my-40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden pt-40 pb-40">
+      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] my-40">
         {/* Header */}
         <div className="flex justify-between items-center p-6 pb-2">
           <h2 className="text-xl font-bold text-[#4F7354]">แก้ไขข้อมูลโปรไฟล์</h2>
@@ -240,7 +240,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
             </div>
 
             {/* Nationality & Birth Date */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">สัญชาติ</label>
                 <select
@@ -253,13 +253,10 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                     เลือกสัญชาติ (Select Nationality)
                   </option>
                   {NATIONALITIES.map((n) => (
-                    <option key={n.value} value={n.value}>
-                      {n.label}
+                    <option key={n.code} value={n.nationalityEn}>
+                      {n.countryTh} ({n.nationalityEn})
                     </option>
                   ))}
-                  {formData.nation && !NATIONALITIES.some((n) => n.value === formData.nation) && (
-                    <option value={formData.nation}>{formData.nation}</option>
-                  )}
                 </select>
               </div>
 

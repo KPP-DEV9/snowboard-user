@@ -6,6 +6,8 @@ import { Minus, Plus } from "lucide-react"
 import Link from "next/link"
 import numeral from "numeral"
 
+import { Vat } from "@/utils/Inv"
+
 interface CourseBookingWidgetProps {
   courseId: string
   adultPrice: number
@@ -109,10 +111,19 @@ export default function CourseBookingWidget({
       </div>
 
       {/* Total Section */}
-      <div className="flex items-center justify-between pt-6 border-t border-white/20 mt-2">
-        <div className="font-bold text-white text-lg">ราคารวม</div>
-        <div className="font-bold text-[#E7E298] text-[22px] md:text-3xl">
-          ฿ {numeral(totalPrice).format("0,0")}
+      <div className="flex flex-col gap-2 pt-6 border-t border-white/20 mt-2">
+        <div className="flex items-center justify-between">
+          <div className="font-bold text-white text-lg">ราคา</div>
+          <div className="font-bold text-[#E7E298] text-[22px] md:text-3xl">
+            ฿ {numeral(totalPrice).format("0,0")}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="font-bold text-white text-lg">ราคา(รวม vat7%)</div>
+          <div className="font-bold text-[#E7E298] text-[22px] md:text-3xl">
+            ฿ {numeral(totalPrice * Vat).format("0,0.00")}
+          </div>
         </div>
       </div>
 

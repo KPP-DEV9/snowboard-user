@@ -601,9 +601,12 @@ function ParticipantForm({
             onChange={(e) => onChange("level", e.target.value)}
             className="bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900"
           >
+            <option value="Level 1">BEGINNER</option>
             <option value="Level 1">Level 1</option>
             <option value="Level 2">Level 2</option>
             <option value="Level 3">Level 3</option>
+            <option value="Level 4">Level 4</option>
+            <option value="Level 5">Level 5</option>
           </select>
         </div>
       </div>
@@ -661,13 +664,10 @@ function ParticipantForm({
               เลือกสัญชาติ (Select Nationality)
             </option>
             {NATIONALITIES.map((n) => (
-              <option key={n.value} value={n.value}>
-                {n.label}
+              <option key={n.code} value={n.nationalityEn}>
+                {n.nationalityTh} " " ({n.nationalityEn})
               </option>
             ))}
-            {data.nationality && !NATIONALITIES.some((n) => n.value === data.nationality) && (
-              <option value={data.nationality}>{data.nationality}</option>
-            )}
           </select>
         </div>
         <div className="flex flex-col gap-1">

@@ -3,9 +3,11 @@ import MenuFooter from "../MenuFooter"
 export default function LayoutPage({
   children,
   isLicense = true,
+  isFooter = true,
 }: {
   children: React.ReactNode
   isLicense?: boolean
+  isFooter?: boolean
 }) {
   return (
     <main className="w-full mx-auto min-h-screen relative shadow-2xl overflow-x-hidden flex flex-col">
@@ -16,7 +18,7 @@ export default function LayoutPage({
           Snowvibes Co., Ltd. • Snowwhite by Snowvibes
         </div>
       )}
-      <MenuFooter />
+      {isFooter && <MenuFooter />}
     </main>
   )
 }

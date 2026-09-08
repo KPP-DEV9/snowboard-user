@@ -182,20 +182,14 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
           ) : (
             filteredEnrollments.map((enrollment) => {
               const course = enrollment.course
-              const rawTotal = enrollment.total_amount || course?.price || 55372.5
-              const totalAmount = rawTotal * Vat
+              const rawTotal = enrollment.total_amount || course?.price || 0
+              const totalAmount = rawTotal
               const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
               const remainingAmount = Math.max(0, totalAmount - depositAmount)
 
               const isSki = course?.course_type?.toLowerCase()?.includes("ski")
               const programType = isSki ? "Ski" : "Snowboard"
               const badgeBg = isSki ? "bg-[#E67E22]" : "bg-[#0066FF]"
-
-              // Generate clean code matching AE0342349-E032 format
-              // const shortId = enrollment.id
-              //   ? enrollment.id.replace(/-/g, "").substring(0, 4).toUpperCase()
-              //   : "E032"
-              // const itemCode = `AE0342349-${shortId}`
 
               const statusLower = (enrollment.status || "").toLowerCase()
               const isPaid =
@@ -239,9 +233,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     >
                       {programType}
                     </span>
-                    {/* <span className="text-gray-400 text-[13px] font-medium">
-                      เลขที่รายการ {itemCode}
-                    </span> */}
                   </div>
 
                   {/* Title */}

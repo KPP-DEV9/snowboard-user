@@ -20,9 +20,6 @@ export async function getCourses(params: GetCoursesParams = {}) {
 
   try {
     const res = await api.course.getAll<any>(page, limit, filters)
-
-    console.log("res ==================> ", res)
-
     if (!res.success) {
       return {
         success: false,
