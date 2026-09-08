@@ -65,7 +65,6 @@ export default function PaymentClient({
       })
       return
     }
-
     if (file.size > 5 * 1024 * 1024) {
       setToast({
         message: "ขนาดไฟล์รูปภาพต้องไม่เกิน 5 MB",
@@ -73,11 +72,9 @@ export default function PaymentClient({
       })
       return
     }
-
     if (slipPreview) {
       URL.revokeObjectURL(slipPreview)
     }
-
     const previewUrl = URL.createObjectURL(file)
     setSlipFile(file)
     setSlipPreview(previewUrl)
@@ -160,7 +157,6 @@ export default function PaymentClient({
         })
         return
       }
-
       setLoading(true)
 
       // 1. Upload slip image to /images-upload/r2
@@ -178,7 +174,6 @@ export default function PaymentClient({
       }
 
       const uploadedSlipUrl = uploadRes.data.url
-
       const isDeposit = paymentType === "deposit" ? true : false
       const newStatus = isDeposit ? "deposit_paid" : "paid"
       const effectiveAdults = Number(enrollment?.adult_count || adultsCount || 1)

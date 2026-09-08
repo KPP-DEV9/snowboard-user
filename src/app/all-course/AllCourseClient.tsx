@@ -37,7 +37,12 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
         maxPrice: isPriceEnabled ? maxPrice.replace(/,/g, "") : undefined,
       })
       if (res.success && res.data) {
-        setCourses(res.data.data as Course[])
+        const courseList = (Array.isArray(res.data.data)
+          ? res.data.data
+          : Array.isArray(res.data)
+            ? res.data
+            : []) as Course[]
+        setCourses(courseList)
       }
     } catch (error) {
       console.error("Failed to fetch courses:", error)

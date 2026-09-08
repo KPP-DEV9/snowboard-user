@@ -1,38 +1,29 @@
-"use client";
+"use client"
 
-import React, { createContext, useContext } from "react";
-import { Token } from "@/types/user";
-import { User } from "@/types/user";
-import { Credit } from "@/types/credit";
+import React, { createContext, useContext } from "react"
+import { Token } from "@/types/user"
+import { User } from "@/types/user"
 
 interface SessionContextType {
-  token: Token | null;
-  user: User | null;
-  credit: Credit | null;
+  token: Token | null
+  user: User | null
 }
 
 const SessionContext = createContext<SessionContextType>({
   token: null,
   user: null,
-  credit: null,
-});
+})
 
 export function SessionProvider({
   children,
   session,
-  credit,
 }: {
-  children: React.ReactNode;
-  session: { token: Token | null; user: User | null };
-  credit: Credit | null;
+  children: React.ReactNode
+  session: { token: Token | null; user: User | null }
 }) {
-  return (
-    <SessionContext.Provider value={{ ...session, credit }}>
-      {children}
-    </SessionContext.Provider>
-  );
+  return <SessionContext.Provider value={{ ...session }}>{children}</SessionContext.Provider>
 }
 
 export function useSession() {
-  return useContext(SessionContext);
+  return useContext(SessionContext)
 }

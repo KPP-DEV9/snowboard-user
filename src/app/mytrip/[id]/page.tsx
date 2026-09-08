@@ -47,6 +47,8 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
 
   const { success, data: enrollment } = await getEnrollmentById(id)
 
+  console.log("enrollment ==============> ", enrollment)
+
   if (!success || !enrollment) {
     return (
       <LayoutPage isLicense={false}>

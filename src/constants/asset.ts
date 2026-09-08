@@ -1,56 +1,6 @@
-export const HAT_SIZE_OPTIONS = [
-  "S",
-  "M",
-  "L",
-  "XL",
-  "6.5",
-  "7",
-  "7.5",
-  "8",
-  "8.5",
-  "9",
-  "9.5",
-  "10",
-]
-export const GLOVE_SIZE_OPTIONS = [
-  "S",
-  "M",
-  "L",
-  "XL",
-  "6",
-  "6.5",
-  "7",
-  "7.5",
-  "8",
-  "8.5",
-  "9",
-  "9.5",
-  "10",
-]
-export const SHOE_SIZE_OPTIONS = [
-  "3",
-  "3.5",
-  "4",
-  "4.5",
-  "5",
-  "5.5",
-  "6",
-  "6.5",
-  "7",
-  "7.5",
-  "8",
-  "8.5",
-  "9",
-  "9.5",
-  "10",
-  "10.5",
-  "11",
-  "11.5",
-  "12",
-  "12.5",
-  "13",
-  "13.5",
-  "14",
-  "14.5",
-  "15",
-]
+export const HAT_SIZE_OPTIONS = ["S", "M", "L", "XL"]
+export const GLOVE_SIZE_OPTIONS = ["S", "M", "L", "XL"]
+export const SHOE_SIZE_OPTIONS = Array.from(
+  { length: (50 - 4) / 0.5 + 1 },
+  (_, i) => (4 + i * 0.5).toString()
+)

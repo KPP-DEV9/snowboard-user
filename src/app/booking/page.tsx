@@ -19,7 +19,6 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
   if (enrollmentId) {
     const res = await getEnrollmentByIdForBooking(enrollmentId)
     if (res.success && res.data) {
-      // API returns array — extract first element
       enrollment = Array.isArray(res.data) ? res.data[0] : res.data
     }
   }

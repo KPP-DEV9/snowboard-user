@@ -43,9 +43,13 @@ export default function MainPage() {
         minPrice: isPriceEnabled ? minPrice.replace(/,/g, "") : undefined,
         maxPrice: isPriceEnabled ? maxPrice.replace(/,/g, "") : undefined,
       })
-      setCourse(res?.data?.data as Course[])
-      setTotalPages(res?.data?.total_pages || 1)
-      setPage(res?.data?.page || 1)
+      const courseList = (
+        Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : []
+      ) as Course[]
+
+      setCourse(courseList)
+      setTotalPages(res?.data?.total_pages || (res as any)?.total_pages || 1)
+      setPage(res?.data?.page || (res as any)?.page || 1)
     } catch (error) {
       console.error("Failed to fetch courses:", error)
     }
@@ -107,69 +111,87 @@ export default function MainPage() {
                 course?.length === 1 ? "w-full" : "overflow-x-auto snap-x scrollbar-hide"
               }`}
             >
-              {course?.map((item, i) => {
-                const { provinceName, districtName } = getLocationName(item.province, item.district)
-                return (
-                  <Link
-                    href={`/course/${item.id}`}
-                    key={i}
-                    className={`bg-white rounded-[1.5rem] overflow-hidden ${
-                      course?.length === 1
-                        ? "w-full"
-                        : "w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0"
-                    } shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer`}
-                  >
-                    <div className="relative h-[180px] lg:h-[200px] w-full bg-blue-100 overflow-hidden">
-                      {item.image_urls && (
-                        <SlideImg images={item.image_urls} alt="Indoor snowpark" />
-                      )}
-                      {item?.course_level && <Label text={item.course_level} />}
-                    </div>
-                    <div className="p-5 flex flex-col flex-1">
-                      <h4 className="font-bold text-lg md:text-xl text-gray-900 mb-3 leading-tight group-hover:text-[#4F7354] transition-colors line-clamp-2">
-                        {item.title}
-                      </h4>
-                      <div className="space-y-2 mb-4 flex-1">
-                        <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
-                          <MapPin size={16} className="text-[#4F7354] shrink-0" />
-                          <span className="truncate">
-                            {districtName} {provinceName ? `, ${provinceName}` : ""}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
-                          <CalendarDays size={16} className="text-[#4F7354] shrink-0" />
-                          <span>
-                            {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
-                            {RenderDate(item.end_date, "dd MMM yyyy")}
-                          </span>
-                        </div>
+              {course?.length === 0 ? (
+                <div className="w-full text-center py-8 text-white/80 font-medium">
+                  ไม่พบข้อมูลทริป
+                </div>
+              ) : (
+                course?.map((item, i) => {
+                  const { provinceName, districtName } = getLocationName(
+                    item.province,
+                    item.district,
+                    item.nation,
+                  )
+                  const price = Number(item.price || 0)
+                  const discount = Number(item.discount || 0)
+                  const finalPrice = price - discount
+
+                  return (
+                    <Link
+                      href={`/course/${item.id}`}
+                      key={i}
+                      className={`bg-white rounded-[1.5rem] overflow-hidden ${
+                        course?.length === 1
+                          ? "w-full"
+                          : "w-[280px] md:min-w-0 md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start shrink-0"
+                      } shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col cursor-pointer`}
+                    >
+                      <div className="relative h-[180px] lg:h-[200px] w-full bg-blue-100 overflow-hidden">
+                        {item.image_urls && item.image_urls.length > 0 ? (
+                          <SlideImg images={item.image_urls} alt={item.title || "Course"} />
+                        ) : (
+                          <div className="w-full h-full bg-blue-100 flex items-center justify-center text-gray-400">
+                            ไม่มีรูปภาพ
+                          </div>
+                        )}
+                        {item?.course_level && <Label text={item.course_level} />}
                       </div>
-                      {item.discount > 0 ? (
-                        <div className="flex justify-between items-endborder-t border-gray-100">
-                          <div>
-                            <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
-                              ฿ {numeral(item.price).format("0,0")}
-                            </div>
-                            <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
-                              ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
-                              <span className="ml-1 text-gray-600 text-sm"> / คน</span>
-                            </div>
+                      <div className="p-5 flex flex-col flex-1">
+                        <h4 className="font-bold text-lg md:text-xl text-gray-900 mb-3 leading-tight group-hover:text-[#4F7354] transition-colors line-clamp-2">
+                          {item.title}
+                        </h4>
+                        <div className="space-y-2 mb-4 flex-1">
+                          <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
+                            <MapPin size={16} className="text-[#4F7354] shrink-0" />
+                            <span className="truncate">
+                              {districtName} {provinceName ? `, ${provinceName}` : ""}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
+                            <CalendarDays size={16} className="text-[#4F7354] shrink-0" />
+                            <span>
+                              {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
+                              {RenderDate(item.end_date, "dd MMM yyyy")}
+                            </span>
                           </div>
                         </div>
-                      ) : (
-                        <div className="flex justify-between items-end border-t border-gray-100">
-                          <div>
-                            <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
-                              ฿ {numeral(item.price - (item.discount || 0)).format("0,0")}
-                              <span className="ml-1 text-gray-600 text-sm"> / คน</span>
+                        {discount > 0 ? (
+                          <div className="flex justify-between items-end border-t border-gray-100">
+                            <div>
+                              <div className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
+                                ฿ {numeral(price).format("0,0")}
+                              </div>
+                              <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
+                                ฿ {numeral(finalPrice).format("0,0")}
+                                <span className="ml-1 text-gray-600 text-sm"> / คน</span>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                )
-              })}
+                        ) : (
+                          <div className="flex justify-between items-end border-t border-gray-100">
+                            <div>
+                              <div className="text-[#798E75] font-extrabold text-xl md:text-2xl">
+                                ฿ {numeral(finalPrice).format("0,0")}
+                                <span className="ml-1 text-gray-600 text-sm"> / คน</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  )
+                })
+              )}
             </div>
           </div>
 
@@ -186,70 +208,90 @@ export default function MainPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {course?.map((item, i) => {
-                const { provinceName, districtName } = getLocationName(item.province, item.district)
-                return (
-                  <Link
-                    href={`/course/${item.id}`}
-                    key={i}
-                    className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
-                  >
-                    <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
-                      {item.image_urls && (
-                        <SlideImg images={item.image_urls} alt="Indoor snowpark" />
-                      )}
-                      {item?.course_level && <Label text={item.course_level} />}
-                    </div>
-                    <div className="flex flex-col py-2 pr-2 md:pr-4 flex-1 h-full">
-                      <h4 className="font-bold text-base md:text-lg text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-2 group-hover:text-[#4F7354] transition-colors">
-                        {item?.title}
-                      </h4>
-                      <div className="space-y-1 md:space-y-1.5 flex-1">
-                        <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                          <MapPin size={16} className="text-gray-400 shrink-0" />
-                          <span className="truncate">
-                            {districtName} {provinceName ? `, ${provinceName}` : ""}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                          <CalendarDays size={16} className="text-gray-400 shrink-0" />
-                          <span>
-                            {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
-                            {RenderDate(item.end_date, "dd MMM yyyy")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                          <User size={16} className="text-gray-400 shrink-0" />
-                          <span>{item.course_level}</span>
-                        </div>
-                      </div>
+              {course?.length === 0 ? (
+                <div className="col-span-full text-center py-12 text-white/80 bg-black/10 rounded-2xl font-medium">
+                  ไม่พบข้อมูลทริป {courseType}
+                </div>
+              ) : (
+                course?.map((item, i) => {
+                  const { provinceName, districtName } = getLocationName(
+                    item.province,
+                    item.district,
+                    item.nation,
+                  )
+                  const price = Number(item.price || 0)
+                  const discount = Number(item.discount || 0)
+                  const finalPrice = price - discount
 
-                      {item.discount > 0 ? (
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
-                          <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                            {numeral(item.price - (item.discount || 0)).format("0,0")}
-                          </span>
-                          {item.discount > 0 && (
-                            <span className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
-                              ฿ {numeral(item.price).format("0,0")}
+                  return (
+                    <Link
+                      href={`/course/${item.id}`}
+                      key={i}
+                      className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
+                    >
+                      <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
+                        {item.image_urls && item.image_urls.length > 0 ? (
+                          <SlideImg images={item.image_urls} alt={item.title || "Course"} />
+                        ) : (
+                          <div className="w-full h-full bg-blue-100 flex items-center justify-center text-gray-400">
+                            ไม่มีรูปภาพ
+                          </div>
+                        )}
+                        {item?.course_level && <Label text={item.course_level} />}
+                      </div>
+                      <div className="flex flex-col py-2 pr-2 md:pr-4 flex-1 h-full">
+                        <h4 className="font-bold text-base md:text-lg text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-2 group-hover:text-[#4F7354] transition-colors">
+                          {item?.title}
+                        </h4>
+                        <div className="space-y-1 md:space-y-1.5 flex-1">
+                          <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
+                            <MapPin size={16} className="text-gray-400 shrink-0" />
+                            <span className="truncate">
+                              {districtName} {provinceName ? `, ${provinceName}` : ""}
                             </span>
-                          )}
-                          <span className="text-gray-900 text-xs md:text-sm font-medium">/ คน</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
+                            <CalendarDays size={16} className="text-gray-400 shrink-0" />
+                            <span>
+                              {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
+                              {RenderDate(item.end_date, "dd MMM yyyy")}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
+                            <User size={16} className="text-gray-400 shrink-0" />
+                            <span>{item.course_level}</span>
+                          </div>
                         </div>
-                      ) : (
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
-                          <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                            {numeral(item.price - (item.discount || 0)).format("0,0")}
-                          </span>
-                          <span className="text-gray-900 text-xs md:text-sm font-medium">/ คน</span>
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-                )
-              })}
+
+                        {discount > 0 ? (
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
+                            <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
+                              {numeral(finalPrice).format("0,0")}
+                            </span>
+                            <span className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
+                              ฿ {numeral(price).format("0,0")}
+                            </span>
+                            <span className="text-gray-900 text-xs md:text-sm font-medium">
+                              / คน
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
+                            <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
+                              {numeral(finalPrice).format("0,0")}
+                            </span>
+                            <span className="text-gray-900 text-xs md:text-sm font-medium">
+                              / คน
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+                  )
+                })
+              )}
             </div>
 
             {/* Pagination Controls */}

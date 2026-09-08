@@ -19,7 +19,10 @@ export async function getCourses(params: GetCoursesParams = {}) {
   const { page = 1, limit = 10, instructorId, ...filters } = params
 
   try {
-    const res = await api.course.getAll<PaginatedData<Course>>(page, limit, filters)
+    const res = await api.course.getAll<any>(page, limit, filters)
+
+    console.log("res ==================> ", res)
+
     if (!res.success) {
       return {
         success: false,
@@ -27,7 +30,29 @@ export async function getCourses(params: GetCoursesParams = {}) {
       }
     }
 
-    return { success: true, data: res.data as PaginatedData<Course> }
+    let paginatedData: PaginatedData<Course>
+
+    if (Array.isArray(res.data)) {
+      paginatedData = {
+        data: res.data,
+        total_items: (res as any).total_items ?? res.data.length,
+        total_pages: (res as any).total_pages ?? 1,
+        page: (res as any).page ?? page,
+        limit: (res as any).limit ?? limit,
+      }
+    } else if (res.data && Array.isArray((res.data as any).data)) {
+      paginatedData = res.data as PaginatedData<Course>
+    } else {
+      paginatedData = {
+        data: [],
+        total_items: 0,
+        total_pages: 1,
+        page: page,
+        limit: limit,
+      }
+    }
+
+    return { success: true, data: paginatedData }
   } catch (error: any) {
     return {
       success: false,

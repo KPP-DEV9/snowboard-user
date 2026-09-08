@@ -36,6 +36,7 @@ export interface Course {
   is_active: boolean
   created_at: string
   updated_at: string
+  student_price: number // decimal.Decimal represented as number or string
 }
 
 export interface TermsConditionsMaster {

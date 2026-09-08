@@ -2,7 +2,6 @@
 
 import { Token, User } from "@/types/user"
 import { cookies } from "next/headers"
-import { getCredit } from "./credit"
 
 export async function setSession(token: string, user: any) {
   const cookieStore = await cookies()
@@ -57,9 +56,7 @@ export async function getSession() {
   const token = cookieStore.get("token")?.value as Token
   const userCookie = cookieStore.get("user")?.value
   const user = userCookie ? (JSON.parse(userCookie) as User) : null
-  const credit = await getCredit(user?.id as string)
-
-  return { token, user, credit }
+  return { token, user }
 }
 
 export async function getToken() {
