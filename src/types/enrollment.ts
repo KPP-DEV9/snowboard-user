@@ -57,6 +57,7 @@ export interface EnrollmentParticipantAssetOption {
 
 export interface EnrollmentParticipant {
   type: "ADULT" | "CHILD" | string
+  level?: string
   line_id?: string
   id_card?: string
   passport_no?: string

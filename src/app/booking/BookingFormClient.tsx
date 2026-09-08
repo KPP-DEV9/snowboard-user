@@ -336,6 +336,7 @@ export default function BookingFormClient({
 
         return {
           type: p.type === "adult" ? "ADULT" : "CHILD",
+          level: p.level || undefined,
           line_id: p.lineId || undefined,
           id_card: p.idCard || undefined,
           passport_no: p.passportNo || undefined,
@@ -665,7 +666,7 @@ function ParticipantForm({
             </option>
             {NATIONALITIES.map((n) => (
               <option key={n.code} value={n.nationalityEn}>
-                {n.nationalityTh} " " ({n.nationalityEn})
+                {n.nationalityTh} ({n.nationalityEn})
               </option>
             ))}
           </select>
