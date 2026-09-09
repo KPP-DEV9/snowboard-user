@@ -183,7 +183,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
             filteredEnrollments.map((enrollment) => {
               const course = enrollment.course
               const rawTotal = enrollment.total_amount || course?.price || 0
-              const totalAmount = rawTotal
+              const totalAmount = rawTotal * 1.07
               const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
               const remainingAmount = Math.max(0, totalAmount - depositAmount)
 

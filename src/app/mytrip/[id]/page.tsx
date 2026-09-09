@@ -99,7 +99,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       : Number(enrollment.req_total) || 0
 
   const rawTotal = enrollment.total_amount || course?.price || 0
-  const totalAmount = rawTotal
+  const totalAmount = rawTotal * 1.07
   const depositAmount = enrollment.deposit_amount || 0
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
