@@ -287,7 +287,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             <div className="flex justify-between items-center pt-1">
               <span className="font-bold text-gray-900 text-base">ราคารวมทั้งหมด</span>
               <span className="font-bold text-[#448651] text-2xl">
-                ฿ {numeral(totalAmount).format("0,0.00")}
+                ฿ {numeral(Number(totalAmount)).format("0,0.00")}
               </span>
             </div>
 

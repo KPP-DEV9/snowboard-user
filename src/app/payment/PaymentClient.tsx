@@ -128,10 +128,11 @@ export default function PaymentClient({
   const subtotal = adultSubtotal + childSubtotal + extrasSubtotal
 
   // ภาษี Vat 7%
-  const vatAmount = subtotal * 0.07
+  // const vatAmount = subtotal
+  // * 0.07
 
   // ยอดทั้งหมด (Grand Total)
-  const totalAmount = subtotal + vatAmount
+  const totalAmount = subtotal
 
   // มัดจำ 30% ของยอดทั้งหมด
   const depositAmount =
@@ -140,7 +141,7 @@ export default function PaymentClient({
       : totalAmount * 0.3
 
   // ยอดคงเหลือ
-  const remainingAmount = Math.max(0, totalAmount - depositAmount)
+  const remainingAmount = Math.max(0, totalAmount * 1.07 - depositAmount)
 
   const currentPayAmount = isDepositAlreadyPaid
     ? remainingAmount
@@ -294,12 +295,16 @@ export default function PaymentClient({
 
               <div className="flex justify-between items-center text-white">
                 <span className="font-normal text-white/90">ภาษี Vat 7%</span>
-                <span className="font-medium">฿ {numeral(vatAmount).format("0,0.00")}</span>
+                <span className="font-medium">
+                  ฿ {numeral(totalAmount * 0.07).format("0,0.00")}
+                </span>
               </div>
 
               <div className="flex justify-between items-center text-white pt-1">
                 <span className="font-normal text-white/90">ยอดทั้งหมด</span>
-                <span className="font-bold text-lg">฿ {numeral(totalAmount).format("0,0.00")}</span>
+                <span className="font-bold text-lg">
+                  ฿ {numeral(totalAmount * 1.07).format("0,0.00")}
+                </span>
               </div>
             </div>
           </div>
@@ -346,7 +351,10 @@ export default function PaymentClient({
                 <span className="text-gray-900 font-medium text-sm">ชำระเต็มจำนวน</span>
               </div>
               <span className="text-gray-900 font-medium text-sm">
-                ฿ {numeral(isDepositAlreadyPaid ? remainingAmount : totalAmount).format("0,0.00")}
+                ฿{" "}
+                {numeral(isDepositAlreadyPaid ? remainingAmount : totalAmount * 1.07).format(
+                  "0,0.00",
+                )}
               </span>
             </label>
           </div>
