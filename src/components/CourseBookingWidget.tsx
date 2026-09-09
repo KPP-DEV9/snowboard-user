@@ -77,38 +77,40 @@ export default function CourseBookingWidget({
       </div>
 
       {/* Children Section */}
-      <div className="flex items-start justify-between pt-4 border-t border-white/20">
-        <div className="flex flex-col">
-          <div className="font-bold text-white text-[17px] md:text-lg">
-            เด็ก{" "}
-            <span className="font-normal text-sm text-white/80 ml-2">
-              ฿ {numeral(finalChildPrice).format("0,0")} / คน
-            </span>
+      {finalChildPrice > 0 && (
+        <div className="flex items-start justify-between pt-4 border-t border-white/20">
+          <div className="flex flex-col">
+            <div className="font-bold text-white text-[17px] md:text-lg">
+              เด็ก{" "}
+              <span className="font-normal text-sm text-white/80 ml-2">
+                ฿ {numeral(finalChildPrice).format("0,0")} / คน
+              </span>
+            </div>
+            <div className="text-white/60 text-[12px] mt-0.5">อายุน้อยกว่า 12 ปี</div>
           </div>
-          <div className="text-white/60 text-[12px] mt-0.5">อายุน้อยกว่า 12 ปี</div>
-        </div>
 
-        <div className="flex flex-col items-end gap-1.5">
-          <div className="flex items-center gap-3 bg-white rounded-[10px] px-1 py-1 shadow-sm w-fit">
-            <button
-              onClick={() => setChildren((prev) => Math.max(0, prev - 1))}
-              className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
-            >
-              <Minus size={16} className="stroke-[3]" />
-            </button>
-            <div className="font-bold w-6 text-center text-[15px] text-black">{children}</div>
-            <button
-              onClick={() => setChildren((prev) => prev + 1)}
-              className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
-            >
-              <Plus size={16} className="stroke-[3]" />
-            </button>
-          </div>
-          <div className="text-[#E7E298] font-bold text-[15px]">
-            ฿ {numeral(childTotal).format("0,0")}
+          <div className="flex flex-col items-end gap-1.5">
+            <div className="flex items-center gap-3 bg-white rounded-[10px] px-1 py-1 shadow-sm w-fit">
+              <button
+                onClick={() => setChildren((prev) => Math.max(0, prev - 1))}
+                className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
+              >
+                <Minus size={16} className="stroke-[3]" />
+              </button>
+              <div className="font-bold w-6 text-center text-[15px] text-black">{children}</div>
+              <button
+                onClick={() => setChildren((prev) => prev + 1)}
+                className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
+              >
+                <Plus size={16} className="stroke-[3]" />
+              </button>
+            </div>
+            <div className="text-[#E7E298] font-bold text-[15px]">
+              ฿ {numeral(childTotal).format("0,0")}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Total Section */}
       <div className="flex flex-col gap-2 pt-6 border-t border-white/20 mt-2">
