@@ -263,7 +263,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                         <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
-                            ฿ {numeral(totalAmount).format("0,0.00")}
+                            ฿ {numeral(Number(totalAmount) / 1.07).format("0,0.00")}
                           </span>
                           <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                             ชำระสำเร็จ
