@@ -261,7 +261,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                 <div className="flex justify-between text-gray-600">
                   <span>ยอดมัดจำที่ชำระ</span>
                   <span className="font-bold text-gray-900">
-                    ฿ {numeral(depositAmount).format("0,0.00")}
+                    ฿ {numeral(depositAmount * 1.07).format("0,0.00")}
                   </span>
                 </div>
               )}
@@ -269,7 +269,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                 <div className="flex justify-between text-gray-600">
                   <span>ยอดคงเหลือที่ต้องชำระ</span>
                   <span className="font-bold text-[#D97706]">
-                    ฿ {numeral(Math.max(0, totalAmount - depositAmount)).format("0,0.00")}
+                    ฿ {numeral(Math.max(0, totalAmount - depositAmount * 1.07)).format("0,0.00")}
                   </span>
                 </div>
               )}

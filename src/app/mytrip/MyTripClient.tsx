@@ -183,7 +183,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
             filteredEnrollments.map((enrollment) => {
               const course = enrollment.course
               const rawTotal = enrollment.total_amount || course?.price || 0
-              const totalAmount = rawTotal * 1.07
+              const totalAmount = rawTotal
               const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
               const remainingAmount = Math.max(0, totalAmount - depositAmount)
 
@@ -289,14 +289,14 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                         <div className="flex justify-between items-center">
                           <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
                           <span className="text-gray-900 font-bold">
-                            ฿ {numeral(totalAmount).format("0,0.00")}
+                            ฿ {numeral(totalAmount * 1.07).format("0,0.00")}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-700 font-medium">ยอดมัดจำ</span>
                           <div className="flex items-center gap-2">
                             <span className="text-gray-900 font-bold">
-                              ฿ {numeral(depositAmount).format("0,0.00")}
+                              ฿ {numeral(depositAmount * 1.07).format("0,0.00")}
                             </span>
                             <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                               มัดจำแล้ว
@@ -307,7 +307,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                           <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
                           <div className="flex items-center gap-2">
                             <span className="text-gray-900 font-bold">
-                              ฿ {numeral(remainingAmount).format("0,0.00")}
+                              ฿ {numeral(remainingAmount * 1.07).format("0,0.00")}
                             </span>
                             <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                               รอชำระ
