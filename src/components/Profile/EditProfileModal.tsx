@@ -3,8 +3,44 @@
 import { useEffect, useState } from "react"
 import { User, UserProfile } from "@/types/user"
 import { updateUserProfile } from "@/app/actions/userProfile"
-import { X, CalendarDays, ScanLine } from "lucide-react"
+import { X, CalendarDays, ScanLine, Transgender } from "lucide-react"
 import { NATIONALITIES, normalizeNationality } from "@/constants/nationality"
+
+function MaleIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="10" cy="14" r="5" />
+      <path d="M19 5l-5.4 5.4" />
+      <path d="M14 5h5v5" />
+    </svg>
+  )
+}
+
+function FemaleIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="9" r="5" />
+      <path d="M12 14v7" />
+      <path d="M9 18h6" />
+    </svg>
+  )
+}
 
 interface EditProfileModalProps {
   user: User
@@ -168,7 +204,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden pt-40 pb-40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden pt-20 pb-40">
       <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] my-40">
         {/* Header */}
         <div className="flex justify-between items-center p-6 pb-2">
@@ -260,9 +296,9 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                 </select>
               </div>
 
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-1.5 min-w-0">
                 <label className="text-sm font-bold text-gray-900">วันเดือนปีเกิด</label>
-                <div className="relative">
+                <div className="relative w-full min-w-0">
                   <input
                     type="date"
                     name="birth_date"
@@ -273,9 +309,9 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                         if ("showPicker" in HTMLInputElement.prototype) {
                           ;(e.target as HTMLInputElement).showPicker()
                         }
-                      } catch (err) {}
+                      } catch {}
                     }}
-                    className="w-full bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    className="w-full max-w-full min-w-0 block appearance-none bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all box-border [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:min-h-[1.5em] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                   <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700 pointer-events-none" />
                 </div>
@@ -354,35 +390,38 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                 <button
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, sex: "Male" }))}
-                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
+                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 transition-colors border ${
                     formData.sex === "Male"
                       ? "bg-[#354359] text-white border-[#354359]"
                       : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <span className="text-lg">♂</span> ชาย
+                  <MaleIcon className="w-4 h-4 shrink-0" />
+                  <span>ชาย</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, sex: "Female" }))}
-                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
+                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 transition-colors border ${
                     formData.sex === "Female"
                       ? "bg-[#354359] text-white border-[#354359]"
                       : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <span className="text-lg">♀</span> หญิง
+                  <FemaleIcon className="w-4 h-4 shrink-0" />
+                  <span>หญิง</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, sex: "Other" }))}
-                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border ${
+                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 transition-colors border ${
                     formData.sex === "Other"
                       ? "bg-[#354359] text-white border-[#354359]"
                       : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
                   }`}
                 >
-                  <span className="text-lg">⚧</span> อื่นๆ
+                  <Transgender size={16} strokeWidth={2.5} className="shrink-0" />
+                  <span>อื่นๆ</span>
                 </button>
               </div>
             </div>
@@ -390,7 +429,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
             {/* Player Level */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-gray-900">ระดับผู้เล่น</label>
-              <div className="w-1/2 pr-2">
+              <div className="w-1/1 pr-2">
                 <input
                   type="text"
                   value={formData.level}
