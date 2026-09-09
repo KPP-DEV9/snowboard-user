@@ -332,7 +332,7 @@ export default function PaymentClient({
                   <span className="text-gray-900 font-medium text-sm">ชำระมัดจำ</span>
                 </div>
                 <span className="text-gray-900 font-medium text-sm">
-                  ฿ {numeral(depositAmount).format("0,0.00")}
+                  ฿ {numeral(depositAmount * 1.07).format("0,0.00")}
                 </span>
               </label>
             )}
@@ -478,7 +478,7 @@ export default function PaymentClient({
           <div className="flex items-center justify-between my-3">
             <span className="text-gray-900 font-bold text-sm">ยอดชำระ:</span>
             <span className="text-gray-900 font-extrabold text-2xl md:text-[28px] tracking-tight">
-              ฿ {numeral(currentPayAmount).format("0,0.00")}
+              ฿ {numeral(currentPayAmount * 1.07).format("0,0.00")}
             </span>
           </div>
 
