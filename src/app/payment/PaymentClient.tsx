@@ -149,8 +149,8 @@ export default function PaymentClient({
   const currentPayAmount = isDepositAlreadyPaid
     ? remainingAmount
     : paymentType === "deposit"
-      ? depositAmount
-      : totalAmount
+      ? depositWithVat
+      : totalAmountWithVat
 
   const handleConfirmPayment = async () => {
     try {
@@ -481,7 +481,7 @@ export default function PaymentClient({
           <div className="flex items-center justify-between my-3">
             <span className="text-gray-900 font-bold text-sm">ยอดชำระ:</span>
             <span className="text-gray-900 font-extrabold text-2xl md:text-[28px] tracking-tight">
-              ฿ {numeral(totalAmountWithVat).format("0,0.00")}
+              ฿ {numeral(currentPayAmount).format("0,0.00")}
             </span>
           </div>
 
