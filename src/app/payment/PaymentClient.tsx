@@ -140,8 +140,11 @@ export default function PaymentClient({
       ? enrollment.deposit_amount
       : totalAmount * 0.3
 
+  const totalAmountWithVat = totalAmount * 1.07
+  const depositWithVat = depositAmount * 1.07
+
   // ยอดคงเหลือ
-  const remainingAmount = Math.max(0, totalAmount * 1.07 - depositAmount)
+  const remainingAmount = Math.max(0, totalAmountWithVat - depositWithVat)
 
   const currentPayAmount = isDepositAlreadyPaid
     ? remainingAmount
@@ -478,7 +481,7 @@ export default function PaymentClient({
           <div className="flex items-center justify-between my-3">
             <span className="text-gray-900 font-bold text-sm">ยอดชำระ:</span>
             <span className="text-gray-900 font-extrabold text-2xl md:text-[28px] tracking-tight">
-              ฿ {numeral(currentPayAmount * 1.07).format("0,0.00")}
+              ฿ {numeral(currentPayAmount).format("0,0.00")}
             </span>
           </div>
 
