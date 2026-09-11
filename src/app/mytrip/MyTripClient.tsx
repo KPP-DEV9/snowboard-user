@@ -82,25 +82,26 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
 
   return (
     <div className="min-h-screen bg-[#2D455D] pb-32 font-sans selection:bg-[#568759]/30">
-      <div className="w-full px-4 mx-auto pt-6 max-w-lg">
+      <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-6 md:pt-10 max-w-6xl">
         {/* Header */}
-        <div className="relative flex items-center justify-center mb-6">
+        <div className="relative flex items-center justify-center mb-6 md:mb-8">
           <Link
             href="/profile"
-            className="absolute left-0 text-white p-1 hover:opacity-80 transition-opacity"
+            className="absolute left-0 text-white font-bold flex items-center gap-2 hover:opacity-80 transition-opacity text-sm md:text-base p-1"
           >
-            <ArrowLeft size={24} className="stroke-[2.5]" />
+            <ArrowLeft size={22} className="stroke-[2.5]" />
+            <span className="hidden sm:inline">ย้อนกลับ</span>
           </Link>
-          <h1 className="text-xl font-bold text-white tracking-wide">ทริปของฉัน</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white tracking-wide">ทริปของฉัน</h1>
         </div>
 
         {/* Filter Controls */}
-        <div className="flex items-center gap-2.5 mb-6 overflow-visible">
+        <div className="flex items-center gap-2.5 mb-6 md:mb-8 overflow-visible flex-wrap">
           {/* Dropdown for Trip Type */}
           <div className="relative">
             <button
               onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
-              className="flex items-center gap-1.5 bg-white text-gray-900 px-4 py-2 rounded-full text-[13px] font-bold shadow-sm whitespace-nowrap hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1.5 bg-white text-gray-900 px-4 py-2 rounded-full text-[13px] md:text-sm font-bold shadow-sm whitespace-nowrap hover:bg-gray-50 transition-colors"
             >
               <span>{getTypeLabel()}</span>
               <ChevronDown size={16} className="text-gray-700 stroke-[2.5]" />
@@ -151,7 +152,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
           {/* Upcoming Tab Button */}
           <button
             onClick={() => setActiveTab(activeTab === "upcoming" ? "all" : "upcoming")}
-            className={`px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all border ${
+            className={`px-4 py-2 rounded-full text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
               activeTab === "upcoming"
                 ? "bg-white text-gray-900 border-white font-bold shadow-sm"
                 : "bg-[#22384C] text-white border-[#476077] hover:bg-[#2A445C]"
@@ -163,7 +164,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
           {/* Past Tab Button */}
           <button
             onClick={() => setActiveTab(activeTab === "past" ? "all" : "past")}
-            className={`px-4 py-2 rounded-full text-[13px] font-medium whitespace-nowrap transition-all border ${
+            className={`px-4 py-2 rounded-full text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
               activeTab === "past"
                 ? "bg-white text-gray-900 border-white font-bold shadow-sm"
                 : "bg-[#22384C] text-white border-[#476077] hover:bg-[#2A445C]"
@@ -174,9 +175,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
         </div>
 
         {/* Trips List */}
-        <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {filteredEnrollments.length === 0 ? (
-            <div className="text-center py-16 text-white/80 bg-black/15 rounded-3xl font-medium">
+            <div className="col-span-full text-center py-16 text-white/80 bg-black/15 rounded-3xl font-medium">
               ไม่พบรายการทริป
             </div>
           ) : (
@@ -217,46 +218,48 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 <div
                   key={enrollment.id}
                   onClick={() => router.push(`/mytrip/${enrollment.id}`)}
-                  className="bg-white rounded-[1.75rem] p-5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer text-black overflow-hidden"
+                  className="bg-white rounded-[1.75rem] p-5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer text-black overflow-hidden flex flex-col justify-between group"
                 >
-                  {/* Course Images */}
-                  {course?.image_urls && course.image_urls.length > 0 && (
-                    <div className="relative w-full h-[160px] md:h-[190px] overflow-hidden rounded-2xl mb-3.5 shadow-xs">
-                      <SlideImg images={course.image_urls} alt={course.title} />
-                    </div>
-                  )}
+                  <div className="flex flex-col flex-1">
+                    {/* Course Images */}
+                    {course?.image_urls && course.image_urls.length > 0 && (
+                      <div className="relative w-full h-[180px] sm:h-[190px] overflow-hidden rounded-2xl mb-3.5 shadow-xs">
+                        <SlideImg images={course.image_urls} alt={course.title} />
+                      </div>
+                    )}
 
-                  {/* Top Row: Badge + Code */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <span
-                      className={`${badgeBg} text-white text-[11px] font-bold px-2.5 py-0.5 rounded-[5px] tracking-wide`}
-                    >
-                      {programType}
-                    </span>
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="text-gray-900 font-extrabold text-[16px] leading-snug mb-2 line-clamp-2">
-                    {course?.title || "ทริปสโนว์บอร์ด โตเกียว สำหรับผู้เริ่มต้น 6 วัน 5 คืน"}
-                  </h3>
-
-                  {/* Location & Date */}
-                  <div className="space-y-1 mb-3">
-                    <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
-                      <MapPin size={15} className="text-gray-400 shrink-0" />
-                      <span>
-                        {districtName ? `${districtName}, ` : ""}
-                        {provinceName || "โตเกียว, ญี่ปุ่น"}
+                    {/* Top Row: Badge + Code */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span
+                        className={`${badgeBg} text-white text-[11px] font-bold px-2.5 py-0.5 rounded-[5px] tracking-wide`}
+                      >
+                        {programType}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
-                      <CalendarDays size={15} className="text-gray-400 shrink-0" />
-                      <span>{formatDateRange(course?.start_date, course?.end_date)}</span>
+
+                    {/* Title */}
+                    <h3 className="text-gray-900 font-extrabold text-[16px] leading-snug mb-2 line-clamp-2 group-hover:text-[#2D455D] transition-colors">
+                      {course?.title || "ทริปสโนว์บอร์ด โตเกียว สำหรับผู้เริ่มต้น 6 วัน 5 คืน"}
+                    </h3>
+
+                    {/* Location & Date */}
+                    <div className="space-y-1 mb-3">
+                      <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
+                        <MapPin size={15} className="text-gray-400 shrink-0" />
+                        <span className="truncate">
+                          {districtName ? `${districtName}, ` : ""}
+                          {provinceName || "โตเกียว, ญี่ปุ่น"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
+                        <CalendarDays size={15} className="text-gray-400 shrink-0" />
+                        <span>{formatDateRange(course?.start_date, course?.end_date)}</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Pricing Breakdown & Status Rows */}
-                  <div className="border-t border-gray-100 pt-3 space-y-1.5 text-[13px]">
+                  <div className="border-t border-gray-100 pt-3 space-y-1.5 text-[13px] mt-auto">
                     {/* Scenario 3: Fully Paid */}
                     {isPaid ? (
                       <div className="flex justify-between items-center">

@@ -127,10 +127,6 @@ export default function PaymentClient({
   // รายการทั้งหมด (Subtotal = sum of all listed items)
   const subtotal = adultSubtotal + childSubtotal + extrasSubtotal
 
-  // ภาษี Vat 7%
-  // const vatAmount = subtotal
-  // * 0.07
-
   // ยอดทั้งหมด (Grand Total)
   const totalAmount = subtotal
 
