@@ -223,19 +223,19 @@ export default function PaymentClient({
     }
   }
 
-  const backUrl = `/booking/?enrollment_id=${enrollment?.id}&course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}`
+  // const backUrl = `/booking/?enrollment_id=${enrollment?.id}&course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}`
 
   return (
     <div className="min-h-screen bg-[#2D455D] pb-32 font-sans selection:bg-[#568759]/30">
       <div className="w-full px-4 mx-auto pt-6 max-w-lg">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-8">
-          <Link
-            href={backUrl}
-            className="absolute left-0 text-white p-1 hover:opacity-80 transition-opacity"
+          <p
+            onClick={() => router.back()}
+            className="absolute left-0 text-white p-1 hover:opacity-80 transition-opacity cursor-pointer"
           >
             <ArrowLeft size={24} className="stroke-[2.5]" />
-          </Link>
+          </p>
           <h1 className="text-xl font-bold text-white tracking-wide">ชำระเงิน</h1>
         </div>
 
