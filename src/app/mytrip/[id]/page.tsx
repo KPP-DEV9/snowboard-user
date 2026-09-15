@@ -101,7 +101,8 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       : Number(enrollment.req_total) || 0
 
   const rawTotal = enrollment.total_amount || course?.price || 0
-  const totalAmount = rawTotal
+  const totalAmount = rawTotal * 1.07
+  const vatAmount = rawTotal * 0.07
   const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
@@ -109,7 +110,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
 
   const transactions = enrollment.payment_transactions || []
   const transactionsTotal = transactions.reduce(
-    (sum, tx) => sum + (Number(tx.amount) || 0),
+    (sum, tx) => sum + (Number(tx.amount) || 0) * 1.07,
     0,
   )
   const displayTotal = Math.max(totalAmount, transactionsTotal)
@@ -120,7 +121,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       tx.status === PaymentTransactionsStatus.GatewaySuccess,
   )
   const verifiedTotal = verifiedTransactions.reduce(
-    (sum, tx) => sum + (Number(tx.amount) || 0),
+    (sum, tx) => sum + (Number(tx.amount) || 0) * 1.07,
     0,
   )
 
@@ -131,9 +132,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     statusLower.includes("ชำระแล้ว") ||
     statusLower.includes("ชำระสำเร็จ")
   const isCancelled =
-    statusLower === "cancelled" ||
-    statusLower === "canceled" ||
-    statusLower.includes("ยกเลิก")
+    statusLower === "cancelled" || statusLower === "canceled" || statusLower.includes("ยกเลิก")
   const isDepositPaid =
     statusLower === "deposit_paid" ||
     statusLower.includes("มัดจำแล้ว") ||
@@ -160,7 +159,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
 
   const remainingAmount = Math.max(
     0,
-    verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - depositAmount,
+    verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - Number(depositAmount * 1.07),
   )
 
   const hasPayable = transactions.some((tx) => {
@@ -176,8 +175,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     )
   })
 
-  const canPay =
-    !isCancelled && !allPaid && (hasPayable || (isDepositPaid && remainingAmount > 0))
+  const canPay = !isCancelled && !allPaid && (hasPayable || (isDepositPaid && remainingAmount > 0))
 
   return (
     <LayoutPage isLicense={false}>
@@ -276,23 +274,25 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   {childCount > 0 ? `, เด็ก ${childCount}` : ""})
                 </span>
               </div>
-              {extrasSubtotal > 0 && (
+              {/* {extrasSubtotal > 0 && (
                 <div className="flex justify-between text-gray-600">
                   <span>อุปกรณ์และบริการเสริม</span>
                   <span className="font-bold text-gray-900">
                     ฿ {numeral(extrasSubtotal).format("0,0.00")}
                   </span>
                 </div>
-              )}
+              )} */}
               {transactions.length > 0 ? (
                 <>
                   {/* Summary / Total Row (when multiple transactions or deposit paid with balance) */}
                   {transactions.length > 1 || (isDepositPaid && remainingAmount > 0) ? (
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                      <span className="text-gray-700 font-medium">
+                        ราคารวม(ทริป/อุปกรณ์/บริการ)
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className="text-gray-900 font-bold">
-                          ฿ {numeral(displayTotal).format("0,0.00")}
+                          ฿ {numeral(displayTotal / 1.07).format("0,0.00")}
                         </span>
                         {isCancelled ? (
                           <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
@@ -320,13 +320,11 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                         className="flex justify-between items-center"
                       >
                         <span className="text-gray-700 font-medium">
-                          {getEnrollmentStatusLabel(tx.enrollment_status) ||
-                            tx.name ||
-                            "ยอดชำระ"}
+                          {getEnrollmentStatusLabel(tx.enrollment_status) || tx.name || "ยอดชำระ"}
                         </span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
-                            ฿ {numeral(Number(tx.amount)).format("0,0.00")}
+                            ฿ {numeral(Number(tx.amount) * 1.07).format("0,0.00")}
                           </span>
                           <span
                             className={`${badge.className} px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
@@ -344,7 +342,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                       <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
                       <div className="flex items-center gap-2">
                         <span className="text-gray-900 font-bold">
-                          ฿ {numeral(remainingAmount).format("0,0.00")}
+                          ฿ {numeral(Number(remainingAmount)).format("0,0.00")}
                         </span>
                         <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                           รอชำระ
@@ -427,6 +425,14 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   </div>
                 </>
               )}
+            </div>
+
+            {/* VAT Row */}
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span>
+              <span className="font-bold text-gray-900">
+                ฿ {numeral(vatAmount).format("0,0.00")}
+              </span>
             </div>
 
             <div className="flex justify-between items-center pt-1">

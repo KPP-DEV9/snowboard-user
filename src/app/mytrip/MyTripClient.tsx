@@ -188,7 +188,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
 
               const transactions = enrollment.payment_transactions || []
               const transactionsTotal = transactions.reduce(
-                (sum, tx) => sum + (Number(tx.amount) || 0),
+                (sum, tx) => sum + ((Number(tx.amount) || 0) * 1.07),
                 0,
               )
               const displayTotal = Math.max(totalAmount, transactionsTotal)
@@ -199,7 +199,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                   tx.status === PaymentTransactionsStatus.GatewaySuccess,
               )
               const verifiedTotal = verifiedTransactions.reduce(
-                (sum, tx) => sum + (Number(tx.amount) || 0),
+                (sum, tx) => sum + ((Number(tx.amount) || 0) * 1.07),
                 0,
               )
 
