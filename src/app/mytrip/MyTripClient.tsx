@@ -6,7 +6,7 @@ import Link from "next/link"
 import { ArrowLeft, MapPin, CalendarDays, ChevronDown } from "lucide-react"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
-import { Enrollment, EnrollmentStatus } from "@/types/enrollment"
+import { Enrollment } from "@/types/enrollment"
 import { PaymentTransactionsStatus } from "@/types/payment"
 import { getTransactionStatusBadge, getEnrollmentStatusLabel } from "@/lib/payment"
 import { getLocationName } from "@/constants/location"
@@ -27,7 +27,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
   const filteredEnrollments = enrollments.filter((item) => {
     const course = item.course
     const courseType = (course?.course_type || "").toLowerCase()
-
     // Type filter
     if (typeFilter === "snowboard" && !courseType.includes("snowboard")) return false
     if (typeFilter === "ski" && !courseType.includes("ski")) return false
@@ -48,7 +47,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
         return new Date(course.start_date) < now
       }
     }
-
     return true
   })
 
@@ -185,7 +183,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
             filteredEnrollments.map((enrollment) => {
               const course = enrollment.course
               const rawTotal = enrollment.total_amount || course?.price || 0
-              const totalAmount = rawTotal
+              const totalAmount = rawTotal * 1.07
               const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
 
               const transactions = enrollment.payment_transactions || []
@@ -241,7 +239,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
 
               const remainingAmount = Math.max(
                 0,
-                verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - depositAmount,
+                verifiedTotal > 0
+                  ? displayTotal - verifiedTotal
+                  : displayTotal - Number(depositAmount * 1.07),
               )
 
               const hasPayable = transactions.some((tx) => {
@@ -276,7 +276,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               return (
                 <div
                   key={enrollment.id}
-                  onClick={() => router.push(`/mytrip/${enrollment.id}`)}
+                  // onClick={() => router.push(`/mytrip/${enrollment.id}`)}
                   className="bg-white rounded-[1.75rem] p-5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer text-black overflow-hidden flex flex-col justify-between group"
                 >
                   <div className="flex flex-col flex-1">
@@ -349,7 +349,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                             tx.name,
                             tx.enrollment_status,
                           )
-
                           return (
                             <div
                               key={tx.id || `${tx.name}-${idx}`}
@@ -362,7 +361,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                               </span>
                               <div className="flex items-center gap-2">
                                 <span className="text-gray-900 font-bold">
-                                  ฿ {numeral(Number(tx.amount)).format("0,0.00")}
+                                  ฿ {numeral(Number(tx.amount) * 1.07).format("0,0.00")}
                                 </span>
                                 <span
                                   className={`${badge.className} px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
@@ -380,7 +379,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                             <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
                             <div className="flex items-center gap-2">
                               <span className="text-gray-900 font-bold">
-                                ฿ {numeral(remainingAmount).format("0,0.00")}
+                                ฿ {numeral(Number(remainingAmount)).format("0,0.00")}
                               </span>
                               <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                                 รอชำระ
