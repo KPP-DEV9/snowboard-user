@@ -11,6 +11,8 @@ interface Props {
   prevMonth: () => void
   calendarDays: Date[]
   rounds: Round[]
+  prevDisabled?: boolean
+  nextDisabled?: boolean
 }
 
 export default function MyCalendar({
@@ -21,11 +23,19 @@ export default function MyCalendar({
   prevMonth,
   calendarDays,
   rounds,
+  prevDisabled,
+  nextDisabled,
 }: Props) {
   return (
     <Card className="py-5 px-4 text-black">
       <div className="flex justify-between items-center mb-6">
-        <button onClick={prevMonth} className="w-6 h-6 flex items-center justify-center">
+        <button
+          onClick={prevMonth}
+          disabled={prevDisabled}
+          className={`w-6 h-6 flex items-center justify-center transition-opacity ${
+            prevDisabled ? "opacity-20 cursor-not-allowed" : "text-gray-700 hover:text-black"
+          }`}
+        >
           <svg
             width="24"
             height="24"
@@ -42,7 +52,13 @@ export default function MyCalendar({
         <div className="text-[16px] font-bold">
           {format(currentMonth, "MMMM yyyy", { locale: th })}
         </div>
-        <button onClick={nextMonth} className="w-6 h-6 flex items-center justify-center">
+        <button
+          onClick={nextMonth}
+          disabled={nextDisabled}
+          className={`w-6 h-6 flex items-center justify-center transition-opacity ${
+            nextDisabled ? "opacity-20 cursor-not-allowed" : "text-gray-700 hover:text-black"
+          }`}
+        >
           <svg
             width="24"
             height="24"

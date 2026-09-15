@@ -33,6 +33,14 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
     return notFound()
   }
 
+  const now = new Date()
+  const registerStart = course.register_start ? new Date(course.register_start) : null
+  const registerEnd = course.register_end ? new Date(course.register_end) : null
+
+  const isNotStarted =
+    registerStart && !isNaN(registerStart.getTime()) ? now < registerStart : false
+  const isExpired = registerEnd && !isNaN(registerEnd.getTime()) ? now > registerEnd : false
+
   const { provinceName, districtName } = getLocationName(
     course.province,
     course.district,
@@ -147,15 +155,24 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                             </p>
                           )}
 
-                          {total_user <= round?.total_user && (
-                            <BookingButton
-                              course={course}
-                              roundId={round.id}
-                              adultPrice={course.price - (course.discount || 0)}
-                              childPrice={course.child_price}
-                              // availableSeats={round.total}
-                            />
-                          )}
+                          {total_user <= round?.total_user &&
+                            !isExpired &&
+                            (isNotStarted ? (
+                              <button
+                                disabled
+                                className="bg-gray-300 text-gray-500 px-6 py-1 rounded-[10px] font-bold text-sm cursor-not-allowed"
+                              >
+                                เร็วๆ นี้
+                              </button>
+                            ) : (
+                              <BookingButton
+                                course={course}
+                                roundId={round.id}
+                                adultPrice={course.price - (course.discount || 0)}
+                                childPrice={course.child_price}
+                                // availableSeats={round.total}
+                              />
+                            ))}
                         </div>
                       </Card>
                     ))
