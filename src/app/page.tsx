@@ -176,12 +176,12 @@ export default function MainPage() {
 
                         {discount > 0 ? (
                           <div className="flex justify-between items-end border-t border-gray-100 pt-3 mt-auto">
-                            <div>
-                              <div className="text-gray-400 text-xs md:text-sm line-through decoration-gray-400 font-medium">
-                                ฿ {numeral(price).format("0,0")}
-                              </div>
+                            <div className="flex">
                               <div className="text-[#798E75] font-extrabold text-lg md:text-xl lg:text-2xl">
                                 ฿ {numeral(finalPrice).format("0,0")}
+                                <span className="pl-1 text-gray-400 text-xs md:text-sm line-through decoration-gray-400 font-medium">
+                                  {numeral(price).format("0,0")}
+                                </span>
                                 <span className="ml-1 text-gray-600 text-xs md:text-sm"> / คน</span>
                               </div>
                             </div>

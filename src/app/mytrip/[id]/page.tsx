@@ -24,6 +24,8 @@ import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import { Card } from "@/components/Ui/Card/Card"
 import LayoutPage from "@/components/Layout"
+import { PaymentTransactionsStatus } from "@/types/payment"
+import { getTransactionStatusBadge, getEnrollmentStatusLabel } from "@/lib/payment"
 import { getLocationName } from "@/constants/location"
 import SlideImg from "@/components/Ui/SlideImg"
 
@@ -99,58 +101,83 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       : Number(enrollment.req_total) || 0
 
   const rawTotal = enrollment.total_amount || course?.price || 0
-  const totalAmount = rawTotal * 1.07
-  const depositAmount = enrollment.deposit_amount || 0
+  const totalAmount = rawTotal
+  const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
   const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"
 
-  const statusLower = (enrollment.status || "").toLowerCase()
-  const isDepositPaid =
-    statusLower === "deposit_paid" ||
-    (depositAmount > 0 && statusLower !== "paid" && statusLower !== "completed")
+  const transactions = enrollment.payment_transactions || []
+  const transactionsTotal = transactions.reduce(
+    (sum, tx) => sum + (Number(tx.amount) || 0),
+    0,
+  )
+  const displayTotal = Math.max(totalAmount, transactionsTotal)
 
+  const verifiedTransactions = transactions.filter(
+    (tx) =>
+      tx.status === PaymentTransactionsStatus.Verified ||
+      tx.status === PaymentTransactionsStatus.GatewaySuccess,
+  )
+  const verifiedTotal = verifiedTransactions.reduce(
+    (sum, tx) => sum + (Number(tx.amount) || 0),
+    0,
+  )
+
+  const statusLower = (enrollment.status || "").toLowerCase()
   const isPaid =
     statusLower === "paid" ||
     statusLower === "completed" ||
-    statusLower === "ชำระแล้ว" ||
-    statusLower === "ชำระสำเร็จ"
-
+    statusLower.includes("ชำระแล้ว") ||
+    statusLower.includes("ชำระสำเร็จ")
   const isCancelled =
-    statusLower === "cancelled" || statusLower === "canceled" || statusLower.includes("ยกเลิก")
+    statusLower === "cancelled" ||
+    statusLower === "canceled" ||
+    statusLower.includes("ยกเลิก")
+  const isDepositPaid =
+    statusLower === "deposit_paid" ||
+    statusLower.includes("มัดจำแล้ว") ||
+    (transactions.length > 0 &&
+      verifiedTransactions.some(
+        (tx) =>
+          tx.name?.toLowerCase().includes("มัดจำ") ||
+          tx.name?.toLowerCase().includes("deposit") ||
+          tx.enrollment_status === "deposit_paid",
+      ) &&
+      verifiedTotal < displayTotal)
 
-  const isPendingPayment = !isPaid && !isCancelled
+  const allPaid =
+    !isCancelled &&
+    !isDepositPaid &&
+    (isPaid ||
+      (transactions.length > 0 &&
+        transactions.every(
+          (tx) =>
+            tx.status === PaymentTransactionsStatus.Verified ||
+            tx.status === PaymentTransactionsStatus.GatewaySuccess,
+        ) &&
+        (displayTotal === 0 || verifiedTotal >= displayTotal)))
 
-  const getStatusDisplay = () => {
-    if (isPaid) {
-      return {
-        title: "ชำระเงินเรียบร้อยแล้ว",
-        badgeBg: "bg-[#E5F0FF] text-[#0056D2]",
-        icon: <CheckCircle2 size={16} className="text-[#0056D2]" />,
-      }
-    }
-    if (isCancelled) {
-      return {
-        title: "ยกเลิกแล้ว",
-        badgeBg: "bg-[#FFE5E5] text-[#F04E23]",
-        icon: <XCircle size={16} className="text-[#F04E23]" />,
-      }
-    }
-    if (isDepositPaid) {
-      return {
-        title: "มัดจำแล้ว (รอชำระส่วนที่เหลือ)",
-        badgeBg: "bg-[#FEF3C7] text-[#D97706]",
-        icon: <Clock size={16} className="text-[#D97706]" />,
-      }
-    }
-    return {
-      title: "รอการชำระเงิน",
-      badgeBg: "bg-[#FFF4E5] text-[#F04E23]",
-      icon: <AlertCircle size={16} className="text-[#F04E23]" />,
-    }
-  }
+  const remainingAmount = Math.max(
+    0,
+    verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - depositAmount,
+  )
 
-  const statusInfo = getStatusDisplay()
+  const hasPayable = transactions.some((tx) => {
+    const s = tx.status
+    return (
+      s === PaymentTransactionsStatus.GatewayPending ||
+      s === PaymentTransactionsStatus.InvalidSlip ||
+      s === PaymentTransactionsStatus.WrongAmount ||
+      s === PaymentTransactionsStatus.Rejected ||
+      s === PaymentTransactionsStatus.GatewayFailed ||
+      s === PaymentTransactionsStatus.GatewayTimeout ||
+      !s
+    )
+  })
+
+  const canPay =
+    !isCancelled && !allPaid && (hasPayable || (isDepositPaid && remainingAmount > 0))
 
   return (
     <LayoutPage isLicense={false}>
@@ -257,46 +284,164 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   </span>
                 </div>
               )}
-              {depositAmount > 0 && (
-                <div className="flex justify-between text-gray-600">
-                  <span>ยอดมัดจำที่ชำระ</span>
-                  <span className="font-bold text-gray-900">
-                    ฿ {numeral(depositAmount * 1.07).format("0,0.00")}
-                  </span>
+              {transactions.length > 0 ? (
+                <>
+                  {/* Summary / Total Row (when multiple transactions or deposit paid with balance) */}
+                  {transactions.length > 1 || (isDepositPaid && remainingAmount > 0) ? (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-900 font-bold">
+                          ฿ {numeral(displayTotal).format("0,0.00")}
+                        </span>
+                        {isCancelled ? (
+                          <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                            ยกเลิก
+                          </span>
+                        ) : allPaid ? (
+                          <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                            ชำระสำเร็จ
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Each Transaction Row */}
+                  {transactions.map((tx, idx) => {
+                    const badge = getTransactionStatusBadge(
+                      tx.status,
+                      tx.name,
+                      tx.enrollment_status,
+                    )
+                    return (
+                      <div
+                        key={tx.id || `${tx.name}-${idx}`}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-gray-700 font-medium">
+                          {getEnrollmentStatusLabel(tx.enrollment_status) ||
+                            tx.name ||
+                            "ยอดชำระ"}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-gray-900 font-bold">
+                            ฿ {numeral(Number(tx.amount)).format("0,0.00")}
+                          </span>
+                          <span
+                            className={`${badge.className} px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
+                          >
+                            {isCancelled ? "ยกเลิก" : badge.label}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+
+                  {/* If only deposit transaction exists in list and remaining balance still due */}
+                  {transactions.length === 1 && isDepositPaid && remainingAmount > 0 && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-900 font-bold">
+                          ฿ {numeral(remainingAmount).format("0,0.00")}
+                        </span>
+                        <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                          รอชำระ
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : /* Fallback for enrollments without payment_transactions */
+              isPaid ? (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-900 font-bold">
+                      ฿ {numeral(totalAmount).format("0,0.00")}
+                    </span>
+                    <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                      ชำระสำเร็จ
+                    </span>
+                  </div>
                 </div>
+              ) : isCancelled ? (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-900 font-bold">
+                      ฿ {numeral(totalAmount).format("0,0.00")}
+                    </span>
+                    <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                      ยกเลิก
+                    </span>
+                  </div>
+                </div>
+              ) : isDepositPaid ? (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                    <span className="text-gray-900 font-bold">
+                      ฿ {numeral(totalAmount).format("0,0.00")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">ยอดมัดจำ</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-900 font-bold">
+                        ฿ {numeral(depositAmount).format("0,0.00")}
+                      </span>
+                      <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                        มัดจำแล้ว
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-900 font-bold">
+                        ฿ {numeral(remainingAmount).format("0,0.00")}
+                      </span>
+                      <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                        รอชำระ
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                    <span className="text-gray-900 font-bold">
+                      ฿ {numeral(totalAmount).format("0,0.00")}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-700 font-medium">ยอดมัดจำ</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-900 font-bold">
+                        ฿ {numeral(depositAmount).format("0,0.00")}
+                      </span>
+                    </div>
+                  </div>
+                </>
               )}
-              {isDepositPaid && (
-                <div className="flex justify-between text-gray-600">
-                  <span>ยอดคงเหลือที่ต้องชำระ</span>
-                  <span className="font-bold text-[#D97706]">
-                    ฿ {numeral(Math.max(0, totalAmount - depositAmount * 1.07)).format("0,0.00")}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between text-gray-600 items-center">
-                <span>สถานะ</span>
-                <div
-                  className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold ${statusInfo.badgeBg}`}
-                >
-                  {statusInfo.icon}
-                  <span>{statusInfo.title}</span>
-                </div>
-              </div>
             </div>
 
             <div className="flex justify-between items-center pt-1">
               <span className="font-bold text-gray-900 text-base">ราคารวมทั้งหมด</span>
               <span className="font-bold text-[#448651] text-2xl">
-                ฿ {numeral(Number(totalAmount)).format("0,0.00")}
+                ฿ {numeral(Number(displayTotal)).format("0,0.00")}
               </span>
             </div>
 
             {/* Pending / Remaining Payment Action */}
-            {isPendingPayment && (
+            {canPay && (
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <Link
                   href={`/payment/?course_id=${enrollment.course_id}&round_id=${enrollment.round_id || ""}&enrollment_id=${enrollment.id}&adults=${adultCount}&children=${childCount}`}
-                  className="w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-3.5 rounded-2xl font-bold text-[16px] transition-colors shadow-md flex items-center justify-center gap-2 text-center"
+                  className="w-full bg-[#C84323] hover:bg-[#B93816] text-white py-3.5 rounded-2xl font-bold text-[16px] transition-colors shadow-md flex items-center justify-center gap-2 text-center"
                 >
                   <CreditCard size={18} />
                   {isDepositPaid ? "ชำระเงินส่วนที่เหลือ" : "ชำระเงิน"}

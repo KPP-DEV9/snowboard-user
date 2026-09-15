@@ -6,9 +6,10 @@ import Link from "next/link"
 import { ArrowLeft, MapPin, CalendarDays, ChevronDown } from "lucide-react"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
-import { Enrollment } from "@/types/enrollment"
+import { Enrollment, EnrollmentStatus } from "@/types/enrollment"
+import { PaymentTransactionsStatus } from "@/types/payment"
+import { getTransactionStatusBadge, getEnrollmentStatusLabel } from "@/lib/payment"
 import { getLocationName } from "@/constants/location"
-import { Vat } from "@/utils/Inv"
 import SlideImg from "@/components/Ui/SlideImg"
 
 interface MyTripClientProps {
@@ -186,11 +187,23 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               const rawTotal = enrollment.total_amount || course?.price || 0
               const totalAmount = rawTotal
               const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
-              const remainingAmount = Math.max(0, totalAmount - depositAmount)
 
-              const isSki = course?.course_type?.toLowerCase()?.includes("ski")
-              const programType = isSki ? "Ski" : "Snowboard"
-              const badgeBg = isSki ? "bg-[#E67E22]" : "bg-[#0066FF]"
+              const transactions = enrollment.payment_transactions || []
+              const transactionsTotal = transactions.reduce(
+                (sum, tx) => sum + (Number(tx.amount) || 0),
+                0,
+              )
+              const displayTotal = Math.max(totalAmount, transactionsTotal)
+
+              const verifiedTransactions = transactions.filter(
+                (tx) =>
+                  tx.status === PaymentTransactionsStatus.Verified ||
+                  tx.status === PaymentTransactionsStatus.GatewaySuccess,
+              )
+              const verifiedTotal = verifiedTransactions.reduce(
+                (sum, tx) => sum + (Number(tx.amount) || 0),
+                0,
+              )
 
               const statusLower = (enrollment.status || "").toLowerCase()
               const isPaid =
@@ -203,7 +216,53 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 statusLower === "canceled" ||
                 statusLower.includes("ยกเลิก")
               const isDepositPaid =
-                statusLower === "deposit_paid" || statusLower.includes("มัดจำแล้ว")
+                statusLower === "deposit_paid" ||
+                statusLower.includes("มัดจำแล้ว") ||
+                (transactions.length > 0 &&
+                  verifiedTransactions.some(
+                    (tx) =>
+                      tx.name?.toLowerCase().includes("มัดจำ") ||
+                      tx.name?.toLowerCase().includes("deposit") ||
+                      tx.enrollment_status === "deposit_paid",
+                  ) &&
+                  verifiedTotal < displayTotal)
+
+              const allPaid =
+                !isCancelled &&
+                !isDepositPaid &&
+                (isPaid ||
+                  (transactions.length > 0 &&
+                    transactions.every(
+                      (tx) =>
+                        tx.status === PaymentTransactionsStatus.Verified ||
+                        tx.status === PaymentTransactionsStatus.GatewaySuccess,
+                    ) &&
+                    (displayTotal === 0 || verifiedTotal >= displayTotal)))
+
+              const remainingAmount = Math.max(
+                0,
+                verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - depositAmount,
+              )
+
+              const hasPayable = transactions.some((tx) => {
+                const s = tx.status
+                return (
+                  s === PaymentTransactionsStatus.GatewayPending ||
+                  s === PaymentTransactionsStatus.InvalidSlip ||
+                  s === PaymentTransactionsStatus.WrongAmount ||
+                  s === PaymentTransactionsStatus.Rejected ||
+                  s === PaymentTransactionsStatus.GatewayFailed ||
+                  s === PaymentTransactionsStatus.GatewayTimeout ||
+                  !s
+                )
+              })
+
+              const canPay =
+                !isCancelled && !allPaid && (hasPayable || (isDepositPaid && remainingAmount > 0))
+
+              const isSki = course?.course_type?.toLowerCase()?.includes("ski")
+              const programType = isSki ? "Ski" : "Snowboard"
+              const badgeBg = isSki ? "bg-[#E67E22]" : "bg-[#0066FF]"
 
               const { provinceName, districtName } = getLocationName(
                 course?.province,
@@ -260,13 +319,99 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
 
                   {/* Pricing Breakdown & Status Rows */}
                   <div className="border-t border-gray-100 pt-3 space-y-1.5 text-[13px] mt-auto">
-                    {/* Scenario 3: Fully Paid */}
-                    {isPaid ? (
+                    {transactions.length > 0 ? (
+                      <>
+                        {/* Summary / Total Row (when multiple transactions or deposit paid with balance) */}
+                        {transactions.length > 1 || (isDepositPaid && remainingAmount > 0) ? (
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-900 font-bold">
+                                ฿ {numeral(displayTotal).format("0,0.00")}
+                              </span>
+                              {isCancelled ? (
+                                <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                                  ยกเลิก
+                                </span>
+                              ) : allPaid ? (
+                                <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                                  ชำระสำเร็จ
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {/* Each Transaction Row */}
+                        {transactions.map((tx, idx) => {
+                          const badge = getTransactionStatusBadge(
+                            tx.status,
+                            tx.name,
+                            tx.enrollment_status,
+                          )
+
+                          return (
+                            <div
+                              key={tx.id || `${tx.name}-${idx}`}
+                              className="flex justify-between items-center"
+                            >
+                              <span className="text-gray-700 font-medium">
+                                {getEnrollmentStatusLabel(tx.enrollment_status) ||
+                                  tx.name ||
+                                  "ยอดชำระ"}
+                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-900 font-bold">
+                                  ฿ {numeral(Number(tx.amount)).format("0,0.00")}
+                                </span>
+                                <span
+                                  className={`${badge.className} px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
+                                >
+                                  {isCancelled ? "ยกเลิก" : badge.label}
+                                </span>
+                              </div>
+                            </div>
+                          )
+                        })}
+
+                        {/* If only deposit transaction exists in list and remaining balance still due */}
+                        {transactions.length === 1 && isDepositPaid && remainingAmount > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-900 font-bold">
+                                ฿ {numeral(remainingAmount).format("0,0.00")}
+                              </span>
+                              <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                                รอชำระ
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Payment Button */}
+                        {canPay && (
+                          <div className="flex justify-end pt-1">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                router.push(paymentUrl)
+                              }}
+                              className="bg-[#C84323] hover:bg-[#B93816] text-white px-7 py-2 rounded-xl font-bold text-[13px] shadow-sm transition-colors cursor-pointer"
+                            >
+                              ชำระเงิน
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    ) : /* Fallback for enrollments without payment_transactions */
+                    isPaid ? (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
+                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
-                            ฿ {numeral(Number(totalAmount) * 1.07).format("0,0.00")}
+                            ฿ {numeral(totalAmount).format("0,0.00")}
                           </span>
                           <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                             ชำระสำเร็จ
@@ -274,9 +419,8 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                         </div>
                       </div>
                     ) : isCancelled ? (
-                      /* Scenario 4: Cancelled */
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
+                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
@@ -287,19 +431,18 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                         </div>
                       </div>
                     ) : isDepositPaid ? (
-                      /* Scenario 1: Deposit Paid, Balance Pending */
                       <>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
+                          <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
                           <span className="text-gray-900 font-bold">
-                            ฿ {numeral(totalAmount * 1.07).format("0,0.00")}
+                            ฿ {numeral(totalAmount).format("0,0.00")}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-700 font-medium">ยอดมัดจำ</span>
                           <div className="flex items-center gap-2">
                             <span className="text-gray-900 font-bold">
-                              ฿ {numeral(depositAmount * 1.07).format("0,0.00")}
+                              ฿ {numeral(depositAmount).format("0,0.00")}
                             </span>
                             <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                               มัดจำแล้ว
@@ -310,7 +453,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                           <span className="text-gray-700 font-medium">ยอดคงเหลือ</span>
                           <div className="flex items-center gap-2">
                             <span className="text-gray-900 font-bold">
-                              ฿ {numeral(remainingAmount * 1.07).format("0,0.00")}
+                              ฿ {numeral(remainingAmount).format("0,0.00")}
                             </span>
                             <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                               รอชำระ
@@ -331,12 +474,11 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                         </div>
                       </>
                     ) : (
-                      /* Scenario 2: Deposit Pending (Default Pending) */
                       <>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-700 font-medium">ยอดทั้งหมด+Vat</span>
+                          <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
                           <span className="text-gray-900 font-bold">
-                            ฿ {numeral(totalAmount * 1.07).format("0,0.00")}
+                            ฿ {numeral(totalAmount).format("0,0.00")}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
@@ -345,9 +487,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                             <span className="text-gray-900 font-bold">
                               ฿ {numeral(depositAmount).format("0,0.00")}
                             </span>
-                            {/* <span className="bg-[#FEF3C7] text-[#D97706] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
-                              รอชำระ
-                            </span> */}
                           </div>
                         </div>
                         <div className="flex justify-end pt-1">

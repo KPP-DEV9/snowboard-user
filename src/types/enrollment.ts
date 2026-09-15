@@ -1,9 +1,13 @@
 import { Course } from "./course"
-import { Payment } from "./payment"
+import { Payment, PaymentTransactions } from "./payment"
 import { User } from "./user"
 import { TermsConditions } from "./termsConditions"
 
-type EnrollmentStatus = "pending_payment" | "deposit_paid" | "paid" | "cancelled" | string
+export type EnrollmentStatus =
+  | "pending_payment" //รอชำระ
+  | "deposit_paid" //มัดจำแล้ว
+  | "paid" //ชำระแล้ว
+  | "cancelled" //ยกเลิก
 
 export interface Enrollment {
   id: string
@@ -32,6 +36,7 @@ export interface Enrollment {
   requirement_transactions?: RequirementItem[]
   req_total?: number
   slip_url?: string
+  payment_transactions: PaymentTransactions[]
 }
 
 export interface EnrollmentGuest extends Partial<EnrollmentParticipant> {
