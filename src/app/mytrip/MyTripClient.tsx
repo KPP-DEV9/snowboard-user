@@ -276,7 +276,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               return (
                 <div
                   key={enrollment.id}
-                  // onClick={() => router.push(`/mytrip/${enrollment.id}`)}
+                  onClick={() => router.push(`/mytrip/${enrollment.id}`)}
                   className="bg-white rounded-[1.75rem] p-5 shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer text-black overflow-hidden flex flex-col justify-between group"
                 >
                   <div className="flex flex-col flex-1">
