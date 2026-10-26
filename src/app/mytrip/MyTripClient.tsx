@@ -213,29 +213,48 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 statusLower === "cancelled" ||
                 statusLower === "canceled" ||
                 statusLower.includes("ยกเลิก")
-              const isDepositPaid =
-                statusLower === "deposit_paid" ||
-                statusLower.includes("มัดจำแล้ว") ||
-                (transactions.length > 0 &&
-                  verifiedTransactions.some(
-                    (tx) =>
-                      tx.name?.toLowerCase().includes("มัดจำ") ||
-                      tx.name?.toLowerCase().includes("deposit") ||
-                      tx.enrollment_status === "deposit_paid",
-                  ) &&
-                  verifiedTotal < displayTotal)
 
-              const allPaid =
-                !isCancelled &&
-                !isDepositPaid &&
-                (isPaid ||
-                  (transactions.length > 0 &&
-                    transactions.every(
-                      (tx) =>
-                        tx.status === PaymentTransactionsStatus.Verified ||
-                        tx.status === PaymentTransactionsStatus.GatewaySuccess,
-                    ) &&
-                    (displayTotal === 0 || verifiedTotal >= displayTotal)))
+              const isSubmittedOrPaid = (s?: PaymentTransactionsStatus) =>
+                s === PaymentTransactionsStatus.Verified ||
+                s === PaymentTransactionsStatus.GatewaySuccess ||
+                s === PaymentTransactionsStatus.PendingReview
+
+              const isDepositTx = (tx: (typeof transactions)[0]) => {
+                const name = (tx.name || "").toLowerCase()
+                return (
+                  name.includes("มัดจำ") ||
+                  name.includes("deposit") ||
+                  tx.enrollment_status === "deposit_paid"
+                )
+              }
+
+              // มีรายการมัดจำ
+              const hasDepositPaid =
+                statusLower === "deposit_paid" ||
+                statusLower.includes("มัดจำ") ||
+                (transactions.length > 0 &&
+                  transactions.some((tx) => isDepositTx(tx) && isSubmittedOrPaid(tx.status)))
+
+              const isDepositPaid = hasDepositPaid
+
+              // มีรายการชำระยอดคงเหลือ
+              const hasRemainingPaid =
+                transactions.length > 0 &&
+                transactions.some((tx) => !isDepositTx(tx) && isSubmittedOrPaid(tx.status))
+
+              // กรณี 1: มัดจำ && ชำระยอดคงเหลือ
+              const hasDepositAndRemaining = hasDepositPaid && hasRemainingPaid
+
+              // กรณี 2: ชำระเต็มจำนวน
+              const isFullPaid =
+                (isPaid && !hasDepositPaid) ||
+                (transactions.length === 1 &&
+                  !isDepositTx(transactions[0]) &&
+                  isSubmittedOrPaid(transactions[0].status)) ||
+                (!hasDepositPaid &&
+                  transactions.length > 0 &&
+                  transactions.every((tx) => isSubmittedOrPaid(tx.status)) &&
+                  verifiedTotal >= displayTotal - 1)
 
               const remainingAmount = Math.max(
                 0,
@@ -244,21 +263,12 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                   : displayTotal - Number(depositAmount * 1.07),
               )
 
-              const hasPayable = transactions.some((tx) => {
-                const s = tx.status
-                return (
-                  s === PaymentTransactionsStatus.GatewayPending ||
-                  s === PaymentTransactionsStatus.InvalidSlip ||
-                  s === PaymentTransactionsStatus.WrongAmount ||
-                  s === PaymentTransactionsStatus.Rejected ||
-                  s === PaymentTransactionsStatus.GatewayFailed ||
-                  s === PaymentTransactionsStatus.GatewayTimeout ||
-                  !s
-                )
-              })
-
-              const canPay =
-                !isCancelled && !isDepositPaid && !isPaid && !allPaid && hasPayable
+              // ไม่แสดงปุ่มจ่ายเงินในกรณี:
+              // - มัดจำ && ชำระยอดคงเหลือ
+              // - ชำระเต็มจำนวน
+              // - ยกเลิก
+              // นอกเหนือจากนี้ต้องแสดงปุ่มจ่ายเงิน
+              const canPay = !isCancelled && !hasDepositAndRemaining && !isFullPaid
 
               const isSki = course?.course_type?.toLowerCase()?.includes("ski")
               const programType = isSki ? "Ski" : "Snowboard"
@@ -459,6 +469,20 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                             ฿ {numeral(remainingAmount).format("0,0.00")}
                           </span>
                         </div>
+                        {canPay && (
+                          <div className="flex justify-end pt-1">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                router.push(paymentUrl)
+                              }}
+                              className="bg-[#C84323] hover:bg-[#B93816] text-white px-7 py-2 rounded-xl font-bold text-[13px] shadow-sm transition-colors cursor-pointer"
+                            >
+                              ชำระเงิน
+                            </button>
+                          </div>
+                        )}
                       </>
                     ) : (
                       <>
@@ -476,18 +500,20 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                             </span>
                           </div>
                         </div>
-                        <div className="flex justify-end pt-1">
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              router.push(paymentUrl)
-                            }}
-                            className="bg-[#C84323] hover:bg-[#B93816] text-white px-7 py-2 rounded-xl font-bold text-[13px] shadow-sm transition-colors cursor-pointer"
-                          >
-                            ชำระเงิน
-                          </button>
-                        </div>
+                        {canPay && (
+                          <div className="flex justify-end pt-1">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                router.push(paymentUrl)
+                              }}
+                              className="bg-[#C84323] hover:bg-[#B93816] text-white px-7 py-2 rounded-xl font-bold text-[13px] shadow-sm transition-colors cursor-pointer"
+                            >
+                              ชำระเงิน
+                            </button>
+                          </div>
+                        )}
                       </>
                     )}
                   </div>
