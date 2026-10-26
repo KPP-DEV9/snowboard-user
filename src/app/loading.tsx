@@ -35,7 +35,7 @@ export default function Loading() {
             />
             {/* Added white border stroke for the wave */}
             <path
-              d="M1440 400C1320 580 960 480 600 380C400 600 0 500"
+              d="M1440 400C1440 400 1320 580 960 480C600 380 400 600 0 500"
               stroke="white"
               strokeWidth="12"
               fill="none"
@@ -66,7 +66,7 @@ export default function Loading() {
             />
             {/* Added white border stroke for the wave */}
             <path
-              d="M1440 200C1200 0 720 150 240 300C0 100 0 100"
+              d="M1440 200C1440 200 1200 0 720 150C240 300 0 100 0 100"
               stroke="white"
               strokeWidth="12"
               fill="none"

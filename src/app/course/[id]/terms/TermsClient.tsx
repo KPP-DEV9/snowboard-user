@@ -16,7 +16,7 @@ import {
 import { Course } from "@/types/course"
 import { User } from "@/types/user"
 import { getLocationName } from "@/constants/location"
-import { RenderDate } from "@/lib/date"
+import { RenderDate, RenderTimeSeven } from "@/lib/date"
 import LevelBadge from "@/components/LevelBadge"
 import { createTermsConditions } from "@/app/actions/termsConditions"
 import { createEnrollment } from "@/app/actions/enrollment"
@@ -215,8 +215,8 @@ export default function TermsClient({
               <div className="text-white/70">รอบเวลาที่เลือก:</div>
               <div className="font-bold text-[#E7E298]">
                 {RenderDate(selectedRound.start_date, "d MMM yyyy")} (
-                {RenderDate(selectedRound.start_date, "HH:mm")} -{" "}
-                {RenderDate(selectedRound.end_date, "HH:mm")})
+                {RenderTimeSeven(selectedRound.start_date, "HH:mm")} -{" "}
+                {RenderTimeSeven(selectedRound.end_date, "HH:mm")})
               </div>
               <div className="text-white/80 flex items-center gap-1.5 mt-0.5">
                 <Users size={14} /> ผู้ใหญ่ {adults} ท่าน
