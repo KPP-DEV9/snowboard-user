@@ -345,7 +345,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
 
             {/* Nickname & Telephone */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
+              {/* <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">ชื่อเล่น</label>
                 <input
                   type="text"
@@ -355,7 +355,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all"
                   placeholder="ชื่อเล่น"
                 />
-              </div>
+              </div> */}
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-gray-900">เบอร์โทรศัพท์</label>
@@ -368,25 +368,24 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                   placeholder="080xxxxxxx"
                 />
               </div>
-            </div>
 
-            {/* Email */}
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-bold text-gray-900">อีเมล์</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
-                placeholder="อีเมล..."
-              />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-bold text-gray-900">อีเมล์</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full bg-white border border-gray-200 rounded-xl p-3 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all placeholder:text-gray-400"
+                  placeholder="อีเมล..."
+                />
+              </div>
             </div>
 
             {/* Gender */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-gray-900">เพศ</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setFormData((prev) => ({ ...prev, sex: "Male" }))}
@@ -410,18 +409,6 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                 >
                   <FemaleIcon className="w-4 h-4 shrink-0" />
                   <span>หญิง</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData((prev) => ({ ...prev, sex: "Other" }))}
-                  className={`py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5 transition-colors border ${
-                    formData.sex === "Other"
-                      ? "bg-[#354359] text-white border-[#354359]"
-                      : "bg-white text-gray-800 border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <Transgender size={16} strokeWidth={2.5} className="shrink-0" />
-                  <span>อื่นๆ</span>
                 </button>
               </div>
             </div>
