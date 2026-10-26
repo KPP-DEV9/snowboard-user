@@ -31,6 +31,28 @@ export function RenderDate(
   return format(d, formatStr, { locale: th })
 }
 
+export function RenderTimeSeven(
+  date: Date | string | number | undefined | null,
+  formatStr: string = "HH:mm",
+) {
+  if (!date) return "-"
+
+  let d = new Date(date)
+  if (isNaN(d.getTime())) {
+    if (typeof date === "string" && date.match(/^\d{2}:\d{2}(:\d{2})?$/)) {
+      if (formatStr === "HH:mm") {
+        return date.substring(0, 5)
+      }
+      return date
+    }
+    return "-"
+  }
+
+  d = addHours(d, 7)
+
+  return format(d, formatStr, { locale: th })
+}
+
 export function DateTime(date: Date | string | number | undefined | null) {
   if (date) {
     const dateTime = new Date(date || "").toLocaleDateString("th-TH", {

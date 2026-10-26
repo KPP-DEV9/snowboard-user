@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { X, CalendarDays, Clock } from "lucide-react"
 import { Course } from "@/types/course"
-import { RenderDate } from "@/lib/date"
+import { RenderDate, RenderTimeSeven } from "@/lib/date"
 import numeral from "numeral"
 import { Vat } from "@/utils/Inv"
 
@@ -13,7 +13,6 @@ interface BookingButtonProps {
   roundId: string
   adultPrice: number
   childPrice: number
-  // availableSeats: number
 }
 
 export default function BookingButton({
@@ -79,8 +78,8 @@ export default function BookingButton({
                     <div className="flex items-center justify-center gap-1.5 font-bold text-[#798E75]">
                       <Clock size={15} />
                       <span>
-                        เวลา {RenderDate(selectedRound.start_date, "HH:mm")} -{" "}
-                        {RenderDate(selectedRound.end_date, "HH:mm")}
+                        เวลา {RenderTimeSeven(selectedRound.start_date, "HH:mm")} -{" "}
+                        {RenderTimeSeven(selectedRound.end_date, "HH:mm")}
                       </span>
                     </div>
                   </div>
