@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "plus.unsplash.com",
       },
+      {
+        protocol: "https",
+        hostname: "scontent.fcnx4-1.fna.fbcdn.net",
+      },
     ],
   },
 }

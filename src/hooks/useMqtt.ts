@@ -33,7 +33,7 @@ export const useMqtt = (userId: string | undefined): UseMqttReturn => {
   useEffect(() => {
     if (!userId) return
 
-    const rawMqtt = process.env.NEXT_PUBLIC_MQTT_URL || "ws://localhost:3001/mqtt"
+    const rawMqtt = process.env.NEXT_PUBLIC_MQTT_URL || "ws://localhost:3001"
 
     let brokerUrl = rawMqtt
     if (brokerUrl.startsWith("http://")) {

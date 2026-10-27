@@ -2,6 +2,7 @@ import { Course } from "./course"
 import { Payment, PaymentTransactions } from "./payment"
 import { User } from "./user"
 import { TermsConditions } from "./termsConditions"
+import { Round } from "./rounds"
 
 export type EnrollmentStatus =
   | "pending_payment" //รอชำระ
@@ -16,7 +17,7 @@ export interface Enrollment {
   course_id: string
   course?: Course
   round_id?: string
-  round?: any
+  round?: Round
   adult_count?: number
   child_count?: number
   total_amount?: number

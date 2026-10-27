@@ -251,15 +251,21 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                       {RenderDate(course?.end_date, "d MMMM yyyy")}
                     </span>
                   </div>
-                  {enrollment.round && (
-                    <div className="flex items-center gap-2.5">
-                      <Clock size={18} className="text-[#798E75] shrink-0" />
-                      <span>
-                        เวลา {RenderDate(enrollment.round.start_date, "HH:mm")} -{" "}
-                        {RenderDate(enrollment.round.end_date, "HH:mm")}
-                      </span>
-                    </div>
-                  )}
+                  {(() => {
+                    const bookedRound =
+                      enrollment.round ||
+                      course?.rounds?.find((r) => r.id === enrollment.round_id)
+                    if (!bookedRound?.start_date) return null
+                    return (
+                      <div className="flex items-center gap-2.5">
+                        <Clock size={18} className="text-[#798E75] shrink-0" />
+                        <span>
+                          เวลา {RenderDate(bookedRound.start_date, "HH:mm")} -{" "}
+                          {RenderDate(bookedRound.end_date, "HH:mm")}
+                        </span>
+                      </div>
+                    )
+                  })()}
                   <div className="flex items-center gap-2.5">
                     <Users size={18} className="text-gray-500 shrink-0" />
                     <span>
