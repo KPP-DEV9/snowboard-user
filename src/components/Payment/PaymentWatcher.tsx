@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useWebSocketContext } from "@/contexts/WebSocketContext"
+import { useMqttContext } from "@/contexts/MqttContext"
 import { useRouter } from "next/navigation"
 
 interface PaymentWatcherProps {
@@ -10,16 +10,19 @@ interface PaymentWatcherProps {
 }
 
 export default function PaymentWatcher({ packageName, creditAmount }: PaymentWatcherProps) {
-  const { onMessage, isConnected } = useWebSocketContext()
+  const { onMessage, isConnected } = useMqttContext()
   const [paymentSuccess, setPaymentSuccess] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    onMessage((data) => {
+    const unsubscribe = onMessage((data) => {
       if (data?.topic === "PAYMENT_SUCCESS") {
         setPaymentSuccess(true)
       }
     })
+    return () => {
+      unsubscribe()
+    }
   }, [onMessage])
 
   // Auto-redirect after showing success for 3 seconds
