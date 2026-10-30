@@ -6,6 +6,13 @@ export const getTransactionStatusBadge = (
   name?: string,
   enrollmentStatus?: EnrollmentStatus,
 ) => {
+  if (enrollmentStatus === "cancelled") {
+    return {
+      label: "ยกเลิก",
+      className: "bg-[#FEE2E2] text-[#EF4444]",
+    }
+  }
+
   const isDeposit =
     name?.toLowerCase().includes("มัดจำ") ||
     name?.toLowerCase().includes("deposit") ||
@@ -21,7 +28,7 @@ export const getTransactionStatusBadge = (
     case PaymentTransactionsStatus.PendingReview:
       return {
         label: "รอตรวจสอบ",
-        className: "bg-[#FEF3C7] text-[#D97706]",
+        className: "bg-[#FFDBBE] text-[#DE5B04]",
       }
     case PaymentTransactionsStatus.GatewayPending:
       return {

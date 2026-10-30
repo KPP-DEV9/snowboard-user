@@ -356,7 +356,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                             {getEnrollmentStatusLabel(tx.enrollment_status) || tx.name || "ยอดชำระ"}
                           </span>
                           <span
-                            className={`${badge.className} px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
+                            className={`${
+                              isCancelled ? "bg-[#FEE2E2] text-[#EF4444]" : badge.className
+                            } px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
                           >
                             {isCancelled ? "ยกเลิก" : badge.label}
                           </span>

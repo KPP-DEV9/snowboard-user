@@ -387,7 +387,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                                     "ยอดชำระ"}
                                 </span>
                                 <span
-                                  className={`${badge.className} px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
+                                  className={`${
+                                    isCancelled ? "bg-[#FEE2E2] text-[#EF4444]" : badge.className
+                                  } px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold`}
                                 >
                                   {isCancelled ? "ยกเลิก" : badge.label}
                                 </span>
