@@ -98,6 +98,17 @@ function formatBirthDate(val?: string | null): string {
   return String(val).split("T")[0]
 }
 
+function formatDateToDDMMYYYY(val?: string | null): string {
+  if (!val) return ""
+  const datePart = String(val).split("T")[0]
+  const parts = datePart.split("-")
+  if (parts.length === 3) {
+    const [year, month, day] = parts
+    return `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`
+  }
+  return datePart
+}
+
 export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProps) {
   const [formData, setFormData] = useState<ProfileFormData>({
     // User
@@ -298,7 +309,15 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
 
               <div className="flex flex-col gap-1.5 min-w-0">
                 <label className="text-sm font-bold text-gray-900">วันเดือนปีเกิด</label>
-                <div className="relative w-full min-w-0">
+                <div className="relative w-full min-w-0 bg-white border border-gray-200 rounded-xl focus-within:border-[#4F7354] focus-within:ring-1 focus-within:ring-[#4F7354] transition-all">
+                  <input
+                    type="text"
+                    readOnly
+                    tabIndex={-1}
+                    value={formatDateToDDMMYYYY(formData.birth_date)}
+                    placeholder="dd/mm/yyyy"
+                    className="w-full max-w-full min-w-0 block bg-transparent rounded-xl p-3 pr-10 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none pointer-events-none"
+                  />
                   <input
                     type="date"
                     name="birth_date"
@@ -311,7 +330,7 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
                         }
                       } catch {}
                     }}
-                    className="w-full max-w-full min-w-0 block appearance-none bg-white border border-gray-200 rounded-xl p-3 pr-10 text-sm text-gray-900 focus:outline-none focus:border-[#4F7354] focus:ring-1 focus:ring-[#4F7354] transition-all box-border [&::-webkit-date-and-time-value]:text-left [&::-webkit-date-and-time-value]:min-h-[1.5em] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-700 pointer-events-none" />
                 </div>

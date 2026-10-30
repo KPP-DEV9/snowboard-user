@@ -64,6 +64,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
         startDate.getMonth() === endDate.getMonth() &&
         startDate.getFullYear() === endDate.getFullYear()
       ) {
+        if (startDate.getDate() === endDate.getDate()) {
+          return RenderDate(start, "d MMMM yyyy")
+        }
         return `${RenderDate(start, "d")}-${RenderDate(end, "d MMMM yyyy")}`
       }
     } catch {
@@ -71,61 +74,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
     }
 
     return `${RenderDate(start, "d MMM yyyy")} - ${RenderDate(end, "d MMM yyyy")}`
-  }
-
-  const formatRoundText = (
-    roundItem?: Enrollment["round"],
-    courseStart?: string | Date,
-    courseEnd?: string | Date,
-  ) => {
-    if (!roundItem || !roundItem.start_date) return null
-
-    const name = (roundItem as any).name || (roundItem as any).title || ""
-    const startTime = roundItem.start_date ? RenderDate(roundItem.start_date, "HH:mm") : null
-    const endTime = roundItem.end_date ? RenderDate(roundItem.end_date, "HH:mm") : null
-    const hasTime =
-      startTime &&
-      startTime !== "-" &&
-      !(startTime === "00:00" && (!endTime || endTime === "00:00"))
-
-    const timeStr = hasTime
-      ? endTime && endTime !== "-"
-        ? `${startTime} - ${endTime}`
-        : startTime
-      : ""
-
-    const roundDate = roundItem.start_date
-      ? formatDateRange(roundItem.start_date, roundItem.end_date)
-      : null
-    const courseDate = formatDateRange(courseStart, courseEnd)
-    const isDifferentDate = roundDate && roundDate !== "-" && roundDate !== courseDate
-
-    if (name) {
-      if (timeStr && isDifferentDate) {
-        return `รอบ ${name} (วันที่ ${roundDate} เวลา ${timeStr})`
-      }
-      if (timeStr) {
-        return `รอบ ${name} (เวลา ${timeStr})`
-      }
-      if (isDifferentDate) {
-        return `รอบ ${name} (วันที่ ${roundDate})`
-      }
-      return `รอบ ${name}`
-    }
-
-    if (timeStr && isDifferentDate) {
-      return `รอบวันที่ ${roundDate} เวลา ${timeStr}`
-    }
-    if (timeStr) {
-      return `รอบเวลา ${timeStr}`
-    }
-    if (isDifferentDate) {
-      return `รอบวันที่ ${roundDate}`
-    }
-    if (roundDate && roundDate !== "-") {
-      return `รอบ ${roundDate}`
-    }
-    return null
   }
 
   const getTypeLabel = () => {
@@ -335,14 +283,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 course?.nation,
               )
 
-              const bookedRound =
-                enrollment.round ||
-                course?.rounds?.find((r) => r.id === enrollment.round_id)
-              const roundText = formatRoundText(
-                bookedRound,
-                course?.start_date,
-                course?.end_date,
-              )
+              const bookedRound = enrollment?.bookings?.find((r) => r.id)
 
               // Determine payment link
               const paymentUrl = `/payment/?course_id=${course?.id || enrollment.course_id}&round_id=${enrollment.round_id || ""}&enrollment_id=${enrollment.id}&adults=${enrollment.adult_count || 1}&children=${enrollment.child_count || 0}`
@@ -386,14 +327,19 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                       </div>
                       <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
                         <CalendarDays size={15} className="text-gray-400 shrink-0" />
-                        <span>{formatDateRange(course?.start_date, course?.end_date)}</span>
+                        <span>
+                          {bookedRound?.round && (
+                            <>
+                              {formatDateRange(
+                                bookedRound.round.start_date,
+                                bookedRound.round.end_date,
+                              )}{" "}
+                              ({RenderDate(bookedRound.round.start_date, "HH:mm")} -{" "}
+                              {RenderDate(bookedRound.round.end_date, "HH:mm")})
+                            </>
+                          )}
+                        </span>
                       </div>
-                      {roundText && (
-                        <div className="flex items-center gap-1.5 text-gray-500 text-[13px] font-medium">
-                          <Clock size={15} className="text-gray-400 shrink-0" />
-                          <span>{roundText}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
 

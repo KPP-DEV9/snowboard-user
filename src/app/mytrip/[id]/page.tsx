@@ -6,12 +6,9 @@ import {
   ArrowLeft,
   MapPin,
   CalendarDays,
-  Clock,
   Users,
   CreditCard,
   CheckCircle2,
-  AlertCircle,
-  XCircle,
   Phone,
   Mail,
   User as UserIcon,
@@ -141,9 +138,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
   const isDepositTx = (tx: (typeof transactions)[0]) => {
     const name = (tx.name || "").toLowerCase()
     return (
-      name.includes("มัดจำ") ||
-      name.includes("deposit") ||
-      tx.enrollment_status === "deposit_paid"
+      name.includes("มัดจำ") || name.includes("deposit") || tx.enrollment_status === "deposit_paid"
     )
   }
 
@@ -235,6 +230,32 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                 course?.district,
                 course?.nation,
               )
+              const bookedRound = enrollment?.bookings?.find((r) => r.id)
+              const formatDateRange = (start?: string | Date, end?: string | Date) => {
+                if (!start) return "-"
+                if (!end) return RenderDate(start, "d MMMM yyyy")
+
+                try {
+                  const startDate = new Date(start)
+                  const endDate = new Date(end)
+                  if (
+                    !isNaN(startDate.getTime()) &&
+                    !isNaN(endDate.getTime()) &&
+                    startDate.getMonth() === endDate.getMonth() &&
+                    startDate.getFullYear() === endDate.getFullYear()
+                  ) {
+                    if (startDate.getDate() === endDate.getDate()) {
+                      return RenderDate(start, "d MMMM yyyy")
+                    }
+                    return `${RenderDate(start, "d")}-${RenderDate(end, "d MMMM yyyy")}`
+                  }
+                } catch {
+                  // fallback
+                }
+
+                return `${RenderDate(start, "d MMM yyyy")} - ${RenderDate(end, "d MMM yyyy")}`
+              }
+
               return (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 bg-gray-50/80 p-4 rounded-2xl border border-gray-100">
                   <div className="flex items-center gap-2.5">
@@ -247,25 +268,18 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   <div className="flex items-center gap-2.5">
                     <CalendarDays size={18} className="text-[#304B65] shrink-0" />
                     <span>
-                      {RenderDate(course?.start_date, "d MMMM yyyy")} -{" "}
-                      {RenderDate(course?.end_date, "d MMMM yyyy")}
+                      {bookedRound?.round && (
+                        <>
+                          {formatDateRange(
+                            bookedRound.round.start_date,
+                            bookedRound.round.end_date,
+                          )}{" "}
+                          ({RenderDate(bookedRound.round.start_date, "HH:mm")} -{" "}
+                          {RenderDate(bookedRound.round.end_date, "HH:mm")})
+                        </>
+                      )}
                     </span>
                   </div>
-                  {(() => {
-                    const bookedRound =
-                      enrollment.round ||
-                      course?.rounds?.find((r) => r.id === enrollment.round_id)
-                    if (!bookedRound?.start_date) return null
-                    return (
-                      <div className="flex items-center gap-2.5">
-                        <Clock size={18} className="text-[#798E75] shrink-0" />
-                        <span>
-                          เวลา {RenderDate(bookedRound.start_date, "HH:mm")} -{" "}
-                          {RenderDate(bookedRound.end_date, "HH:mm")}
-                        </span>
-                      </div>
-                    )
-                  })()}
                   <div className="flex items-center gap-2.5">
                     <Users size={18} className="text-gray-500 shrink-0" />
                     <span>
