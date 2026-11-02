@@ -10,15 +10,15 @@ import {
   ChevronUp,
   AlertCircle,
 } from "lucide-react"
-import { Course, HotelsMaster, RoomMaster } from "@/types/course"
+import { Course, HotelsMaster, RoomMaster } from "@/types/model"
 import { RenderDate } from "@/lib/date"
 import { useRouter, useSearchParams } from "next/navigation"
-import { User } from "@/types/user"
+import { User } from "@/types/model"
 
 import { AssetMaster } from "@/app/actions/assetMaster"
 import { OptionMaster } from "../actions/optionMaster"
 import { updateEnrollment, cancelEnrollment } from "@/app/actions/enrollment"
-import { CreateEnrollmentRequest, Enrollment } from "@/types/enrollment"
+import { CreateEnrollmentRequest, Enrollment } from "@/types/model"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"

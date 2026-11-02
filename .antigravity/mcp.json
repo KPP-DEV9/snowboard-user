@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "local-macmini-llm": {
+      "command": "python3",
+      "args": ["/Users/p4/Documents/GitHub/snowboard-admin/local_llm_mcp.py"]
+    }
+  }
+}

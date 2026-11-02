@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers"
 import { revalidatePath } from "next/cache"
-import { User, UserProfile } from "@/types/user"
+import { User, UserProfile } from "@/types/model"
 import { api } from "@/lib/api"
 import { DateToIso } from "@/lib/date"
 

@@ -1,6 +1,6 @@
 "use server"
 
-import { Token, User } from "@/types/user"
+import { Token, User } from "@/types/model"
 import { cookies } from "next/headers"
 
 export async function setSession(token: string, user: any) {

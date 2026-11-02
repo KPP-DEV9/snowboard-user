@@ -1,7 +1,7 @@
 "use server";
 
 import { api } from "@/lib/api";
-import { Booking } from "@/types/booking";
+import { Booking } from "@/types/model";
 
 export async function getBookingByUser(userId: string) {
   if (!userId) {

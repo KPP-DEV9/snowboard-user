@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card } from "../Ui/Card/Card"
 import { isToday } from "date-fns"
-import { Booking } from "@/types/booking"
+import { Booking } from "@/types/model"
 
 interface Props {
   summary: []

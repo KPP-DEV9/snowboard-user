@@ -2,7 +2,7 @@
 
 import { api } from "@/lib/api"
 import { getUser } from "./auth"
-import { CreateTermsConditionsRequest, TermsConditions } from "@/types/termsConditions"
+import { CreateTermsConditionsRequest, TermsConditions } from "@/types/model"
 
 export async function createTermsConditions(items: CreateTermsConditionsRequest[]) {
   try {

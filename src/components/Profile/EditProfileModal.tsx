@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { User, UserProfile } from "@/types/user"
+import { User, UserProfile } from "@/types/model"
 import { updateUserProfile } from "@/app/actions/userProfile"
 import { X, CalendarDays, ScanLine, Transgender } from "lucide-react"
 import { NATIONALITIES, normalizeNationality } from "@/constants/nationality"

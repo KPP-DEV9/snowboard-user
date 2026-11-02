@@ -1,8 +1,8 @@
 "use client"
 
 import React, { createContext, useContext } from "react"
-import { Token } from "@/types/user"
-import { User } from "@/types/user"
+import { Token } from "@/types/model"
+import { User } from "@/types/model"
 
 interface SessionContextType {
   token: Token | null

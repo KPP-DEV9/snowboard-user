@@ -5,7 +5,7 @@ import { getUser } from "@/app/actions/auth"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LogIn } from "lucide-react"
-import { User as UserType } from "@/types/user"
+import { User as UserType } from "@/types/model"
 
 interface TopRightAuthProps {
   initialUser?: UserType | null

@@ -2,7 +2,7 @@
 
 import { interestUserEvent } from "@/app/actions/event"
 import { RenderDate } from "@/lib/date"
-import { Event } from "@/types/event"
+import { Event } from "@/types/model"
 import numeral from "numeral"
 import { useRouter } from "next/navigation"
 import { Users } from "lucide-react"

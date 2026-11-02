@@ -1,6 +1,6 @@
 "use server"
 
-import { Event } from "@/types/event"
+import { Event } from "@/types/model"
 import { api, PaginatedData } from "@/lib/api"
 
 export async function getEvents(page = 1, limit = 10) {
