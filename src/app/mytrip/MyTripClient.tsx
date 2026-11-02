@@ -218,16 +218,38 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
           ) : (
             filteredEnrollments.map((enrollment) => {
               const course = enrollment.course
-              const rawTotal = enrollment.total_amount || course?.price || 0
+              const adultCount = Number(enrollment.adult_count) || 1
+              const childCount = Number(enrollment.child_count) || 0
+              const courseBasePrice = (Number(course?.price) || 0) - (Number(course?.discount) || 0)
+              const courseChildPrice = Number(course?.child_price) || 0
+              const courseSubtotal =
+                courseBasePrice * adultCount + courseChildPrice * childCount > 0
+                  ? courseBasePrice * adultCount + courseChildPrice * childCount
+                  : Number(course?.price) || 0
+
+              const requirementTransactions = enrollment.requirement_transactions || []
+              const extrasSubtotal =
+                requirementTransactions.length > 0
+                  ? requirementTransactions.reduce((sum, item: any) => {
+                      const price =
+                        item.requirement_type === "ASSET"
+                          ? Number(item.asset_master?.price) || Number(item.price) || 0
+                          : Number(item.option_master?.price) || Number(item.price) || 0
+                      return sum + price
+                    }, 0)
+                  : Number(enrollment.req_total) ||
+                    (Number(enrollment.option_amount) || 0) + (Number(enrollment.asset_amount) || 0)
+
+              const rawCoursePrice =
+                courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
+              const rawTotal = rawCoursePrice + extrasSubtotal
               const totalAmount = rawTotal * 1.07
-              const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
+              const displayTotal = totalAmount
+              const depositAmount = enrollment.deposit_amount
+                ? Number(enrollment.deposit_amount) * 1.07
+                : totalAmount * 0.3
 
               const transactions = enrollment.payment_transactions || []
-              const transactionsTotal = transactions.reduce(
-                (sum, tx) => sum + (Number(tx.amount) || 0) * 1.07,
-                0,
-              )
-              const displayTotal = Math.max(totalAmount, transactionsTotal)
 
               const verifiedTransactions = transactions.filter(
                 (tx) =>
@@ -296,7 +318,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 0,
                 verifiedTotal > 0
                   ? displayTotal - verifiedTotal
-                  : displayTotal - Number(depositAmount * 1.07),
+                  : displayTotal - depositAmount,
               )
 
               // ไม่แสดงปุ่มจ่ายเงินในกรณี:

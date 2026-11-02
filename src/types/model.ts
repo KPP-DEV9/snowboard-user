@@ -20,7 +20,7 @@ export type BookingStatus =
   | "COMPLETE"
   | "CANCELLED"
 
-export type ContactCategory = "contact" | "social"kpp ลิส from "@/types มาก่อน แล้วเปลี่ยนไปดึงจาก model.ts
+export type ContactCategory = "contact" | "social"
 export type ContactName =
   | "phone"
   | "line"
@@ -371,7 +371,7 @@ export interface Course {
   banner_cover?: string[]
   program_type: ProgramType
   course_types?: CourseTypes
-  course_type?: CourseTypes
+  course_type: CourseTypes
   level?: CourseLevel
   course_level?: CourseLevel
   level_custom?: string | null
@@ -388,15 +388,16 @@ export interface Course {
   round?: Round[]
   rounds?: Round[]
   course_hotel?: CourseHotel[]
+  course_hotels?: CourseHotel[]
   hotels?: HotelsMaster[]
   enrollments?: Enrollment[]
   course_type_master?: CourseTypeMaster
-  terms_conditions_master?: TermsConditionsMaster
-  child_price?: number
+  terms_conditions_master?: TermsConditionsMaster[]
+  child_price: number
   down_price?: number
   discount: number
   total_days?: number
-  total_user?: number
+  total_user: number
   max_users?: number
   register_start?: string
   register_end?: string
@@ -454,12 +455,14 @@ export interface CourseHotel {
   id: string
   course_id: string
   course?: Course | null
-  room_master_id: string
+  room_master_id?: string
   room_master?: RoomMaster | null
-  night_count: number
-  price: number
-  created_at: string
-  updated_at: string
+  night_count?: number
+  price?: number
+  created_at?: string
+  updated_at?: string
+  hotel_id?: string
+  hotel?: HotelsMaster
 }
 
 // ==========================================
@@ -490,26 +493,32 @@ export interface Enrollment {
   updated_at: string
   course?: Course | null
   user?: User | null
-  bookings: Booking[]
-  payments: Payment[]
-  payment_transactions?: PaymentTransaction[]
+  bookings?: Booking[]
+  round_id?: string
+  round?: Round
+  participants?: any[]
+  guest?: any
+  guests?: any
+  payments?: Payment[]
+  payment_transactions?: PaymentTransactions[] | any[]
   PaymentTransactions?: PaymentTransaction[]
-  requirement_transactions?: RequirementTransaction[]
-  terms_conditions?: TermsConditions | null
-  is_group_booking: boolean
+  requirement_transactions?: any[]
+  terms_conditions?: TermsConditions[] | TermsConditions | null
+  is_group_booking?: boolean
   group_booking_name?: string | null
   payment_method?: PaymentMethodType | null
-  is_hotel_service: boolean
-  total_participant: number
+  is_hotel_service?: boolean
+  total_participant?: number
   adult_count?: number
   child_count?: number
-  hotel_amount: number
-  option_amount: number
-  asset_amount: number
-  course_amount: number
+  hotel_amount?: number
+  option_amount?: number
+  asset_amount?: number
+  course_amount?: number
   deposit_amount?: number
-  discount_amount: number
+  discount_amount?: number
   req_total?: number
+  slip_url?: string
 }
 
 export interface EnrollmentParticipant {
@@ -539,8 +548,18 @@ export interface EnrollmentReq {
 }
 
 export interface CreateEnrollmentRequest {
-  enrollment_req: EnrollmentReq
-  payment_method: PaymentMethodType
+  enrollment_req?: EnrollmentReq
+  payment_method?: PaymentMethodType
+  course_id?: string
+  round_id?: string
+  adult_count?: number
+  child_count?: number
+  total_amount?: number
+  deposit_amount?: number
+  ski_equipment?: boolean
+  snowboard_equipment?: boolean
+  participants?: any[]
+  req_total?: number
 }
 
 export interface PendingEnrollmentDetail {
@@ -794,8 +813,8 @@ export interface Payment {
 
 export interface PaymentTransactions {
   id: string
-  payment_id: string
-  amount: number
+  payment_id?: string
+  amount: number | string
   status: PaymentTransactionsStatus
   slip_url?: string | null
   verified_by?: string | null
@@ -807,6 +826,14 @@ export interface PaymentTransactions {
   updated_at: string
   verified_by_user?: User | null
   payment?: Payment | null
+  admin_id?: string
+  currency?: string
+  enrollment_id?: string
+  enrollment_status?: EnrollmentStatus
+  name?: string
+  payment_method?: any
+  ref_id?: string
+  remark?: string
 }
 
 export interface RejectPaymentRequest {
@@ -914,16 +941,20 @@ export interface RoomMaster {
 
 export interface Round {
   id: string
-  courses_id: string
+  courses_id?: string
+  course_id?: string
   course?: Course | null
-  round_number: number
-  date_start: string
-  date_end: string
-  start_date?: string
-  end_date?: string
-  max_students: number
-  created_at: string
-  updated_at: string
+  round_number?: number
+  date_start?: string
+  date_end?: string
+  start_date: string
+  end_date: string
+  max_students?: number
+  total_user: number
+  total?: number
+  is_active?: boolean
+  created_at?: string
+  updated_at?: string
   bookings?: Booking[]
   instructor_by_rounds?: InstructorByRound[]
   instructors?: (Instructor & { instructor?: Instructor | null })[]
@@ -970,10 +1001,10 @@ export interface UpdateTermsConditionsMasterRequest {
 }
 
 export interface CreateTermsConditionsRequest {
-  user_id: string
+  user_id?: string
   terms_conditions_master_id: string
-  accept?: boolean | null
-  enrollment_id?: string | null
+  accept: boolean
+  enrollment_id?: string
 }
 
 export interface UpdateTermsConditionsRequest {
