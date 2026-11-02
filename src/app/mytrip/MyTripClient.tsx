@@ -174,9 +174,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
           </button>
 
           <button
-            onClick={() =>
-              setActiveTab(activeTab === "pending_review" ? "all" : "pending_review")
-            }
+            onClick={() => setActiveTab(activeTab === "pending_review" ? "all" : "pending_review")}
             className={`shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
               activeTab === "pending_review"
                 ? "bg-white text-gray-900 border-white font-bold shadow-sm"
@@ -269,10 +267,17 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 statusLower === "completed" ||
                 statusLower.includes("ชำระแล้ว") ||
                 statusLower.includes("ชำระสำเร็จ")
-              const isCancelled =
-                statusLower === "cancelled" ||
-                statusLower === "canceled" ||
-                statusLower.includes("ยกเลิก")
+              const isCancelled = statusLower === "cancelled" || statusLower.includes("ยกเลิก")
+              const isRejected =
+                statusLower === "rejected" ||
+                statusLower.includes("ปฏิเสธ") ||
+                (enrollment.payment_status || "").toLowerCase() === "rejected" ||
+                (transactions.length > 0 &&
+                  transactions.some(
+                    (tx) =>
+                      (tx.status || "").toLowerCase() === "rejected" ||
+                      tx.status === PaymentTransactionsStatus.Rejected,
+                  ))
 
               const isSubmittedOrPaid = (s?: PaymentTransactionsStatus) =>
                 s === PaymentTransactionsStatus.Verified ||
@@ -318,9 +323,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
 
               const remainingAmount = Math.max(
                 0,
-                verifiedTotal > 0
-                  ? displayTotal - verifiedTotal
-                  : displayTotal - depositAmount,
+                verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - depositAmount,
               )
 
               // ไม่แสดงปุ่มจ่ายเงินในกรณี:
@@ -328,7 +331,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               // - ชำระเต็มจำนวน
               // - ยกเลิก
               // นอกเหนือจากนี้ต้องแสดงปุ่มจ่ายเงิน
-              const canPay = !isCancelled && !hasDepositAndRemaining && !isFullPaid
+              const canPay = !isCancelled && !hasDepositAndRemaining && !isFullPaid && !isRejected
 
               const isSki = course?.course_type?.toLowerCase()?.includes("ski")
               const programType = isSki ? "Ski" : "Snowboard"
