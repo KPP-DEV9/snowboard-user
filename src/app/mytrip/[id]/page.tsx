@@ -139,6 +139,16 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     statusLower.includes("ชำระสำเร็จ")
   const isCancelled =
     statusLower === "cancelled" || statusLower === "canceled" || statusLower.includes("ยกเลิก")
+  const isRejected =
+    statusLower === "rejected" ||
+    statusLower.includes("ปฏิเสธ") ||
+    (enrollment.payment_status || "").toLowerCase() === "rejected" ||
+    (transactions.length > 0 &&
+      transactions.some(
+        (tx) =>
+          (tx.status || "").toLowerCase() === "rejected" ||
+          tx.status === PaymentTransactionsStatus.Rejected,
+      ))
   const isSubmittedOrPaid = (s?: PaymentTransactionsStatus) =>
     s === PaymentTransactionsStatus.Verified ||
     s === PaymentTransactionsStatus.GatewaySuccess ||
@@ -190,8 +200,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
   // - มัดจำ && ชำระยอดคงเหลือ
   // - ชำระเต็มจำนวน
   // - ยกเลิก
+  // - ปฏิเสธ (rejected)
   // นอกเหนือจากนี้ต้องแสดงปุ่มจ่ายเงิน
-  const canPay = !isCancelled && !hasDepositAndRemaining && !isFullPaid
+  const canPay = !isCancelled && !hasDepositAndRemaining && !isFullPaid && !isRejected
 
   return (
     <LayoutPage isLicense={false}>
