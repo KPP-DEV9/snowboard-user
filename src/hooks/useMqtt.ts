@@ -60,7 +60,6 @@ export const useMqtt = (userId: string | undefined): UseMqttReturn => {
     setClient(mqttClient)
 
     mqttClient.on("connect", () => {
-      console.log(`MQTT connected to ${brokerUrl}`)
       setIsConnected(true)
       reconnectAttempts = 0
       mqttClient.subscribe(defaultTopic, (err) => {

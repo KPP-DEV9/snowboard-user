@@ -18,12 +18,13 @@ interface MyTripClientProps {
 
 export default function MyTripClient({ enrollments }: MyTripClientProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<"all" | "upcoming" | "past">("all")
+  const [activeTab, setActiveTab] = useState<
+    "all" | "pending_payment" | "pending_review" | "completed" | "cancelled"
+  >("all")
   const [typeFilter, setTypeFilter] = useState<"all" | "snowboard" | "ski">("all")
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false)
 
   // Filter enrollments based on tab and type
-  const now = new Date()
   const filteredEnrollments = enrollments.filter((item) => {
     const course = item.course
     const courseType = (course?.course_type || "").toLowerCase()
@@ -31,21 +32,18 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
     if (typeFilter === "snowboard" && !courseType.includes("snowboard")) return false
     if (typeFilter === "ski" && !courseType.includes("ski")) return false
 
-    // Tab filter (upcoming / past)
-    if (activeTab === "upcoming") {
-      if (course?.end_date) {
-        return new Date(course.end_date) >= now
-      }
-      if (course?.start_date) {
-        return new Date(course.start_date) >= now
-      }
-    } else if (activeTab === "past") {
-      if (course?.end_date) {
-        return new Date(course.end_date) < now
-      }
-      if (course?.start_date) {
-        return new Date(course.start_date) < now
-      }
+    // Status tab filter
+    if (activeTab === "pending_payment") {
+      return item.status === "pending_payment"
+    }
+    if (activeTab === "pending_review") {
+      return item.status === "deposit_paid" || item.status === "paid"
+    }
+    if (activeTab === "completed") {
+      return item.status === "completed"
+    }
+    if (activeTab === "cancelled") {
+      return item.status === "cancelled"
     }
     return true
   })
@@ -79,7 +77,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
   const getTypeLabel = () => {
     if (typeFilter === "snowboard") return "Snowboard"
     if (typeFilter === "ski") return "Ski"
-    return "ทริปทั้งหมด"
+    return "All"
   }
 
   return (
@@ -98,15 +96,22 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
         </div>
 
         {/* Filter Controls */}
-        <div className="flex items-center gap-2.5 mb-6 md:mb-8 overflow-visible flex-wrap">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 mb-6 md:mb-8 overflow-visible flex-nowrap">
           {/* Dropdown for Trip Type */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setIsTypeDropdownOpen(!isTypeDropdownOpen)}
-              className="flex items-center gap-1.5 bg-white text-gray-900 px-4 py-2 rounded-full text-[13px] md:text-sm font-bold shadow-sm whitespace-nowrap hover:bg-gray-50 transition-colors"
+              className={`flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] md:text-sm whitespace-nowrap transition-all border ${
+                activeTab === "all"
+                  ? "bg-white text-gray-900 border-white font-bold shadow-sm hover:bg-gray-50"
+                  : "bg-[#22384C] text-white border-[#476077] font-medium hover:bg-[#2A445C]"
+              }`}
             >
               <span>{getTypeLabel()}</span>
-              <ChevronDown size={16} className="text-gray-700 stroke-[2.5]" />
+              <ChevronDown
+                size={15}
+                className={`stroke-[2.5] ${activeTab === "all" ? "text-gray-700" : "text-white"}`}
+              />
             </button>
 
             {isTypeDropdownOpen && (
@@ -116,13 +121,16 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                   <button
                     onClick={() => {
                       setTypeFilter("all")
+                      setActiveTab("all")
                       setIsTypeDropdownOpen(false)
                     }}
                     className={`w-full text-left px-4 py-2 text-xs font-bold hover:bg-gray-50 transition-colors ${
-                      typeFilter === "all" ? "text-[#0066FF]" : "text-gray-700"
+                      typeFilter === "all" && activeTab === "all"
+                        ? "text-[#0066FF]"
+                        : "text-gray-700"
                     }`}
                   >
-                    ทริปทั้งหมด
+                    All
                   </button>
                   <button
                     onClick={() => {
@@ -151,28 +159,53 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
             )}
           </div>
 
-          {/* Upcoming Tab Button */}
+          {/* Status Filter Buttons */}
           <button
-            onClick={() => setActiveTab(activeTab === "upcoming" ? "all" : "upcoming")}
-            className={`px-4 py-2 rounded-full text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
-              activeTab === "upcoming"
+            onClick={() =>
+              setActiveTab(activeTab === "pending_payment" ? "all" : "pending_payment")
+            }
+            className={`shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
+              activeTab === "pending_payment"
                 ? "bg-white text-gray-900 border-white font-bold shadow-sm"
                 : "bg-[#22384C] text-white border-[#476077] hover:bg-[#2A445C]"
             }`}
           >
-            เร็วๆ นี้
+            รอชำระ
           </button>
 
-          {/* Past Tab Button */}
           <button
-            onClick={() => setActiveTab(activeTab === "past" ? "all" : "past")}
-            className={`px-4 py-2 rounded-full text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
-              activeTab === "past"
+            onClick={() =>
+              setActiveTab(activeTab === "pending_review" ? "all" : "pending_review")
+            }
+            className={`shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
+              activeTab === "pending_review"
                 ? "bg-white text-gray-900 border-white font-bold shadow-sm"
                 : "bg-[#22384C] text-white border-[#476077] hover:bg-[#2A445C]"
             }`}
           >
-            ทริปที่ผ่านมา
+            รอตรวจสอบ
+          </button>
+
+          <button
+            onClick={() => setActiveTab(activeTab === "completed" ? "all" : "completed")}
+            className={`shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
+              activeTab === "completed"
+                ? "bg-white text-gray-900 border-white font-bold shadow-sm"
+                : "bg-[#22384C] text-white border-[#476077] hover:bg-[#2A445C]"
+            }`}
+          >
+            สำเร็จ
+          </button>
+
+          <button
+            onClick={() => setActiveTab(activeTab === "cancelled" ? "all" : "cancelled")}
+            className={`shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-[13px] md:text-sm font-medium whitespace-nowrap transition-all border ${
+              activeTab === "cancelled"
+                ? "bg-white text-gray-900 border-white font-bold shadow-sm"
+                : "bg-[#22384C] text-white border-[#476077] hover:bg-[#2A445C]"
+            }`}
+          >
+            ยกเลิก
           </button>
         </div>
 

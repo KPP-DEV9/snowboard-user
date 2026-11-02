@@ -10,6 +10,7 @@ export type EnrollmentStatus =
   | "deposit_paid" //มัดจำแล้ว
   | "paid" //ชำระแล้ว
   | "cancelled" //ยกเลิก
+  | "completed" //เสร็จสิ้น
 
 export interface Enrollment {
   id: string
