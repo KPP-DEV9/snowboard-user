@@ -21,7 +21,7 @@ import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import { Card } from "@/components/Ui/Card/Card"
 import LayoutPage from "@/components/Layout"
-import { PaymentTransactionsStatus } from "@/types/payment"
+import { PaymentTransactionsStatus } from "@/types/model"
 import { getTransactionStatusBadge, getEnrollmentStatusLabel } from "@/lib/payment"
 import { getLocationName } from "@/constants/location"
 import SlideImg from "@/components/Ui/SlideImg"
@@ -91,26 +91,35 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       ? requirementTransactions.reduce((sum, item) => {
           const price =
             item.requirement_type === "ASSET"
-              ? Number(item.asset_master?.price) || 0
-              : Number(item.option_master?.price) || 0
+              ? Number(item.asset_master?.price) || Number(item.price) || 0
+              : Number(item.option_master?.price) || Number(item.price) || 0
           return sum + price
         }, 0)
-      : Number(enrollment.req_total) || 0
+      : Number(enrollment.req_total) ||
+        (Number(enrollment.option_amount) || 0) + (Number(enrollment.asset_amount) || 0)
 
-  const rawTotal = enrollment.total_amount || course?.price || 0
+  const courseBasePrice =
+    (Number(course?.price) || Number(enrollment.course_amount) || 0) -
+    (Number(course?.discount) || 0)
+  const courseChildPrice = Number(course?.child_price) || 0
+  const courseSubtotal =
+    courseBasePrice * adultCount + courseChildPrice * childCount > 0
+      ? courseBasePrice * adultCount + courseChildPrice * childCount
+      : Number(course?.price) || Number(enrollment.course_amount) || 0
+
+  const rawCoursePrice = courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
+  const rawTotal = rawCoursePrice + extrasSubtotal
   const totalAmount = rawTotal * 1.07
   const vatAmount = rawTotal * 0.07
-  const depositAmount = enrollment.deposit_amount || totalAmount * 0.3
+  const displayTotal = totalAmount
+  const depositAmount = enrollment.deposit_amount
+    ? Number(enrollment.deposit_amount) * 1.07
+    : totalAmount * 0.3
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
   const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"
 
   const transactions = enrollment.payment_transactions || []
-  const transactionsTotal = transactions.reduce(
-    (sum, tx) => sum + (Number(tx.amount) || 0) * 1.07,
-    0,
-  )
-  const displayTotal = Math.max(totalAmount, transactionsTotal)
 
   const verifiedTransactions = transactions.filter(
     (tx) =>
@@ -174,7 +183,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
 
   const remainingAmount = Math.max(
     0,
-    verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - Number(depositAmount * 1.07),
+    verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - depositAmount,
   )
 
   // ไม่แสดงปุ่มจ่ายเงินในกรณี:

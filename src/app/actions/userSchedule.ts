@@ -1,7 +1,7 @@
 "use server"
 
 import { api } from "@/lib/api"
-import { UserSchedule } from "@/types/userSchedule"
+import { UserSchedule } from "@/types/model"
 
 export async function getUserScheduleByUserId(id: string) {
   try {

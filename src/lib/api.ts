@@ -1,5 +1,5 @@
-import { UserSchedule } from "@/types/userSchedule"
-import { CreateEnrollmentRequest } from "@/types/enrollment"
+import { UserSchedule } from "@/types/model"
+import { CreateEnrollmentRequest } from "@/types/model"
 
 const RAW_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api"
 

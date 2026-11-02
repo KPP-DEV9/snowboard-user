@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { X, CalendarDays, Clock } from "lucide-react"
-import { Course } from "@/types/course"
+import { Course } from "@/types/model"
 import { RenderDate, RenderTimeSeven } from "@/lib/date"
 import numeral from "numeral"
 import { Vat } from "@/utils/Inv"

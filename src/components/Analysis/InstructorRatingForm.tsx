@@ -6,7 +6,7 @@ import { Button } from "@/components/Ui/Button/Button"
 import { Card } from "@/components/Ui/Card/Card"
 import { api } from "@/lib/api"
 import { Toast } from "@/components/Ui/Toast/Toast"
-import { Rating } from "@/types/rating"
+import { Rating } from "@/types/model"
 
 interface InstructorRatingFormProps {
   instructorName?: string

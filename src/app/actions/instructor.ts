@@ -1,6 +1,6 @@
 "use server";
 
-import { InstructorProfile } from "@/types/instructor";
+import { InstructorProfile } from "@/types/model";
 import { api, PaginatedData } from "@/lib/api";
 
 export async function getInstructors(page = 1, limit = 10) {

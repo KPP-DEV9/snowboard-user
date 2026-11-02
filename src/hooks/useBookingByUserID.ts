@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Booking } from "@/types/booking";
+import { Booking } from "@/types/model";
 import { api } from "@/lib/api";
 
 export function useBookingByUserID(userId: string | undefined) {

@@ -1,5 +1,5 @@
-import { EnrollmentStatus } from "@/types/enrollment"
-import { PaymentTransactionsStatus } from "@/types/payment"
+import { EnrollmentStatus } from "@/types/model"
+import { PaymentTransactionsStatus } from "@/types/model"
 
 export const getTransactionStatusBadge = (
   status?: PaymentTransactionsStatus,

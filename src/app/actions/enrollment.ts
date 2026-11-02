@@ -1,7 +1,7 @@
 "use server"
 
 import { api } from "@/lib/api"
-import { CreateEnrollmentRequest, Enrollment } from "@/types/enrollment"
+import { CreateEnrollmentRequest, Enrollment } from "@/types/model"
 import { revalidatePath } from "next/cache"
 
 export async function createEnrollment(data: CreateEnrollmentRequest) {

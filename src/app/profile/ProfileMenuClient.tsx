@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { User } from "@/types/user"
+import { User } from "@/types/model"
 import { EditProfileModal } from "@/components/Profile/EditProfileModal"
 import { User as UserIcon, LogOut, ChevronRight } from "lucide-react"
 

@@ -13,8 +13,8 @@ import {
   MapPin,
   Users,
 } from "lucide-react"
-import { Course } from "@/types/course"
-import { User } from "@/types/user"
+import { Course } from "@/types/model"
+import { User } from "@/types/model"
 import { getLocationName } from "@/constants/location"
 import { RenderDate, RenderTimeSeven } from "@/lib/date"
 import LevelBadge from "@/components/LevelBadge"

@@ -1,6 +1,6 @@
 "use server"
 
-import { Course } from "@/types/course"
+import { Course } from "@/types/model"
 import { api, PaginatedData } from "@/lib/api"
 
 export interface GetCoursesParams {

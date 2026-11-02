@@ -7,7 +7,7 @@ import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import SlideImg from "@/components/Ui/SlideImg"
 import HomeFilters from "@/components/HomeFilters"
-import { Course } from "@/types/course"
+import { Course } from "@/types/model"
 import { getCourses } from "@/app/actions/course"
 import { getLocationName } from "@/constants/location"
 

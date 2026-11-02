@@ -1,4 +1,4 @@
-import { User } from "@/types/user"
+import { User } from "@/types/model"
 import { format } from "date-fns"
 import Link from "next/link"
 import MenuBurger from "./MenuBurger"

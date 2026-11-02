@@ -1,7 +1,7 @@
 import { getEnrollmentByUserID } from "@/app/actions/enrollment"
 import { getUser } from "@/app/actions/auth"
 import { redirect } from "next/navigation"
-import { Enrollment } from "@/types/enrollment"
+import { Enrollment } from "@/types/model"
 import LayoutPage from "@/components/Layout"
 import MyTripClient from "./MyTripClient"
 

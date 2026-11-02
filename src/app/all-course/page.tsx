@@ -1,5 +1,5 @@
 import { getCourses } from "@/app/actions/course"
-import { Course } from "@/types/course"
+import { Course } from "@/types/model"
 import AllCourseClient from "./AllCourseClient"
 
 export default async function AllCoursePage() {

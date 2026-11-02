@@ -13,7 +13,7 @@ import {
   format,
 } from "date-fns"
 import MyCalendar from "@/components/Ui/Calendar"
-import { Course } from "@/types/course"
+import { Course } from "@/types/model"
 
 interface Props {
   course: Course

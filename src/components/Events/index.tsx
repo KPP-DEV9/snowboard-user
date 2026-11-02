@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { getEvents } from "@/app/actions/event"
-import { Event } from "@/types/event"
+import { Event } from "@/types/model"
 import numeral from "numeral"
 
 import { RenderDate } from "@/lib/date"

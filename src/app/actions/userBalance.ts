@@ -1,5 +1,5 @@
 import { api } from "@/lib/api"
-import { UserBalance } from "@/types/userBalance"
+import { UserBalance } from "@/types/model"
 
 export async function getUserBalance() {
   const res = await api.userBalances.getMyBalances<UserBalance[]>()

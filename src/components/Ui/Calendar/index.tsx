@@ -1,7 +1,7 @@
 import { th } from "date-fns/locale"
 import { Card } from "../Card/Card"
 import { format, isSameMonth, isSameDay, isToday } from "date-fns"
-import { Round } from "@/types/rounds"
+import { Round } from "@/types/model"
 
 interface Props {
   currentMonth: Date
