@@ -220,12 +220,14 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               const course = enrollment.course
               const adultCount = Number(enrollment.adult_count) || 1
               const childCount = Number(enrollment.child_count) || 0
-              const courseBasePrice = (Number(course?.price) || 0) - (Number(course?.discount) || 0)
+              const courseBasePrice =
+                (Number(course?.price) || Number(enrollment.course_amount) || 0) -
+                (Number(course?.discount) || 0)
               const courseChildPrice = Number(course?.child_price) || 0
               const courseSubtotal =
                 courseBasePrice * adultCount + courseChildPrice * childCount > 0
                   ? courseBasePrice * adultCount + courseChildPrice * childCount
-                  : Number(course?.price) || 0
+                  : Number(course?.price) || Number(enrollment.course_amount) || 0
 
               const requirementTransactions = enrollment.requirement_transactions || []
               const extrasSubtotal =

@@ -98,15 +98,16 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       : Number(enrollment.req_total) ||
         (Number(enrollment.option_amount) || 0) + (Number(enrollment.asset_amount) || 0)
 
-  const courseBasePrice = (Number(course?.price) || 0) - (Number(course?.discount) || 0)
+  const courseBasePrice =
+    (Number(course?.price) || Number(enrollment.course_amount) || 0) -
+    (Number(course?.discount) || 0)
   const courseChildPrice = Number(course?.child_price) || 0
   const courseSubtotal =
     courseBasePrice * adultCount + courseChildPrice * childCount > 0
       ? courseBasePrice * adultCount + courseChildPrice * childCount
-      : Number(course?.price) || 0
+      : Number(course?.price) || Number(enrollment.course_amount) || 0
 
-  const rawCoursePrice =
-    courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
+  const rawCoursePrice = courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
   const rawTotal = rawCoursePrice + extrasSubtotal
   const totalAmount = rawTotal * 1.07
   const vatAmount = rawTotal * 0.07
