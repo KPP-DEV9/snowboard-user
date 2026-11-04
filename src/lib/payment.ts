@@ -22,7 +22,7 @@ export const getTransactionStatusBadge = (
     case PaymentTransactionsStatus.Verified:
     case PaymentTransactionsStatus.GatewaySuccess:
       return {
-        label: isDeposit ? "มัดจำแล้ว" : "ชำระสำเร็จ",
+        label: isDeposit ? "มัดจำแล้ว" : "ชำระแล้ว",
         className: "bg-[#DCFCE7] text-[#16A34A]",
       }
     case PaymentTransactionsStatus.PendingReview:

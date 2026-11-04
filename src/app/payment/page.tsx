@@ -46,7 +46,7 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
   }
 
   return (
-    <LayoutPage isLicense={false}>
+    <LayoutPage isLicense={false} isFooter={false}>
       <PaymentClient
         course={course}
         enrollment={enrollment}
@@ -54,6 +54,8 @@ export default async function PaymentPage({ searchParams }: PaymentPageProps) {
         adultsCount={adults}
         childrenCount={childrenCount}
       />
+      <br />
+      <br />
     </LayoutPage>
   )
 }

@@ -266,7 +266,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 statusLower === "paid" ||
                 statusLower === "completed" ||
                 statusLower.includes("ชำระแล้ว") ||
-                statusLower.includes("ชำระสำเร็จ")
+                statusLower.includes("ชำระแล้ว")
               const isCancelled = statusLower === "cancelled" || statusLower.includes("ยกเลิก")
               const isRejected =
                 statusLower === "rejected" ||
@@ -421,7 +421,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                                 </span>
                               ) : allPaid ? (
                                 <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
-                                  ชำระสำเร็จ
+                                  ชำระแล้ว
                                 </span>
                               ) : null} */}
                             </div>
@@ -501,7 +501,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                             ฿ {numeral(totalAmount).format("0,0.00")}
                           </span>
                           <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
-                            ชำระสำเร็จ
+                            ชำระแล้ว
                           </span>
                         </div>
                       </div>

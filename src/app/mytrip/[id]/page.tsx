@@ -136,7 +136,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     statusLower === "paid" ||
     statusLower === "completed" ||
     statusLower.includes("ชำระแล้ว") ||
-    statusLower.includes("ชำระสำเร็จ")
+    statusLower.includes("ชำระแล้ว")
   const isCancelled =
     statusLower === "cancelled" || statusLower === "canceled" || statusLower.includes("ยกเลิก")
   const isRejected =
@@ -339,12 +339,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   {/* Summary / Total Row (when multiple transactions or deposit paid with balance) */}
                   {transactions.length > 1 || (isDepositPaid && remainingAmount > 0) ? (
                     <div className="flex justify-between items-center">
-                      <span className="text-gray-700 font-medium">
-                        ราคารวม(ทริป/อุปกรณ์/บริการ)
-                      </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-gray-900 font-bold">
-                          ฿ {numeral(displayTotal / 1.07).format("0,0.00")}
+                        <span className="text-gray-700 font-medium">
+                          ราคารวม(ทริป/อุปกรณ์/บริการ)
                         </span>
                         {isCancelled ? (
                           <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
@@ -352,10 +349,13 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                           </span>
                         ) : allPaid ? (
                           <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
-                            ชำระสำเร็จ
+                            ชำระแล้ว
                           </span>
                         ) : null}
                       </div>
+                      <span className="text-gray-900 font-bold">
+                        ฿ {numeral(displayTotal / 1.07).format("0,0.00")}
+                      </span>
                     </div>
                   ) : null}
 
@@ -408,27 +408,27 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               ) : /* Fallback for enrollments without payment_transactions */
               isPaid ? (
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-900 font-bold">
-                      ฿ {numeral(totalAmount).format("0,0.00")}
-                    </span>
+                    <span className="text-gray-700 font-medium">ราคารวม(ทริป/อุปกรณ์/บริการ)</span>
                     <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
-                      ชำระสำเร็จ
+                      ชำระแล้ว
                     </span>
                   </div>
+                  <span className="text-gray-900 font-bold">
+                    ฿ {numeral(totalAmount / 1.07).format("0,0.00")}
+                  </span>
                 </div>
               ) : isCancelled ? (
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-900 font-bold">
-                      ฿ {numeral(totalAmount).format("0,0.00")}
-                    </span>
+                    <span className="text-gray-700 font-medium">ราคารวม(ทริป/อุปกรณ์/บริการ)</span>
                     <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                       ยกเลิก
                     </span>
                   </div>
+                  <span className="text-gray-900 font-bold">
+                    ฿ {numeral(totalAmount / 1.07).format("0,0.00")}
+                  </span>
                 </div>
               ) : isDepositPaid ? (
                 <>
