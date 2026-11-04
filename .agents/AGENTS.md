@@ -10,16 +10,23 @@
 
 ---
 
-## 2. Architecture & Code Boundaries (Ponytail Style)
+## 2. Architecture & Code Boundaries (Executable Architecture & Ponytail Style)
 
-- **Separation of Concerns:** Keep business logic, UI presentation, and data access decoupled.
+- **Separation of Concerns & Unidirectional Flow:**
+  - Keep business logic, UI presentation, and data access decoupled.
+  - Strict import directionality: `Shared/Ui` ➔ `Components/Features` ➔ `App/Pages`. Never allow reverse or circular imports.
 - **Single Responsibility:** 1 file = 1 primary export. Extract subcomponents, helper hooks, or utility functions when lines exceed ~150 lines.
-- **File Structure:** Colocate tests, types, and styles adjacent to their component/module. Avoid barrel files (`index.ts` re-exporting everything).
+- **Colocation (Feature-First):**
+  - Colocate tests, types, subcomponents, and styles adjacent to their primary component/feature module.
+  - Avoid barrel files (`index.ts` re-exporting everything) to preserve tree-shaking and boundary clarity.
 - **State Management:**
   - Favor local component state first.
   - Lift state up only when siblings require sync.
   - Keep server state (cached queries) strictly separated from UI state.
-- **Dependency Hygiene:** Zero circular dependencies. Never add external npm packages without explicit user instruction. Prefer native web/platform APIs.
+- **Dependency & Import Hygiene:**
+  - Zero circular dependencies.
+  - Never import internal server code, route handlers, or database models directly into Client Components (`'use client'`).
+  - Never add external npm packages without explicit user instruction. Prefer native web/platform APIs.
 
 ---
 

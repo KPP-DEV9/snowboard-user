@@ -12,11 +12,7 @@ export interface CourseBoxProps {
   className?: string
 }
 
-export default function CourseBox({
-  course,
-  courseType,
-  className = "",
-}: CourseBoxProps) {
+export default function CourseBox({ course, courseType, className = "" }: CourseBoxProps) {
   const { provinceName, districtName } = getLocationName(
     course.province,
     course.district,
@@ -103,4 +99,3 @@ export default function CourseBox({
     </Link>
   )
 }
-
