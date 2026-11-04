@@ -15,7 +15,7 @@ export default function MenuFooterClient() {
   ]
 
   return (
-    <div className="fixed -bottom-1 left-0 right-0 max-w-[480px] lg:max-w-[700px] mx-auto bg-footer rounded-t-3xl px-6 py-4 flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.1)] z-50">
+    <div className="fixed bottom-4 left-0 right-0 max-w-[360px] md:max-w-[420px] mx-auto bg-[#141F29]/90 backdrop-blur-md rounded-2xl md:rounded-3xl px-6 py-2.5 flex justify-between items-center shadow-2xl border border-white/10 z-50">
       {navItems.map((item) => {
         const Icon = item.icon
         const isActive = item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href)
@@ -27,14 +27,14 @@ export default function MenuFooterClient() {
             className="flex flex-col items-center gap-1 cursor-pointer group"
           >
             <Icon
-              size={24}
+              size={20}
               className={`transition-colors ${
-                isActive ? "text-[#4F7354]" : "text-gray-400 group-hover:text-gray-300"
+                isActive ? "text-[#38BDF8]" : "text-gray-400 group-hover:text-gray-200"
               }`}
             />
             <span
               className={`text-[10px] font-medium transition-colors ${
-                isActive ? "text-[#4F7354]" : "text-gray-400 group-hover:text-gray-300"
+                isActive ? "text-[#38BDF8]" : "text-gray-400 group-hover:text-gray-200"
               }`}
             >
               {item.label}

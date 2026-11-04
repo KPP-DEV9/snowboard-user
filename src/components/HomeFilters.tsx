@@ -3,6 +3,16 @@
 import { SlidersHorizontal, X, Search } from "lucide-react"
 import { Nations, Provinces } from "@/constants/location"
 
+export interface SearchOverrides {
+  nationID?: string
+  province?: string[]
+  courseLevel?: string
+  type?: any
+  isPriceEnabled?: boolean
+  minPrice?: string
+  maxPrice?: string
+}
+
 interface Props {
   isFilterOpen: boolean
   setIsFilterOpen: (isFilterOpen: boolean) => void
@@ -18,7 +28,7 @@ interface Props {
   setMaxPrice: (maxPrice: string) => void
   isPriceEnabled: boolean
   setIsPriceEnabled: (isPriceEnabled: boolean) => void
-  handleSearch: () => void
+  handleSearch: (targetPage?: number, type?: any, overrides?: SearchOverrides) => void | Promise<void>
 }
 
 export default function HomeFilters({
@@ -47,40 +57,120 @@ export default function HomeFilters({
     setMaxPrice("50000")
   }
 
+  const handleClearAll = () => {
+    handleClear()
+    handleSearch(1, undefined, {
+      nationID: "ทั้งหมด",
+      province: [],
+      courseLevel: "ทั้งหมด",
+      isPriceEnabled: false,
+    })
+  }
+
+  const handleRemoveProvince = (code: string) => {
+    const updated = province.filter((c) => c !== code)
+    setProvince(updated)
+    handleSearch(1, undefined, { province: updated })
+  }
+
+  const handleRemoveNation = () => {
+    setNationID("ทั้งหมด")
+    handleSearch(1, undefined, { nationID: "ทั้งหมด" })
+  }
+
+  const handleRemoveLevel = () => {
+    setCourseLevel("ทั้งหมด")
+    handleSearch(1, undefined, { courseLevel: "ทั้งหมด" })
+  }
+
+  const handleRemovePrice = () => {
+    setIsPriceEnabled(false)
+    handleSearch(1, undefined, { isPriceEnabled: false })
+  }
+
+  // Selected filter pills based on what the user has chosen
+  const selectedPills: { id: string; label: string; onRemove: () => void }[] = []
+
+  if (nationID !== "ทั้งหมด") {
+    const nationName = Nations.find((n) => n.id === nationID)?.name_th || nationID
+    selectedPills.push({
+      id: `nation-${nationID}`,
+      label: nationName,
+      onRemove: handleRemoveNation,
+    })
+  }
+
+  province.forEach((code) => {
+    const pName = Provinces.find((p) => p.code === code)?.name_th || code
+    selectedPills.push({
+      id: `province-${code}`,
+      label: pName,
+      onRemove: () => handleRemoveProvince(code),
+    })
+  })
+
+  if (courseLevel !== "ทั้งหมด") {
+    selectedPills.push({
+      id: `level-${courseLevel}`,
+      label: courseLevel,
+      onRemove: handleRemoveLevel,
+    })
+  }
+
+  if (isPriceEnabled) {
+    selectedPills.push({
+      id: "price-range",
+      label: `฿${Number(minPrice || 0).toLocaleString()} - ฿${Number(maxPrice || 0).toLocaleString()}`,
+      onRemove: handleRemovePrice,
+    })
+  }
+
   return (
     <>
-      <div className="flex gap-2 lg:gap-3 overflow-x-auto pb-2 scrollbar-hide w-full justify-center flex-wrap">
-        {province.length === 0 ? (
-          <button
-            onClick={() => setIsFilterOpen(true)}
-            className="bg-sec hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
-          >
-            เลือกเมืองที่ต้องการค้นหา...
-          </button>
+      <div
+        className="flex gap-2 lg:gap-2.5 items-center overflow-x-auto pb-2 scrollbar-hide w-full justify-start md:justify-center flex-nowrap md:flex-wrap px-1"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        <button
+          type="button"
+          onClick={() => setIsFilterOpen(true)}
+          className="flex items-center gap-1.5 bg-white text-gray-900 px-3.5 sm:px-4 py-1.5 rounded-full font-bold text-xs shadow-sm hover:bg-gray-100 transition-colors shrink-0 sticky left-0 z-10 md:static"
+        >
+          <SlidersHorizontal size={13} />
+          Filter
+        </button>
+
+        {selectedPills.length > 0 ? (
+          <>
+            {selectedPills.map((pill) => (
+              <button
+                key={pill.id}
+                type="button"
+                onClick={pill.onRemove}
+                className="flex items-center gap-1.5 bg-white text-gray-900 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 shadow-sm hover:bg-gray-100 transition-colors group cursor-pointer border border-white"
+              >
+                <span>{pill.label}</span>
+                <X size={12} className="text-gray-400 group-hover:text-red-500 transition-colors" />
+              </button>
+            ))}
+
+            {selectedPills.length > 1 && (
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="text-xs text-white/80 hover:text-white underline px-2 py-1 shrink-0 whitespace-nowrap cursor-pointer font-medium"
+              >
+                ล้างทั้งหมด
+              </button>
+            )}
+          </>
         ) : (
           <button
+            type="button"
             onClick={() => setIsFilterOpen(true)}
-            className="flex items-center gap-1.5 bg-white text-[#4F7354] px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm hover:bg-gray-100 transition-colors"
+            className="bg-[#0A1A28]/60 border border-white/15 text-white/80 hover:bg-white/10 hover:text-white transition-colors px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 cursor-pointer"
           >
-            <SlidersHorizontal size={14} />
-            Filter
-          </button>
-        )}
-
-        {province.slice(0, 5).map((item, i) => (
-          <button
-            key={i}
-            className="bg-sec hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
-          >
-            {Provinces.find((p) => p.code === item)?.name_th}
-          </button>
-        ))}
-        {province.length > 5 && (
-          <button
-            onClick={() => setIsFilterOpen(true)}
-            className="bg-sec hover:bg-[#5F6A56] transition-colors text-white/90 px-4 md:px-5 py-2 rounded-full font-bold text-sm whitespace-nowrap shadow-sm"
-          >
-            ...
+            เลือกเมืองหรือเงื่อนไขที่ต้องการค้นหา...
           </button>
         )}
       </div>
@@ -191,7 +281,15 @@ export default function HomeFilters({
               <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-900 mb-3">ค้นหาจาก Level</label>
                 <div className="flex flex-wrap gap-2">
-                  {["ทั้งหมด", "Beginner", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5"].map((l) => (
+                  {[
+                    "ทั้งหมด",
+                    "Beginner",
+                    "Level 1",
+                    "Level 2",
+                    "Level 3",
+                    "Level 4",
+                    "Level 5",
+                  ].map((l) => (
                     <button
                       key={l}
                       onClick={() => setCourseLevel(l)}
@@ -240,14 +338,26 @@ export default function HomeFilters({
               {/* Action Buttons */}
               <div className="flex gap-3">
                 <button
+                  type="button"
                   onClick={handleClear}
-                  className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors flex items-center justify-center"
+                  className="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition-colors flex items-center justify-center cursor-pointer"
                 >
                   ล้าง
                 </button>
                 <button
-                  onClick={() => handleSearch()}
-                  className="w-2/3 bg-[#C75D33] hover:bg-[#B34B24] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2"
+                  type="button"
+                  onClick={() => {
+                    handleSearch(1, undefined, {
+                      nationID,
+                      province,
+                      courseLevel,
+                      isPriceEnabled,
+                      minPrice,
+                      maxPrice,
+                    })
+                    setIsFilterOpen(false)
+                  }}
+                  className="w-2/3 bg-[#C75D33] hover:bg-[#B34B24] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Search size={18} /> ค้นหา
                 </button>

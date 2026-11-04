@@ -19,18 +19,18 @@ export default function CourseTypeTabs({ setCourseType, handleSearch, page }: Pr
   }
 
   return (
-    <div className="flex bg-sec rounded-full p-1 relative shadow-inner w-full max-w-[500px]">
+    <div className="flex bg-[#0A1A28]/70 backdrop-blur-md rounded-full p-1 relative border border-white/10 shadow-inner w-full max-w-[420px]">
       <div
         onClick={() => {
           handleSearchType("SNOWBOARD")
         }}
-        className={`flex-1 text-center rounded-full py-3 z-10 cursor-pointer transition-all duration-300 ${
+        className={`flex-1 text-center rounded-full py-2.5 z-10 cursor-pointer transition-all duration-300 ${
           active === "SNOWBOARD" ? "bg-white shadow-md" : ""
         }`}
       >
         <span
-          className={`font-bold text-lg transition-colors duration-300 ${
-            active === "SNOWBOARD" ? "text-active" : "text-[#96A68C]"
+          className={`font-bold text-base md:text-lg transition-colors duration-300 ${
+            active === "SNOWBOARD" ? "text-gray-900" : "text-white/60 hover:text-white"
           }`}
         >
           Snowboard
@@ -38,13 +38,13 @@ export default function CourseTypeTabs({ setCourseType, handleSearch, page }: Pr
       </div>
       <div
         onClick={() => handleSearchType("SKI")}
-        className={`flex-1 text-center rounded-full py-3 z-10 cursor-pointer transition-all duration-300 ${
+        className={`flex-1 text-center rounded-full py-2.5 z-10 cursor-pointer transition-all duration-300 ${
           active === "SKI" ? "bg-white shadow-md" : ""
         }`}
       >
         <span
-          className={`font-bold text-lg transition-colors duration-300 ${
-            active === "SKI" ? "text-active" : "text-[#96A68C]"
+          className={`font-bold text-base md:text-lg transition-colors duration-300 ${
+            active === "SKI" ? "text-gray-900" : "text-white/60 hover:text-white"
           }`}
         >
           Ski

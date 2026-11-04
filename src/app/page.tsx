@@ -1,7 +1,7 @@
 "use client"
 
 import CourseTypeTabs from "@/components/CourseTypeTabs"
-import { MapPin, CalendarDays, User, Zap } from "lucide-react"
+import { MapPin, CalendarDays, User, ChevronLeft, ChevronRight } from "lucide-react"
 import SlideImg from "@/components/Ui/SlideImg"
 import Logo from "@/components/Logo"
 import HomeFilters from "@/components/HomeFilters"
@@ -9,39 +9,72 @@ import { getCourses } from "./actions/course"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Course } from "@/types/model"
 import LayoutPage from "@/components/Layout"
-import Label from "@/components/Ui/Label"
 import { getLocationName } from "@/constants/location"
 
 export type CategoryType = "SNOWBOARD" | "SKI"
+
+export interface SearchOverrides {
+  nationID?: string
+  province?: string[]
+  courseLevel?: string
+  type?: CategoryType
+  isPriceEnabled?: boolean
+  minPrice?: string
+  maxPrice?: string
+}
 
 export default function MainPage() {
   const [course, setCourse] = useState<Course[]>([])
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const upcomingSliderRef = useRef<HTMLDivElement>(null)
 
   const [nationID, setNationID] = useState("ทั้งหมด")
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
   const [courseType, setCourseType] = useState<CategoryType>("SNOWBOARD") // Placeholder if needed in future
   const [isPriceEnabled, setIsPriceEnabled] = useState(false)
-  const [minPrice, setMinPrice] = useState("20000")
+  const [minPrice, setMinPrice] = useState("0")
   const [maxPrice, setMaxPrice] = useState("50000")
 
-  const handleSearch = async (targetPage = 1, type: CategoryType = courseType) => {
+  const scrollUpcoming = (direction: "left" | "right") => {
+    if (upcomingSliderRef.current) {
+      const scrollAmount = 350
+      upcomingSliderRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      })
+    }
+  }
+
+  const handleSearch = async (
+    targetPage = 1,
+    type?: CategoryType,
+    overrides?: SearchOverrides,
+  ) => {
+    const effNation = overrides?.nationID !== undefined ? overrides.nationID : nationID
+    const effProvince = overrides?.province !== undefined ? overrides.province : province
+    const effLevel = overrides?.courseLevel !== undefined ? overrides.courseLevel : courseLevel
+    const effType = overrides?.type !== undefined ? overrides.type : (type || courseType)
+    const effPriceEnabled =
+      overrides?.isPriceEnabled !== undefined ? overrides.isPriceEnabled : isPriceEnabled
+    const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
+    const effMaxPrice = overrides?.maxPrice !== undefined ? overrides.maxPrice : maxPrice
+
     try {
       const res = await getCourses({
         page: targetPage,
-        limit: 5,
-        nationID: nationID !== "ทั้งหมด" ? nationID : undefined,
-        province: province.length > 0 ? province : undefined,
-        courseLevel: courseLevel !== "ทั้งหมด" ? courseLevel : undefined,
-        courseType: type ? type : courseType,
-        minPrice: isPriceEnabled ? minPrice.replace(/,/g, "") : undefined,
-        maxPrice: isPriceEnabled ? maxPrice.replace(/,/g, "") : undefined,
+        limit: 10,
+        nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
+        province: effProvince.length > 0 ? effProvince : undefined,
+        courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
+        courseType: effType ? effType : undefined,
+        minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
+        maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
       })
       const courseList = (
         Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : []
@@ -52,6 +85,7 @@ export default function MainPage() {
       setPage(res?.data?.page || (res as any)?.page || 1)
     } catch (error) {
       console.error("Failed to fetch courses:", error)
+      setCourse([])
     }
     setIsFilterOpen(false)
   }
@@ -61,21 +95,21 @@ export default function MainPage() {
   }, [])
 
   return (
-    <LayoutPage>
-      <div className="min-h-screen pb-24 font-sans">
-        <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16 mx-auto pt-6 md:pt-8 relative">
+    <LayoutPage bgImage="/bg/bg-desktop.png">
+      <div className="min-h-screen pb-28 font-sans">
+        <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16 mx-auto pt-6 md:pt-8 relative max-w-6xl">
           {/* Header Section */}
-          <div className="relative flex flex-col items-center justify-center mb-6 md:mb-10 gap-6 md:gap-8 w-full">
-            {/* Logo on left for non-mobile, centered on mobile */}
-            <div className="md:absolute md:left-0 md:top-0 flex items-center justify-center">
+          <div className="relative flex flex-col items-center justify-center mb-8 md:mb-10 gap-4 md:gap-5 w-full">
+            {/* Centered Logo */}
+            <div className="flex items-center justify-center">
               <Link href="/" className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Logo />
               </Link>
             </div>
 
-            {/* Greeting Text: at the top on non-mobile */}
-            <h2 className="text-white text-xl md:text-3xl lg:text-4xl font-extrabold drop-shadow-sm text-center md:pt-1">
-              ทริปครั้งนี้ของคุณคือ...?
+            {/* Greeting Text */}
+            <h2 className="text-white text-base md:text-lg lg:text-xl font-bold drop-shadow-md text-center">
+              สวัสดี, เตรียมตัวให้พร้อมสำหรับทริปสุดพิเศษของคุณ
             </h2>
 
             {/* Category Tabs */}
@@ -102,126 +136,140 @@ export default function MainPage() {
           </div>
 
           {/* Upcoming Trips Section */}
-          <div className="bg-sec rounded-[2rem] p-6 md:p-8 lg:p-10 shadow-xl w-full mb-12">
-            <div className="flex items-center justify-center mb-8">
-              <Zap className="w-6 h-6 mr-2 text-neon" />
-              <h3 className="text-neon text-xl md:text-2xl font-bold tracking-wide">
-                ทริปที่กำลังจะถึง
+          <div className="bg-[#0A1A28]/20 backdrop-blur-sm border border-white/15 rounded-[2rem] p-6 md:p-8 shadow-xl w-full mb-10 relative">
+            <div className="flex items-center justify-center mb-6">
+              <h3 className="text-white text-base md:text-lg font-bold tracking-wide">
+                ทริปที่กำลังจะถึง..
               </h3>
             </div>
 
-            <div
-              className={
-                course?.length === 1
-                  ? "flex justify-center w-full"
-                  : "flex gap-4 sm:gap-5 pb-2 overflow-x-auto snap-x scrollbar-hide md:grid md:grid-cols-4 md:gap-4 lg:gap-6 md:overflow-visible"
-              }
-            >
-              {course?.length === 0 ? (
-                <div className="col-span-full w-full text-center py-8 text-white/80 font-medium">
-                  ไม่พบข้อมูลทริป
-                </div>
-              ) : (
-                course?.map((item, i) => {
-                  const { provinceName, districtName } = getLocationName(
-                    item.province,
-                    item.district,
-                    item.nation,
-                  )
-                  const price = Number(item.price || 0)
-                  const discount = Number(item.discount || 0)
-                  const finalPrice = price - discount
+            <div className="relative">
+              {/* Slider Arrow Navigation Buttons */}
+              {course && course.length > 2 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => scrollUpcoming("left")}
+                    aria-label="Previous trip"
+                    className="absolute -left-10 md:-left-5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#0A1A28]/90 hover:bg-[#122232] text-white border border-white/20 shadow-xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollUpcoming("right")}
+                    aria-label="Next trip"
+                    className="absolute -right-10 md:-right-5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#0A1A28]/90 hover:bg-[#122232] text-white border border-white/20 shadow-xl flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                </>
+              )}
 
-                  return (
-                    <Link
-                      href={`/course/${item.id}`}
-                      key={i}
-                      className={`bg-white rounded-[1.5rem] overflow-hidden ${
-                        course?.length === 1
-                          ? "w-full max-w-sm mx-auto"
-                          : "w-[280px] sm:w-[300px] md:w-auto shrink-0 snap-start"
-                      } shadow-md hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between cursor-pointer`}
-                    >
-                      <div className="relative h-[160px] md:h-[160px] lg:h-[180px] w-full bg-blue-100 overflow-hidden">
-                        {item.image_urls && item.image_urls.length > 0 ? (
-                          <SlideImg images={item.image_urls} alt={item.title || "Course"} />
-                        ) : (
-                          <div className="w-full h-full bg-blue-100 flex items-center justify-center text-gray-400">
-                            ไม่มีรูปภาพ
-                          </div>
-                        )}
-                        {item?.course_level && <Label text={item.course_level} />}
-                      </div>
-                      <div className="p-4 md:p-4 lg:p-5 flex flex-col flex-1 justify-between">
-                        <div>
-                          <h4 className="font-bold text-base md:text-lg text-gray-900 mb-2 md:mb-3 leading-tight group-hover:text-[#4F7354] transition-colors line-clamp-2">
-                            {item.title}
-                          </h4>
-                          <div className="space-y-1.5 mb-4">
-                            <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                              <MapPin size={15} className="text-[#4F7354] shrink-0" />
-                              <span className="truncate">
-                                {districtName} {provinceName ? `, ${provinceName}` : ""}
-                              </span>
+              <div
+                ref={upcomingSliderRef}
+                className="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-1"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {course?.length === 0 ? (
+                  <div className="col-span-full w-full text-center py-8 text-white/80 font-medium">
+                    ไม่พบข้อมูลทริป
+                  </div>
+                ) : (
+                  course?.map((item, i) => {
+                    const { provinceName, districtName } = getLocationName(
+                      item.province,
+                      item.district,
+                      item.nation,
+                    )
+                    const price = Number(item.price || 0)
+                    const discount = Number(item.discount || 0)
+                    const finalPrice = price - discount
+
+                    return (
+                      <Link
+                        href={`/course/${item.id}`}
+                        key={i}
+                        className="w-[280px] sm:w-[320px] md:w-[335px] shrink-0 snap-start bg-white rounded-[1.5rem] overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer group"
+                      >
+                        <div className="relative h-[160px] md:h-[175px] w-full overflow-hidden bg-gray-100">
+                          {item.image_urls && item.image_urls.length > 0 ? (
+                            <SlideImg images={item.image_urls} alt={item.title || "Course"} />
+                          ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
+                              ไม่มีรูปภาพ
                             </div>
-                            <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                              <CalendarDays size={15} className="text-[#4F7354] shrink-0" />
-                              <span className="truncate">
-                                {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
-                                {RenderDate(item.end_date, "dd MMM yyyy")}
-                              </span>
-                            </div>
+                          )}
+                          <div className="absolute top-3 left-3 bg-[#1E5BB1] text-white text-[11px] font-semibold px-3 py-0.5 rounded-full shadow-sm z-10">
+                            {courseType === "SKI" ? "Ski" : "Snowboard"}
                           </div>
                         </div>
 
-                        {discount > 0 ? (
-                          <div className="flex justify-between items-end border-t border-gray-100 pt-3 mt-auto">
-                            <div className="flex">
-                              <div className="text-[#798E75] font-extrabold text-lg md:text-xl lg:text-2xl">
-                                ฿ {numeral(finalPrice).format("0,0")}
-                                <span className="pl-1 text-gray-400 text-xs md:text-sm line-through decoration-gray-400 font-medium">
-                                  {numeral(price).format("0,0")}
+                        <div className="p-4 flex flex-col flex-1 justify-between">
+                          <div>
+                            <h4 className="font-bold text-sm md:text-base text-gray-900 mb-2 truncate group-hover:text-[#4F7354] transition-colors">
+                              {item.title}
+                            </h4>
+                            <div className="space-y-1 mb-3">
+                              <div className="flex items-center gap-1.5 text-gray-500 text-xs font-medium">
+                                <MapPin size={13} className="text-gray-400 shrink-0" />
+                                <span className="truncate">
+                                  {districtName} {provinceName ? `, ${provinceName}` : ""}
                                 </span>
-                                <span className="ml-1 text-gray-600 text-xs md:text-sm"> / คน</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 text-gray-500 text-xs font-medium">
+                                <CalendarDays size={13} className="text-gray-400 shrink-0" />
+                                <span className="truncate">
+                                  {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
+                                  {RenderDate(item.end_date, "dd MMM yyyy")}
+                                </span>
                               </div>
                             </div>
                           </div>
-                        ) : (
-                          <div className="flex justify-between items-end border-t border-gray-100 pt-3 mt-auto">
-                            <div>
-                              <div className="text-[#798E75] font-extrabold text-lg md:text-xl lg:text-2xl">
+
+                          {discount > 0 ? (
+                            <div className="flex items-baseline gap-2 pt-2 border-t border-gray-100 mt-auto">
+                              <span className="text-[#DC2626] font-bold text-base md:text-lg">
                                 ฿ {numeral(finalPrice).format("0,0")}
-                                <span className="ml-1 text-gray-600 text-xs md:text-sm"> / คน</span>
-                              </div>
+                              </span>
+                              <span className="text-gray-400 text-xs line-through decoration-gray-400">
+                                ฿ {numeral(price).format("0,0")}
+                              </span>
                             </div>
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                  )
-                })
-              )}
+                          ) : (
+                            <div className="flex items-baseline gap-1 pt-2 border-t border-gray-100 mt-auto">
+                              <span className="text-[#DC2626] font-bold text-base md:text-lg">
+                                ฿ {numeral(finalPrice).format("0,0")}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </Link>
+                    )
+                  })
+                )}
+              </div>
             </div>
           </div>
 
           {/* CourseType Trips Section */}
-          <div className="w-full flex flex-col">
-            <div className="flex justify-between items-end mb-6 px-2">
-              <h3 className="text-white text-xl md:text-2xl lg:text-3xl font-bold tracking-wide">
-                ทริป {courseType}
+          <div className="w-full flex flex-col mb-8">
+            <div className="flex justify-between items-end mb-4 px-1">
+              <h3 className="text-white text-xl md:text-2xl font-bold tracking-wide">
+                ทริป {courseType === "SKI" ? "Ski" : "Snowboard"}
               </h3>
               <Link
                 href="/all-course"
-                className="text-[#B3C8A4] font-bold hover:text-white transition-colors text-base md:text-lg"
+                className="text-[#86EFAC] font-bold hover:underline transition-colors text-sm md:text-base"
               >
                 ทั้งหมด
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {course?.length === 0 ? (
                 <div className="col-span-full text-center py-12 text-white/80 bg-black/10 rounded-2xl font-medium">
-                  ไม่พบข้อมูลทริป {courseType}
+                  ไม่พบข้อมูลทริป {courseType === "SKI" ? "Ski" : "Snowboard"}
                 </div>
               ) : (
                 course?.map((item, i) => {
@@ -238,68 +286,53 @@ export default function MainPage() {
                     <Link
                       href={`/course/${item.id}`}
                       key={i}
-                      className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 md:p-5 shadow-xl hover:shadow-2xl transition-all duration-300 flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
+                      className="bg-white rounded-[1.5rem] p-3.5 sm:p-4 shadow-md hover:shadow-xl transition-all duration-300 flex gap-4 cursor-pointer group"
                     >
-                      <div className="relative w-[130px] sm:w-[150px] md:w-[180px] h-[150px] sm:h-[160px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
+                      <div className="relative w-[130px] sm:w-[150px] md:w-[160px] h-[120px] sm:h-[130px] shrink-0 rounded-2xl overflow-hidden bg-gray-100">
                         {item.image_urls && item.image_urls.length > 0 ? (
                           <SlideImg images={item.image_urls} alt={item.title || "Course"} />
                         ) : (
-                          <div className="w-full h-full bg-blue-100 flex items-center justify-center text-gray-400">
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
                             ไม่มีรูปภาพ
                           </div>
                         )}
-                        {item?.course_level && <Label text={item.course_level} />}
+                        <div className="absolute top-2.5 left-2.5 bg-[#1E5BB1] text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full shadow-sm z-10">
+                          {courseType === "SKI" ? "Ski" : "Snowboard"}
+                        </div>
                       </div>
-                      <div className="flex overflow-hidden flex-col py-1 md:py-2 pr-1 md:pr-4 flex-1 h-full justify-between">
+
+                      <div className="flex overflow-hidden flex-col py-0.5 flex-1 h-full justify-between min-w-0">
                         <div>
-                          <h4 className="font-bold text-base md:text-lg text-gray-900 mb-2 md:mb-3 leading-tight line-clamp-2 group-hover:text-[#4F7354] transition-colors">
+                          <h4 className="font-bold text-sm md:text-base text-gray-900 mb-1 truncate group-hover:text-[#4F7354] transition-colors">
                             {item?.title}
                           </h4>
-                          <div className="space-y-1 md:space-y-1.5 mb-3">
-                            <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                              <MapPin size={16} className="text-gray-400 shrink-0" />
+                          <div className="space-y-1 mb-2">
+                            <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+                              <MapPin size={13} className="text-gray-400 shrink-0" />
                               <span className="truncate">
                                 {districtName} {provinceName ? `, ${provinceName}` : ""}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                              <CalendarDays size={16} className="text-gray-400 shrink-0" />
+                            <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+                              <CalendarDays size={13} className="text-gray-400 shrink-0" />
                               <span>
                                 {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
                                 {RenderDate(item.end_date, "dd MMM yyyy")}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-500 text-xs md:text-sm font-medium">
-                              <User size={16} className="text-gray-400 shrink-0" />
-                              <span>{item.course_level}</span>
+                            <div className="flex items-center gap-1.5 text-gray-500 text-xs">
+                              <User size={13} className="text-gray-400 shrink-0" />
+                              <span>{item.course_level || "Beginner"}</span>
                             </div>
                           </div>
                         </div>
 
-                        {discount > 0 ? (
-                          <div className="flex items-baseline gap-1 mt-auto">
-                            <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
-                            <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                              {numeral(finalPrice).format("0,0")}
-                            </span>
-                            <span className="text-gray-400 text-sm line-through decoration-gray-400 font-medium">
-                              ฿ {numeral(price).format("0,0")}
-                            </span>
-                            <span className="text-gray-900 text-xs md:text-sm font-medium">
-                              / คน
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex items-baseline gap-1 mt-auto">
-                            <span className="text-[#798E75] font-bold text-base md:text-lg">฿</span>
-                            <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
-                              {numeral(finalPrice).format("0,0")}
-                            </span>
-                            <span className="text-gray-900 text-xs md:text-sm font-medium">
-                              / คน
-                            </span>
-                          </div>
-                        )}
+                        <div className="flex items-baseline gap-1 mt-auto">
+                          <span className="text-gray-900 font-extrabold text-base md:text-lg">
+                            ฿ {numeral(finalPrice).format("0,0")}
+                          </span>
+                          <span className="text-gray-500 text-xs font-medium">/คน</span>
+                        </div>
                       </div>
                     </Link>
                   )
