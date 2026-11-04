@@ -28,7 +28,11 @@ interface Props {
   setMaxPrice: (maxPrice: string) => void
   isPriceEnabled: boolean
   setIsPriceEnabled: (isPriceEnabled: boolean) => void
-  handleSearch: (targetPage?: number, type?: any, overrides?: SearchOverrides) => void | Promise<void>
+  handleSearch: (
+    targetPage?: number,
+    type?: any,
+    overrides?: SearchOverrides,
+  ) => void | Promise<void>
 }
 
 export default function HomeFilters({
@@ -127,51 +131,57 @@ export default function HomeFilters({
 
   return (
     <>
-      <div
-        className="flex gap-2 lg:gap-2.5 items-center overflow-x-auto pb-2 scrollbar-hide w-full justify-start md:justify-center flex-nowrap md:flex-wrap px-1"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-      >
-        <button
-          type="button"
-          onClick={() => setIsFilterOpen(true)}
-          className="flex items-center gap-1.5 bg-white text-gray-900 px-3.5 sm:px-4 py-1.5 rounded-full font-bold text-xs shadow-sm hover:bg-gray-100 transition-colors shrink-0 sticky left-0 z-10 md:static"
-        >
-          <SlidersHorizontal size={13} />
-          Filter
-        </button>
+      <div className="w-full flex flex-col gap-2.5">
+        {/* Row 1: Filter | Search prompt | Clear all */}
+        <div className="flex items-center justify-between gap-2 w-full px-1">
+          {/* 1. Filter button */}
+          <button
+            type="button"
+            onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-1.5 bg-white text-gray-900 px-3.5 sm:px-4 py-1.5 rounded-full font-bold text-xs shadow-sm hover:bg-gray-100 transition-colors shrink-0 cursor-pointer"
+          >
+            <SlidersHorizontal size={13} />
+            Filter
+          </button>
 
-        {selectedPills.length > 0 ? (
-          <>
+          {/* 2. Search placeholder button */}
+          <button
+            type="button"
+            onClick={() => setIsFilterOpen(true)}
+            className="bg-[#0A1A28]/60 border border-white/15 text-white/80 hover:bg-white/10 hover:text-white transition-colors px-3 sm:px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap truncate cursor-pointer"
+          >
+            เลือกเมืองหรือเงื่อนไขที่ต้องการค้นหา...
+          </button>
+
+          {/* 3. Clear all button */}
+          <div className="min-w-[60px] flex justify-end shrink-0">
+            {selectedPills.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="text-xs text-white/80 hover:text-white underline px-1 py-1 whitespace-nowrap cursor-pointer font-medium"
+              >
+                ล้างทั้งหมด
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Row 2: Selected filter pills (จำกัดสูงสุด 2 แถว เกินกว่านี้ scroll) */}
+        {selectedPills.length > 0 && (
+          <div className="flex gap-2 lg:gap-2.5 items-center justify-center overflow-y-auto max-h-[72px] w-full flex-wrap px-1 scrollbar-thin">
             {selectedPills.map((pill) => (
               <button
                 key={pill.id}
                 type="button"
                 onClick={pill.onRemove}
-                className="flex items-center gap-1.5 bg-white text-gray-900 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 shadow-sm hover:bg-gray-100 transition-colors group cursor-pointer border border-white"
+                className="flex items-center gap-1 bg-white text-gray-900 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 shadow-sm hover:bg-gray-100 transition-colors group cursor-pointer border border-white"
               >
                 <span>{pill.label}</span>
                 <X size={12} className="text-gray-400 group-hover:text-red-500 transition-colors" />
               </button>
             ))}
-
-            {selectedPills.length > 1 && (
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="text-xs text-white/80 hover:text-white underline px-2 py-1 shrink-0 whitespace-nowrap cursor-pointer font-medium"
-              >
-                ล้างทั้งหมด
-              </button>
-            )}
-          </>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setIsFilterOpen(true)}
-            className="bg-[#0A1A28]/60 border border-white/15 text-white/80 hover:bg-white/10 hover:text-white transition-colors px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 cursor-pointer"
-          >
-            เลือกเมืองหรือเงื่อนไขที่ต้องการค้นหา...
-          </button>
+          </div>
         )}
       </div>
 

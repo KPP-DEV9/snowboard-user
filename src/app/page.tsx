@@ -5,6 +5,7 @@ import { MapPin, CalendarDays, User, ChevronLeft, ChevronRight } from "lucide-re
 import SlideImg from "@/components/Ui/SlideImg"
 import Logo from "@/components/Logo"
 import HomeFilters from "@/components/HomeFilters"
+import CourseBox from "@/components/CourseBox"
 import { getCourses } from "./actions/course"
 import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
@@ -172,77 +173,9 @@ export default function MainPage() {
                     ไม่พบข้อมูลทริป
                   </div>
                 ) : (
-                  course?.map((item, i) => {
-                    const { provinceName, districtName } = getLocationName(
-                      item.province,
-                      item.district,
-                      item.nation,
-                    )
-                    const price = Number(item.price || 0)
-                    const discount = Number(item.discount || 0)
-                    const finalPrice = price - discount
-
-                    return (
-                      <Link
-                        href={`/course/${item.id}`}
-                        key={i}
-                        className="w-[280px] sm:w-[320px] md:w-[335px] shrink-0 snap-start bg-white rounded-[1.5rem] overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer group"
-                      >
-                        <div className="relative h-[160px] md:h-[175px] w-full overflow-hidden bg-gray-100">
-                          {item.image_urls && item.image_urls.length > 0 ? (
-                            <SlideImg images={item.image_urls} alt={item.title || "Course"} />
-                          ) : (
-                            <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-                              ไม่มีรูปภาพ
-                            </div>
-                          )}
-                          <div className="absolute top-3 left-3 bg-[#1E5BB1] text-white text-[11px] font-semibold px-3 py-0.5 rounded-full shadow-sm z-10">
-                            {courseType === "SKI" ? "Ski" : "Snowboard"}
-                          </div>
-                        </div>
-
-                        <div className="p-4 flex flex-col flex-1 justify-between">
-                          <div>
-                            <h4 className="font-bold text-sm md:text-base text-gray-900 mb-2 truncate group-hover:text-[#4F7354] transition-colors">
-                              {item.title}
-                            </h4>
-                            <div className="space-y-1 mb-3">
-                              <div className="flex items-center gap-1.5 text-gray-500 text-xs font-medium">
-                                <MapPin size={13} className="text-gray-400 shrink-0" />
-                                <span className="truncate">
-                                  {districtName} {provinceName ? `, ${provinceName}` : ""}
-                                </span>
-                              </div>
-                              <div className="flex items-center gap-1.5 text-gray-500 text-xs font-medium">
-                                <CalendarDays size={13} className="text-gray-400 shrink-0" />
-                                <span className="truncate">
-                                  {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
-                                  {RenderDate(item.end_date, "dd MMM yyyy")}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {discount > 0 ? (
-                            <div className="flex items-baseline gap-2 pt-2 border-t border-gray-100 mt-auto">
-                              <span className="text-[#DC2626] font-bold text-base md:text-lg">
-                                ฿ {numeral(finalPrice).format("0,0")}
-                              </span>
-                              <span className="text-gray-400 text-xs line-through decoration-gray-400">
-                                ฿ {numeral(price).format("0,0")}
-                              </span>
-                            </div>
-                          ) : (
-                            <div className="flex items-baseline gap-1 pt-2 border-t border-gray-100 mt-auto">
-                              <span className="text-[#DC2626] font-bold text-base md:text-lg">
-                                ฿ {numeral(finalPrice).format("0,0")}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </Link>
-                    )
-                  })
+                  course?.map((item, i) => (
+                    <CourseBox key={item.id || i} course={item} courseType={courseType} />
+                  ))
                 )}
               </div>
             </div>

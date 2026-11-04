@@ -5,6 +5,7 @@ import { getOptionMasters } from "@/app/actions/optionMaster"
 import { getEnrollmentByIdForBooking } from "@/app/actions/enrollment"
 import { notFound, redirect } from "next/navigation"
 import BookingFormClient from "./BookingFormClient"
+import LayoutPage from "@/components/Layout"
 
 interface BookingPageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
@@ -63,7 +64,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
   const { data: options } = await getOptionMasters()
 
   return (
-    <div className="min-h-screen pb-24 font-sans selection:bg-[#568759]/30">
+    <LayoutPage isFooter={false}>
       <BookingFormClient
         course={course}
         roundId={roundId}
@@ -74,6 +75,6 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
         options={options || []}
         enrollment={enrollment}
       />
-    </div>
+    </LayoutPage>
   )
 }

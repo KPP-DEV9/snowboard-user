@@ -225,7 +225,7 @@ export default function PaymentClient({
   // const backUrl = `/booking/?enrollment_id=${enrollment?.id}&course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}`
 
   return (
-    <div className="min-h-screen bg-[#2D455D] pb-32 font-sans selection:bg-[#568759]/30">
+    <div className="font-sans">
       <div className="w-full px-4 mx-auto pt-6 max-w-lg">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-8">
@@ -238,24 +238,35 @@ export default function PaymentClient({
           <h1 className="text-xl font-bold text-white tracking-wide">ชำระเงิน</h1>
         </div>
 
-        {/* Course Title & Price Summary */}
-        <div className="mb-6">
-          <h2 className="text-white font-extrabold text-[17px] md:text-[19px] leading-snug mb-4">
-            {course.title}
-          </h2>
+        {/* Course Title & Price Summary Card */}
+        <div className="bg-white rounded-[1.75rem] md:rounded-[2rem] p-5 sm:p-6 shadow-xl mb-5 text-gray-800 border border-gray-100">
+          <div className="pb-3.5 mb-3.5 border-b border-gray-100">
+            <h1 className="text-center mb-2 text-[16px] font-bold tracking-wider text-[#1E5BB1] bg-blue-50 px-2.5 py-0.5 rounded-full mb-1.5 uppercase">
+              สรุปรายการคำสั่งซื้อ
+            </h1>
+            <h2 className="text-gray-900 font-bold text-base md:text-lg leading-snug">
+              {course.title}
+            </h2>
+          </div>
 
-          <div className="space-y-2 text-[14px] md:text-[15px]">
+          <div className="space-y-2 text-[14px]">
             {/* 1. Base trip cost for adults */}
-            <div className="flex justify-between items-center text-white/95">
-              <span className="font-normal">ค่าทริปผู้ใหญ่ ({adultsCount} ท่าน)</span>
-              <span className="font-medium">฿ {numeral(adultSubtotal).format("0,0.00")}</span>
+            <div className="flex justify-between items-center text-gray-700">
+              <span className="font-normal text-gray-600">ค่าทริปผู้ใหญ่ ({adultsCount} ท่าน)</span>
+              <span className="font-semibold text-gray-900 tabular-nums">
+                ฿ {numeral(adultSubtotal).format("0,0.00")}
+              </span>
             </div>
 
             {/* 2. Base trip cost for children if any */}
             {childrenCount > 0 && (
-              <div className="flex justify-between items-center text-white/95">
-                <span className="font-normal">ค่าทริปเด็ก ({childrenCount} ท่าน)</span>
-                <span className="font-medium">฿ {numeral(childSubtotal).format("0,0.00")}</span>
+              <div className="flex justify-between items-center text-gray-700">
+                <span className="font-normal text-gray-600">
+                  ค่าทริปเด็ก ({childrenCount} ท่าน)
+                </span>
+                <span className="font-semibold text-gray-900 tabular-nums">
+                  ฿ {numeral(childSubtotal).format("0,0.00")}
+                </span>
               </div>
             )}
 
@@ -275,10 +286,13 @@ export default function PaymentClient({
                 return (
                   <div
                     key={item.id || idx}
-                    className="flex justify-between items-center text-white/95"
+                    className="flex justify-between items-center text-gray-700"
                   >
-                    <span className="font-normal truncate max-w-[270px]">• {name}</span>
-                    <span className="font-medium shrink-0">
+                    <span className="font-normal text-gray-500 truncate max-w-[250px] sm:max-w-[280px] flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gray-300 shrink-0 inline-block" />
+                      <span className="truncate">{name}</span>
+                    </span>
+                    <span className="font-medium text-gray-800 shrink-0 tabular-nums">
                       ฿ {numeral(price).format("0,0.00")}
                     </span>
                   </div>
@@ -286,22 +300,24 @@ export default function PaymentClient({
               })}
 
             {/* Divider */}
-            <div className="border-t border-white/20 pt-2.5 mt-2 space-y-2">
-              <div className="flex justify-between items-center text-white">
-                <span className="font-normal text-white/90">รายการทั้งหมด</span>
-                <span className="font-medium">฿ {numeral(subtotal).format("0,0.00")}</span>
+            <div className="border-t border-dashed border-gray-200 pt-3 mt-3 space-y-2">
+              <div className="flex justify-between items-center text-gray-500 text-sm">
+                <span>รายการทั้งหมด</span>
+                <span className="font-medium text-gray-800 tabular-nums">
+                  ฿ {numeral(subtotal).format("0,0.00")}
+                </span>
               </div>
 
-              <div className="flex justify-between items-center text-white">
-                <span className="font-normal text-white/90">ภาษี Vat 7%</span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center text-gray-500 text-sm">
+                <span>ภาษี Vat 7%</span>
+                <span className="font-medium text-gray-800 tabular-nums">
                   ฿ {numeral(totalAmount * 0.07).format("0,0.00")}
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-white pt-1">
-                <span className="font-normal text-white/90">ยอดทั้งหมด</span>
-                <span className="font-bold text-lg">
+              <div className="flex justify-between items-center pt-2.5 mt-2 border-t border-gray-100">
+                <span className="font-bold text-gray-900 text-base">ยอดรวมทั้งสิ้น</span>
+                <span className="font-extrabold text-xl text-gray-900 tabular-nums">
                   ฿ {numeral(totalAmount * 1.07).format("0,0.00")}
                 </span>
               </div>
