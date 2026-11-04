@@ -81,7 +81,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#2D455D] pb-32 font-sans selection:bg-[#568759]/30">
+    <div className="min-h-screen pb-32 font-sans selection:bg-[#568759]/30">
       <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-6 md:pt-10 max-w-6xl">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-6 md:mb-8">

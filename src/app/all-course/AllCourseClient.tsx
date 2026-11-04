@@ -37,11 +37,9 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
         maxPrice: isPriceEnabled ? maxPrice.replace(/,/g, "") : undefined,
       })
       if (res.success && res.data) {
-        const courseList = (Array.isArray(res.data.data)
-          ? res.data.data
-          : Array.isArray(res.data)
-            ? res.data
-            : []) as Course[]
+        const courseList = (
+          Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : []
+        ) as Course[]
         setCourses(courseList)
       }
     } catch (error) {
@@ -51,7 +49,7 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
   }
 
   return (
-    <div className="min-h-screen bg-[#304B65] pb-32 font-sans selection:bg-[#568759]/30">
+    <div className="min-h-screen pb-32 font-sans selection:bg-[#568759]/30">
       <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-6 max-w-5xl">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-6">
@@ -106,10 +104,8 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
                   className="bg-white rounded-[1.5rem] md:rounded-[2rem] p-4 shadow-xl hover:shadow-2xl transition-shadow flex gap-4 md:gap-6 group cursor-pointer border border-transparent hover:border-[#4F7354]/30"
                 >
                   <div className="relative w-[130px] md:w-[180px] h-[150px] md:h-[180px] shrink-0 rounded-[1rem] md:rounded-[1.5rem] overflow-hidden bg-blue-100">
-                    {item.image_urls && (
-                      <SlideImg images={item.image_urls} alt="Indoor snowpark" />
-                    )}
-                    <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-[#304B65] text-white text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-1.5 rounded shadow-sm">
+                    {item.image_urls && <SlideImg images={item.image_urls} alt="Indoor snowpark" />}
+                    <div className="absolute top-2 left-2 md:top-3 md:left-3 text-white text-[10px] md:text-xs font-bold px-3 py-1 md:px-4 md:py-1.5 rounded shadow-sm">
                       {item.course_type?.toLowerCase().includes("ski") ? "Ski" : "Snowboard"}
                     </div>
                   </div>
@@ -152,9 +148,7 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
                       <span className="text-[#798E75] font-extrabold text-lg md:text-xl">
                         {numeral(item.price).format("0,0")}
                       </span>
-                      <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">
-                        /คน
-                      </span>
+                      <span className="text-gray-900 text-xs md:text-sm font-medium ml-1">/คน</span>
                     </div>
                   </div>
                 </Link>

@@ -49,7 +49,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
 
   return (
     <LayoutPage isLicense={false}>
-      <div className="min-h-screen bg-[#304B65] pb-24 font-sans selection:bg-[#568759]/30">
+      <div className="min-h-screen pb-24 font-sans selection:bg-[#568759]/30">
         <div className="w-full px-4 md:px-8 lg:px-12 mx-auto pt-10 max-w-7xl">
           {/* Header */}
           <div className="relative flex items-center justify-center mb-10">
@@ -70,7 +70,7 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                 </h1>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="bg-[#304B65] text-white font-bold rounded shadow-sm">
+                  <span className="text-white font-bold rounded shadow-sm">
                     {course.course_type}
                   </span>
                   <LevelBadge level={course.course_level} />

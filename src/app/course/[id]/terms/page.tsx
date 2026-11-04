@@ -38,7 +38,7 @@ export default async function CourseTermsPage({ params, searchParams }: CourseTe
 
   return (
     <LayoutPage isLicense={false}>
-      <div className="min-h-screen bg-[#304B65] pb-24 font-sans selection:bg-[#568759]/30">
+      <div className="min-h-screen pb-24 font-sans selection:bg-[#568759]/30">
         <TermsClient
           course={course}
           roundId={roundId}

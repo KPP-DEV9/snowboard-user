@@ -51,15 +51,11 @@ export default function MainPage() {
     }
   }
 
-  const handleSearch = async (
-    targetPage = 1,
-    type?: CategoryType,
-    overrides?: SearchOverrides,
-  ) => {
+  const handleSearch = async (targetPage = 1, type?: CategoryType, overrides?: SearchOverrides) => {
     const effNation = overrides?.nationID !== undefined ? overrides.nationID : nationID
     const effProvince = overrides?.province !== undefined ? overrides.province : province
     const effLevel = overrides?.courseLevel !== undefined ? overrides.courseLevel : courseLevel
-    const effType = overrides?.type !== undefined ? overrides.type : (type || courseType)
+    const effType = overrides?.type !== undefined ? overrides.type : type || courseType
     const effPriceEnabled =
       overrides?.isPriceEnabled !== undefined ? overrides.isPriceEnabled : isPriceEnabled
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
@@ -95,7 +91,7 @@ export default function MainPage() {
   }, [])
 
   return (
-    <LayoutPage bgImage="/bg/bg-desktop.png">
+    <LayoutPage>
       <div className="min-h-screen pb-28 font-sans">
         <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16 mx-auto pt-6 md:pt-8 relative max-w-6xl">
           {/* Header Section */}

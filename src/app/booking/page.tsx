@@ -63,7 +63,7 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
   const { data: options } = await getOptionMasters()
 
   return (
-    <div className="min-h-screen bg-[#304B65] pb-24 font-sans selection:bg-[#568759]/30">
+    <div className="min-h-screen pb-24 font-sans selection:bg-[#568759]/30">
       <BookingFormClient
         course={course}
         roundId={roundId}

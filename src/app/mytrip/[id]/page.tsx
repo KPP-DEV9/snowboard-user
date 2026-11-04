@@ -47,7 +47,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
   if (!success || !enrollment) {
     return (
       <LayoutPage isLicense={false}>
-        <div className="min-h-screen bg-[#304B65] pb-32 font-sans px-4 pt-10">
+        <div className="min-h-screen pb-32 font-sans px-4 pt-10">
           <div className="max-w-3xl mx-auto text-center py-16 bg-white rounded-3xl p-8 shadow-md">
             <h2 className="text-xl font-bold text-gray-800 mb-2">ไม่พบข้อมูลทริป</h2>
             <p className="text-gray-500 text-sm mb-6">
@@ -206,7 +206,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
 
   return (
     <LayoutPage isLicense={false}>
-      <div className="min-h-screen bg-[#304B65] pb-32 font-sans selection:bg-[#568759]/30">
+      <div className="min-h-screen pb-32 font-sans selection:bg-[#568759]/30">
         <div className="w-full px-4 md:px-8 mx-auto pt-6 max-w-4xl">
           {/* Top Header */}
           <div className="relative flex items-center justify-between mb-6">
@@ -604,7 +604,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   >
                     <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-full bg-[#304B65] text-white flex items-center justify-center font-bold text-sm">
+                        <div className="w-8 h-8 rounded-full text-white flex items-center justify-center font-bold text-sm">
                           {idx + 1}
                         </div>
                         <span className="font-bold text-gray-900 text-base">{fullName}</span>

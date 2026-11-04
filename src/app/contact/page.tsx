@@ -47,7 +47,7 @@ export default async function ContactPage() {
 
   return (
     <LayoutPage isLicense={false}>
-      <div className="min-h-screen bg-[#304B65] pb-32 font-sans selection:bg-[#568759]/30 flex flex-col items-center">
+      <div className="min-h-screen pb-32 font-sans selection:bg-[#568759]/30 flex flex-col items-center">
         {/* Header Logo */}
         <div className="pt-16 pb-8 flex justify-center w-full">
           <Logo />
