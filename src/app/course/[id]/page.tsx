@@ -1,12 +1,13 @@
 import { getCourseById } from "@/app/actions/course"
 import { notFound } from "next/navigation"
-import { MapPin, CalendarDays, ArrowLeft, User } from "lucide-react"
+import { MapPin, CalendarDays, ArrowLeft, User, Hotel } from "lucide-react"
 import Link from "next/link"
 import { RenderDate } from "@/lib/date"
 import CourseBookingWidget from "@/components/CourseBookingWidget"
 import LayoutPage from "@/components/Layout"
 import { getLocationName } from "@/constants/location"
 import SlideImg from "@/components/Ui/SlideImg"
+import { HotelsMaster } from "@/types/model"
 
 interface CourseDetailsPageProps {
   params: Promise<{ id: string }>
@@ -28,6 +29,28 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
     course.nation,
   )
 
+  const hotelsList: HotelsMaster[] =
+    course.hotels && course.hotels.length > 0
+      ? course.hotels
+      : (((course.course_hotels || course.course_hotel || []) as any[])
+          .map((ch) => ch.hotel)
+          .filter(Boolean) as HotelsMaster[])
+
+  // รวมรูปทริป รูปโรงแรม และรูปห้องพักทั้งหมดเข้าไว้ในสไลด์เดียวกัน
+  const hotelImages = hotelsList.flatMap((h) => h.images || [])
+  const roomImages = [
+    ...hotelsList.flatMap((h) => h.rooms?.flatMap((r) => r.images || []) || []),
+    ...(course.course_rooms?.flatMap((cr) => cr.room_master?.images || []) || []),
+  ]
+
+  const allImages = Array.from(
+    new Set([
+      ...(course.image_urls || []),
+      ...hotelImages,
+      ...roomImages,
+    ]),
+  ).filter(Boolean)
+
   return (
     <LayoutPage isLicense={false}>
       <div className="min-h-screen font-sans bg-white pb-16">
@@ -37,15 +60,13 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
           <div className="absolute top-0 left-0 right-0 h-[80%] bg-[#304B65]" />
 
           <div className="relative w-full h-full overflow-hidden rounded-[1rem]">
-            <SlideImg
-              images={
-                course.image_urls && course.image_urls.length > 0
-                  ? course.image_urls
-                  : [
-                      "https://images.unsplash.com/photo-1605540436563-5bca919ae766?q=80&w=1200&auto=format&fit=crop",
-                    ]
-              }
-            />
+            {allImages.length > 0 ? (
+              <SlideImg images={allImages} alt={course.title} />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                ไม่มีรูปภาพ
+              </div>
+            )}
             <div className="absolute inset-0 bg-black/10 pointer-events-none" />
           </div>
 
@@ -94,6 +115,71 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                   {course.description || "ไม่มีรายละเอียดเพิ่มเติม"}
                 </div>
               </div>
+
+              {/* Hotel / Accommodation Section */}
+              {hotelsList.length > 0 && (
+                <div className="mb-6">
+                  <h2 className="text-[14px] font-bold text-gray-400 mb-2.5 flex items-center gap-1.5">
+                    <Hotel size={16} className="text-gray-500" />
+                    ที่พัก / โรงแรม
+                  </h2>
+
+                  <div className="space-y-4">
+                    {hotelsList.map((hotel, idx) => {
+                      const allHotelImages = Array.from(
+                        new Set([
+                          ...(hotel.images || []),
+                          ...(hotel.rooms?.flatMap((r) => r.images || []) || []),
+                        ]),
+                      ).filter(Boolean)
+
+                      return (
+                        <div
+                          key={hotel.id || idx}
+                          className="bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden p-4 shadow-sm"
+                        >
+                          {allHotelImages.length > 0 ? (
+                            <div className="relative w-full h-[200px] md:h-[240px] rounded-xl overflow-hidden mb-3 bg-gray-200">
+                              <SlideImg images={allHotelImages} alt={hotel.name || "Hotel"} />
+                            </div>
+                          ) : null}
+
+                          <div className="space-y-1">
+                            <h3 className="font-bold text-base text-gray-900">{hotel.name}</h3>
+                            {hotel.address && (
+                              <p className="text-xs text-gray-500 flex items-center gap-1">
+                                <MapPin size={13} className="text-gray-400 shrink-0" />
+                                <span>{hotel.address}</span>
+                              </p>
+                            )}
+                            {hotel.description && (
+                              <p className="text-xs text-gray-600 leading-relaxed pt-1 whitespace-pre-wrap line-clamp-3">
+                                {hotel.description}
+                              </p>
+                            )}
+
+                            {hotel.rooms && hotel.rooms.length > 0 && (
+                              <div className="flex flex-wrap items-center gap-1.5 pt-2">
+                                <span className="text-[11px] text-gray-400 font-medium mr-1">
+                                  รูปแบบห้อง:
+                                </span>
+                                {hotel.rooms.map((room, rIdx) => (
+                                  <span
+                                    key={room.id || rIdx}
+                                    className="bg-white border border-gray-200 text-gray-700 text-[11px] font-medium px-2.5 py-0.5 rounded-full"
+                                  >
+                                    {room.name || room.room_type || "ห้องพัก"}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Booking Conditions Section */}
               <div className="mb-2">
