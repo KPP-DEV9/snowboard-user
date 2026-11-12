@@ -94,6 +94,8 @@ export default function CalendarCourseRoundsFilter({ course }: Props) {
         rounds={rounds as any}
         prevDisabled={isPrevDisabled}
         nextDisabled={isNextDisabled}
+        programType={course?.program_type}
+        course={course}
       />
     </div>
   )

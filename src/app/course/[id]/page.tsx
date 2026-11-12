@@ -23,6 +23,8 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
     return notFound()
   }
 
+  console.log("course =======> ", course)
+
   const { provinceName, districtName } = getLocationName(
     course.province,
     course.district,
@@ -44,11 +46,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
   ]
 
   const allImages = Array.from(
-    new Set([
-      ...(course.image_urls || []),
-      ...hotelImages,
-      ...roomImages,
-    ]),
+    new Set([...(course.image_urls || []), ...hotelImages, ...roomImages]),
   ).filter(Boolean)
 
   return (

@@ -29,7 +29,7 @@ export type ContactName =
   | "instagram"
   | "tiktok"
 
-export type ProgramType = "PRIVATE_COACHING" | "TRIP"
+export type ProgramType = "PRIVATE_COACHING" | "PARK_AND_FREESTYLE"
 export type CourseTypes = "SKI" | "SNOWBOARD"
 export type CourseLevel =
   | "Beginner"
