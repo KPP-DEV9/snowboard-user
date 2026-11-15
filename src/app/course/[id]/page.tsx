@@ -143,7 +143,12 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                           ) : null}
 
                           <div className="space-y-1">
-                            <h3 className="font-bold text-base text-gray-900">{hotel.name}</h3>
+                            <Link
+                              href={`/hotels/${hotel.id || encodeURIComponent(hotel.name)}`}
+                              className="font-bold text-base text-gray-900 hover:text-[#C75D33] transition-colors inline-block"
+                            >
+                              {hotel.name}
+                            </Link>
                             {hotel.address && (
                               <p className="text-xs text-gray-500 flex items-center gap-1">
                                 <MapPin size={13} className="text-gray-400 shrink-0" />

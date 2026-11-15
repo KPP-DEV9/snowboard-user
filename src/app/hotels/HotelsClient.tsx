@@ -82,9 +82,14 @@ export default function HotelsClient({ initialHotels }: HotelsClientProps) {
                 {/* Content */}
                 <div className="p-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
-                    <h3 className="font-extrabold text-lg text-gray-900 leading-snug">
-                      {hotel.name}
-                    </h3>
+                    <Link
+                      href={`/hotels/${hotel.id || encodeURIComponent(hotel.name)}`}
+                      className="hover:text-[#C75D33] transition-colors"
+                    >
+                      <h3 className="font-extrabold text-lg text-gray-900 leading-snug">
+                        {hotel.name}
+                      </h3>
+                    </Link>
 
                     {(hotel.address || hotel.province || hotel.nation) && (
                       <p className="text-xs text-gray-600 flex items-start gap-1.5">
@@ -110,7 +115,7 @@ export default function HotelsClient({ initialHotels }: HotelsClientProps) {
                       <p className="text-[11px] font-semibold text-gray-500 mb-2 flex items-center gap-1">
                         <Bed size={13} /> ประเภทห้องพัก
                       </p>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-1.5 mb-4">
                         {hotel.rooms.map((room, rIdx) => (
                           <div
                             key={room.id || rIdx}
@@ -128,6 +133,13 @@ export default function HotelsClient({ initialHotels }: HotelsClientProps) {
                       </div>
                     </div>
                   )}
+
+                  <Link
+                    href={`/hotels/${hotel.id || encodeURIComponent(hotel.name)}`}
+                    className="w-full mt-4 py-2.5 bg-[#304B65] hover:bg-[#20364C] text-white text-xs font-bold rounded-xl text-center transition-colors block"
+                  >
+                    ดูรายละเอียด
+                  </Link>
                 </div>
               </div>
             )

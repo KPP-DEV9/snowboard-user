@@ -42,3 +42,59 @@ export async function getHotels(): Promise<{ success: boolean; data: HotelsMaste
   return { success: true, data: [] }
 }
 
+export async function getHotelById(id: string): Promise<{
+  success: boolean
+  data?: HotelsMaster | null
+  relatedCourses?: Course[]
+}> {
+  try {
+    const coursesRes = await getCourses({ limit: 100 })
+    if (coursesRes.success && coursesRes.data) {
+      const courses: Course[] = Array.isArray(coursesRes.data.data)
+        ? coursesRes.data.data
+        : Array.isArray(coursesRes.data)
+          ? coursesRes.data
+          : []
+
+      let foundHotel: HotelsMaster | null = null
+      const relatedCourses: Course[] = []
+      const targetId = decodeURIComponent(id).trim()
+
+      courses.forEach((course) => {
+        const hList: HotelsMaster[] =
+          course.hotels && course.hotels.length > 0
+            ? course.hotels
+            : (((course.course_hotels || course.course_hotel || []) as any[])
+                .map((ch) => ch.hotel)
+                .filter(Boolean) as HotelsMaster[])
+
+        hList.forEach((h) => {
+          if (
+            h &&
+            (h.id === id ||
+              h.id === targetId ||
+              h.name === targetId ||
+              h.name.toLowerCase() === targetId.toLowerCase())
+          ) {
+            if (!foundHotel) {
+              foundHotel = h
+            }
+            if (!relatedCourses.some((c) => c.id === course.id)) {
+              relatedCourses.push(course)
+            }
+          }
+        })
+      })
+
+      return {
+        success: Boolean(foundHotel),
+        data: foundHotel,
+        relatedCourses,
+      }
+    }
+  } catch (error) {
+    console.error("Failed to load hotel by id:", error)
+  }
+
+  return { success: false, data: null, relatedCourses: [] }
+}
