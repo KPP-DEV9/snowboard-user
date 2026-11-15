@@ -1,14 +1,18 @@
 import Image from "next/image"
 import MenuFooter from "../MenuFooter"
+import Navbar from "../Navbar"
+import SnowEffect from "../SnowEffect"
 
 export default function LayoutPage({
   children,
   isLicense = false,
   isFooter = true,
+  isNavbar = true,
 }: {
   children: React.ReactNode
   isLicense?: boolean
   isFooter?: boolean
+  isNavbar?: boolean
 }) {
   return (
     <main className="w-full mx-auto min-h-screen relative shadow-2xl overflow-x-hidden flex flex-col">
@@ -20,7 +24,10 @@ export default function LayoutPage({
           priority
           className="object-cover object-center"
         />
+        <SnowEffect />
       </div>
+
+      {isNavbar && <Navbar />}
 
       <div className="relative z-10 flex-1 flex flex-col">{children}</div>
 

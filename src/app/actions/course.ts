@@ -13,6 +13,11 @@ export interface GetCoursesParams {
   courseType?: string
   minPrice?: string | number
   maxPrice?: string | number
+  category?: string
+  type?: string
+  program_type?: string
+  programType?: string
+  [key: string]: any
 }
 
 export async function getCourses(params: GetCoursesParams = {}) {

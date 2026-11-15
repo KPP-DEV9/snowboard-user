@@ -13,7 +13,7 @@ export interface ApiResponse<T = any> {
 /**
  * Helper function to handle fetch requests and parse the response
  */
-async function fetchWrapper<T>(
+export async function fetchWrapper<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<ApiResponse<T>> {

@@ -2,12 +2,18 @@
 
 import { SlidersHorizontal, X, Search } from "lucide-react"
 import { Nations, Provinces } from "@/constants/location"
+import DesktopFilters from "./DesktopFilters"
 
 export interface SearchOverrides {
   nationID?: string
   province?: string[]
   courseLevel?: string
   type?: any
+  courseType?: string
+  program_type?: string
+  search?: string
+  date?: string
+  availability?: string
   isPriceEnabled?: boolean
   minPrice?: string
   maxPrice?: string
@@ -131,7 +137,25 @@ export default function HomeFilters({
 
   return (
     <>
-      <div className="w-full flex flex-col gap-2.5">
+      {/* Desktop Filter View */}
+      <div className="hidden md:block w-full">
+        <DesktopFilters
+          nationID={nationID}
+          setNationID={setNationID}
+          province={province}
+          setProvince={setProvince}
+          isPriceEnabled={isPriceEnabled}
+          setIsPriceEnabled={setIsPriceEnabled}
+          minPrice={minPrice}
+          setMinPrice={setMinPrice}
+          maxPrice={maxPrice}
+          setMaxPrice={setMaxPrice}
+          handleSearch={handleSearch}
+        />
+      </div>
+
+      {/* Mobile Filter View */}
+      <div className="md:hidden w-full flex flex-col gap-2.5">
         {/* Row 1: Filter | Search prompt | Clear all */}
         <div className="flex items-center justify-between gap-2 w-full px-1">
           {/* 1. Filter button */}

@@ -16,7 +16,7 @@ export default function Logo({ style = "white", className = "" }: Props) {
       height={200}
       priority
       // unoptimized={true}
-      className={`w-[180px] lg:w-[280px] h-auto object-contain ${className}`}
+      className={`w-[100px] lg:w-[157px] h-auto object-contain ${className}`}
     />
   )
 }

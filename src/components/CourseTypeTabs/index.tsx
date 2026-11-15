@@ -19,7 +19,7 @@ export default function CourseTypeTabs({ setCourseType, handleSearch, page }: Pr
   }
 
   return (
-    <div className="flex bg-[#0A1A28]/70 backdrop-blur-md rounded-full p-1 relative border border-white/10 shadow-inner w-full max-w-[420px]">
+    <div className="flex md:hidden bg-[#0A1A28]/70 backdrop-blur-md rounded-full p-1 relative border border-white/10 shadow-inner w-full max-w-[420px]">
       <div
         onClick={() => {
           handleSearchType("SNOWBOARD")

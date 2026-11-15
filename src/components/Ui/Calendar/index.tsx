@@ -53,7 +53,9 @@ export default function MyCalendar({
   course,
 }: Props) {
   const isSpecialProgram =
-    programType === "PRIVATE_COACHING" || programType === "PARK_AND_FREESTYLE"
+    programType === "PRIVATE_COACHING" ||
+    programType === "PARK_AND_FREESTYLE" ||
+    programType === "CLASS"
 
   return (
     <div className="w-full">

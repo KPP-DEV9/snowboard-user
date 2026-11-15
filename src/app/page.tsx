@@ -4,7 +4,7 @@ import CourseTypeTabs from "@/components/CourseTypeTabs"
 import { MapPin, CalendarDays, User, ChevronLeft, ChevronRight } from "lucide-react"
 import SlideImg from "@/components/Ui/SlideImg"
 import Logo from "@/components/Logo"
-import HomeFilters from "@/components/HomeFilters"
+import HomeFilters, { SearchOverrides } from "@/components/HomeFilters"
 import CourseBox from "@/components/CourseBox"
 import { getCourses } from "./actions/course"
 import { RenderDate } from "@/lib/date"
@@ -16,16 +16,6 @@ import LayoutPage from "@/components/Layout"
 import { getLocationName } from "@/constants/location"
 
 export type CategoryType = "SNOWBOARD" | "SKI"
-
-export interface SearchOverrides {
-  nationID?: string
-  province?: string[]
-  courseLevel?: string
-  type?: CategoryType
-  isPriceEnabled?: boolean
-  minPrice?: string
-  maxPrice?: string
-}
 
 export default function MainPage() {
   const [course, setCourse] = useState<Course[]>([])
@@ -56,7 +46,15 @@ export default function MainPage() {
     const effNation = overrides?.nationID !== undefined ? overrides.nationID : nationID
     const effProvince = overrides?.province !== undefined ? overrides.province : province
     const effLevel = overrides?.courseLevel !== undefined ? overrides.courseLevel : courseLevel
-    const effType = overrides?.type !== undefined ? overrides.type : type || courseType
+    const effType =
+      overrides?.courseType !== undefined
+        ? overrides.courseType
+        : overrides?.type !== undefined
+          ? overrides.type
+          : type || courseType
+    const effProgramType =
+      overrides?.program_type !== undefined ? overrides.program_type : undefined
+    const effSearch = overrides?.search !== undefined ? overrides.search : undefined
     const effPriceEnabled =
       overrides?.isPriceEnabled !== undefined ? overrides.isPriceEnabled : isPriceEnabled
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
@@ -69,13 +67,37 @@ export default function MainPage() {
         nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
         province: effProvince.length > 0 ? effProvince : undefined,
         courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
-        courseType: effType ? effType : undefined,
+        courseType: effType && effType !== "ทั้งหมด" ? effType : undefined,
+        program_type: effProgramType && effProgramType !== "ทั้งหมด" ? effProgramType : undefined,
+        search: effSearch && effSearch.trim() ? effSearch.trim() : undefined,
         minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
         maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
       })
-      const courseList = (
+      let courseList = (
         Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : []
       ) as Course[]
+
+      if (effSearch && effSearch.trim()) {
+        const q = effSearch.trim().toLowerCase()
+        courseList = courseList.filter(
+          (c) =>
+            c.title?.toLowerCase().includes(q) ||
+            c.description?.toLowerCase().includes(q) ||
+            c.detail?.toLowerCase().includes(q),
+        )
+      }
+
+      if (overrides?.availability && overrides.availability !== "ทั้งหมด") {
+        if (overrides.availability === "available") {
+          courseList = courseList.filter(
+            (c) => c.is_active && (!c.max_students || c.total_user < c.max_students),
+          )
+        } else if (overrides.availability === "full") {
+          courseList = courseList.filter(
+            (c) => c.max_students && c.total_user >= c.max_students,
+          )
+        }
+      }
 
       setCourse(courseList)
       setTotalPages(res?.data?.total_pages || (res as any)?.total_pages || 1)
@@ -97,8 +119,8 @@ export default function MainPage() {
         <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16 mx-auto pt-6 md:pt-8 relative max-w-6xl">
           {/* Header Section */}
           <div className="relative flex flex-col items-center justify-center mb-8 md:mb-10 gap-4 md:gap-5 w-full">
-            {/* Centered Logo */}
-            <div className="flex items-center justify-center">
+            {/* Centered Logo (Mobile only, desktop uses top navbar) */}
+            <div className="flex items-center justify-center md:hidden">
               <Link href="/" className="cursor-pointer hover:opacity-90 transition-opacity">
                 <Logo />
               </Link>
@@ -188,7 +210,7 @@ export default function MainPage() {
                 ทริป {courseType === "SKI" ? "Ski" : "Snowboard"}
               </h3>
               <Link
-                href="/all-course"
+                href="/all-trips"
                 className="text-[#86EFAC] font-bold hover:underline transition-colors text-sm md:text-base"
               >
                 ทั้งหมด

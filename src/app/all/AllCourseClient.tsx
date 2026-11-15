@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import HomeFilters, { SearchOverrides } from "@/components/HomeFilters"
@@ -10,9 +10,13 @@ import { getCourses } from "@/app/actions/course"
 
 interface AllCourseClientProps {
   initialCourses: Course[]
+  initialParams?: Record<string, any>
 }
 
-export default function AllCourseClient({ initialCourses }: AllCourseClientProps) {
+export default function AllCourseClient({
+  initialCourses,
+  initialParams,
+}: AllCourseClientProps) {
   const [courses, setCourses] = useState<Course[]>(initialCourses)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [nationID, setNationID] = useState("ทั้งหมด")
@@ -22,6 +26,27 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
   const [minPrice, setMinPrice] = useState("0")
   const [maxPrice, setMaxPrice] = useState("50000")
 
+  useEffect(() => {
+    setCourses(initialCourses)
+  }, [initialCourses])
+
+  const getCategoryTitle = () => {
+    if (initialParams?.program_type === "TRIP") return "Trips"
+    if (initialParams?.program_type === "CLASS") return "Classes & Training"
+    switch (initialParams?.category) {
+      case "trips":
+        return "Trips"
+      case "classes_training":
+        return "Classes & Training"
+      case "ski_resorts":
+        return "Ski Resorts"
+      case "hotels":
+        return "Hotels"
+      default:
+        return "ทริปทั้งหมด"
+    }
+  }
+
   const handleSearch = async (
     _targetPage = 1,
     _type?: any,
@@ -30,6 +55,15 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
     const effNation = overrides?.nationID !== undefined ? overrides.nationID : nationID
     const effProvince = overrides?.province !== undefined ? overrides.province : province
     const effLevel = overrides?.courseLevel !== undefined ? overrides.courseLevel : courseLevel
+    const effType =
+      overrides?.courseType !== undefined
+        ? overrides.courseType
+        : initialParams?.courseType
+    const effProgramType =
+      overrides?.program_type !== undefined
+        ? overrides.program_type
+        : initialParams?.program_type
+    const effSearch = overrides?.search !== undefined ? overrides.search : undefined
     const effPriceEnabled =
       overrides?.isPriceEnabled !== undefined ? overrides.isPriceEnabled : isPriceEnabled
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
@@ -44,11 +78,40 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
         courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
         minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
         maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
+        ...initialParams,
+        ...(effType && effType !== "ทั้งหมด" ? { courseType: effType } : {}),
+        ...(effProgramType && effProgramType !== "ทั้งหมด"
+          ? { program_type: effProgramType }
+          : {}),
+        ...(effSearch && effSearch.trim() ? { search: effSearch.trim() } : {}),
       })
       if (res.success && res.data) {
-        const courseList = (
+        let courseList = (
           Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : []
         ) as Course[]
+
+        if (effSearch && effSearch.trim()) {
+          const q = effSearch.trim().toLowerCase()
+          courseList = courseList.filter(
+            (c) =>
+              c.title?.toLowerCase().includes(q) ||
+              c.description?.toLowerCase().includes(q) ||
+              c.detail?.toLowerCase().includes(q),
+          )
+        }
+
+        if (overrides?.availability && overrides.availability !== "ทั้งหมด") {
+          if (overrides.availability === "available") {
+            courseList = courseList.filter(
+              (c) => c.is_active && (!c.max_students || c.total_user < c.max_students),
+            )
+          } else if (overrides.availability === "full") {
+            courseList = courseList.filter(
+              (c) => c.max_students && c.total_user >= c.max_students,
+            )
+          }
+        }
+
         setCourses(courseList)
       } else {
         setCourses([])
@@ -70,7 +133,9 @@ export default function AllCourseClient({ initialCourses }: AllCourseClientProps
         >
           <ArrowLeft size={20} className="stroke-[3]" /> ย้อนกลับ
         </Link>
-        <h1 className="text-xl md:text-2xl font-bold text-white">ทริปทั้งหมด</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-white">
+          {getCategoryTitle()}
+        </h1>
       </div>
 
       {/* Filters */}
