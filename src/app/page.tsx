@@ -19,6 +19,7 @@ export type CategoryType = "SNOWBOARD" | "SKI"
 
 export default function MainPage() {
   const [course, setCourse] = useState<Course[]>([])
+  const [loading, setLoading] = useState(true)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -43,6 +44,7 @@ export default function MainPage() {
   }
 
   const handleSearch = async (targetPage = 1, type?: CategoryType, overrides?: SearchOverrides) => {
+    setLoading(true)
     const effNation = overrides?.nationID !== undefined ? overrides.nationID : nationID
     const effProvince = overrides?.province !== undefined ? overrides.province : province
     const effLevel = overrides?.courseLevel !== undefined ? overrides.courseLevel : courseLevel
@@ -80,7 +82,7 @@ export default function MainPage() {
       if (effSearch && effSearch.trim()) {
         const q = effSearch.trim().toLowerCase()
         courseList = courseList.filter(
-          (c) =>
+          (c: any) =>
             c.title?.toLowerCase().includes(q) ||
             c.description?.toLowerCase().includes(q) ||
             c.detail?.toLowerCase().includes(q),
@@ -90,11 +92,11 @@ export default function MainPage() {
       if (overrides?.availability && overrides.availability !== "ทั้งหมด") {
         if (overrides.availability === "available") {
           courseList = courseList.filter(
-            (c) => c.is_active && (!c.max_students || c.total_user < c.max_students),
+            (c: any) => c.is_active && (!c.max_students || c.total_user < c.max_students),
           )
         } else if (overrides.availability === "full") {
           courseList = courseList.filter(
-            (c) => c.max_students && c.total_user >= c.max_students,
+            (c: any) => c.max_students && c.total_user >= c.max_students,
           )
         }
       }
@@ -105,6 +107,8 @@ export default function MainPage() {
     } catch (error) {
       console.error("Failed to fetch courses:", error)
       setCourse([])
+    } finally {
+      setLoading(false)
     }
     setIsFilterOpen(false)
   }
@@ -119,13 +123,6 @@ export default function MainPage() {
         <div className="w-full px-4 md:px-8 lg:px-12 xl:px-16 mx-auto pt-6 md:pt-8 relative max-w-6xl">
           {/* Header Section */}
           <div className="relative flex flex-col items-center justify-center mb-8 md:mb-10 gap-4 md:gap-5 w-full">
-            {/* Centered Logo (Mobile only, desktop uses top navbar) */}
-            <div className="flex items-center justify-center md:hidden">
-              <Link href="/" className="cursor-pointer hover:opacity-90 transition-opacity">
-                <Logo />
-              </Link>
-            </div>
-
             {/* Greeting Text */}
             <h2 className="text-white text-base md:text-lg lg:text-xl font-bold drop-shadow-md text-center">
               สวัสดี, เตรียมตัวให้พร้อมสำหรับทริปสุดพิเศษของคุณ
@@ -190,7 +187,11 @@ export default function MainPage() {
                 className="flex gap-4 sm:gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-1"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
-                {course?.length === 0 ? (
+                {loading ? (
+                  <div className="col-span-full w-full text-center py-8 text-white/80 font-medium">
+                    กำลังดึงข้อมูล...
+                  </div>
+                ) : course?.length === 0 ? (
                   <div className="col-span-full w-full text-center py-8 text-white/80 font-medium">
                     ไม่พบข้อมูลทริป
                   </div>
@@ -210,7 +211,7 @@ export default function MainPage() {
                 ทริป {courseType === "SKI" ? "Ski" : "Snowboard"}
               </h3>
               <Link
-                href="/all-trips"
+                href="/all"
                 className="text-[#86EFAC] font-bold hover:underline transition-colors text-sm md:text-base"
               >
                 ทั้งหมด
@@ -218,7 +219,11 @@ export default function MainPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {course?.length === 0 ? (
+              {loading ? (
+                <div className="col-span-full text-center py-12 text-white/80 bg-black/10 rounded-2xl font-medium">
+                  กำลังดึงข้อมูล...
+                </div>
+              ) : course?.length === 0 ? (
                 <div className="col-span-full text-center py-12 text-white/80 bg-black/10 rounded-2xl font-medium">
                   ไม่พบข้อมูลทริป {courseType === "SKI" ? "Ski" : "Snowboard"}
                 </div>

@@ -19,8 +19,8 @@ export async function getHotels(): Promise<{ success: boolean; data: HotelsMaste
         const hList: HotelsMaster[] =
           course.hotels && course.hotels.length > 0
             ? course.hotels
-            : (((course.course_hotels || course.course_hotel || []) as any[])
-                .map((ch) => ch.hotel)
+            : ((((course as any).course_hotels || (course as any).course_hotel || []) as any[])
+                .map((ch: any) => ch.hotel)
                 .filter(Boolean) as HotelsMaster[])
 
         hList.forEach((h) => {
@@ -64,8 +64,8 @@ export async function getHotelById(id: string): Promise<{
         const hList: HotelsMaster[] =
           course.hotels && course.hotels.length > 0
             ? course.hotels
-            : (((course.course_hotels || course.course_hotel || []) as any[])
-                .map((ch) => ch.hotel)
+            : ((((course as any).course_hotels || (course as any).course_hotel || []) as any[])
+                .map((ch: any) => ch.hotel)
                 .filter(Boolean) as HotelsMaster[])
 
         hList.forEach((h) => {

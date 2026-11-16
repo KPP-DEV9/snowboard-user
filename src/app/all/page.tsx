@@ -32,8 +32,12 @@ export default async function AllCoursePage({ searchParams }: AllCoursePageProps
     courseType = cleanParams.courseType || "SKI"
   }
 
+  const page = cleanParams.page ? parseInt(cleanParams.page) : 1
+  const limit = cleanParams.limit ? parseInt(cleanParams.limit) : 12
+
   const res = await getCourses({
-    limit: 50,
+    page,
+    limit,
     ...cleanParams,
     courseType,
   })
@@ -41,12 +45,21 @@ export default async function AllCoursePage({ searchParams }: AllCoursePageProps
     Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : []
   ) as Course[]
 
+  const totalPages = res?.data?.total_pages || (res as any)?.total_pages || 1
+  const currentPage = res?.data?.page || (res as any)?.page || page
+
   return (
     <LayoutPage>
       <AllCourseClient
         initialCourses={initialCourses}
         initialParams={{ ...cleanParams, courseType }}
+        initialPage={currentPage}
+        initialTotalPages={totalPages}
       />
+      <br />
+      <br />
+      <br />
+      <br />
     </LayoutPage>
   )
 }

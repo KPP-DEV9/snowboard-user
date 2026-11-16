@@ -13,6 +13,7 @@ interface CourseBookingWidgetProps {
   adultPrice: number
   childPrice: number
   discount: number
+  className?: string
 }
 
 export default function CourseBookingWidget({
@@ -20,14 +21,13 @@ export default function CourseBookingWidget({
   adultPrice,
   childPrice,
   discount,
+  className,
 }: CourseBookingWidgetProps) {
   const [adults, setAdults] = useState(1)
   const [children, setChildren] = useState(0)
   const router = useRouter()
 
   const finalAdultPrice = Math.max(0, adultPrice - discount)
-  // Assuming child price is childPrice (not discounted, or discounted similarly).
-  // Let's match the logic from before, if discount applies:
   const finalChildPrice = Math.max(0, childPrice)
 
   const adultTotal = adults * finalAdultPrice
@@ -35,77 +35,80 @@ export default function CourseBookingWidget({
   const totalPrice = adultTotal + childTotal
 
   const handleConfirm = () => {
-    // Navigate to rounds selection with query params for adults and children
     router.push(`/course/${courseId}/rounds?adults=${adults}&children=${children}`)
   }
 
   return (
-    <div className="bg-trd rounded-t-[3rem] p-6 md:p-8 lg:p-10 w-full mt-6 shadow-xl flex flex-col gap-6">
-      <h2 className="text-center text-xl md:text-2xl font-bold text-white mb-2">ระบุจำนวนผู้จอง</h2>
+    <div
+      className={`bg-[#798E75] rounded-[1.5rem] p-5 md:p-6 w-full shadow-lg flex flex-col gap-4 ${className || ""}`}
+    >
+      <h2 className="text-center text-base md:text-lg font-bold text-white">
+        ระบุจำนวนผู้จอง
+      </h2>
 
       {/* Adult Section */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex flex-col">
-          <div className="font-bold text-white text-[17px] md:text-lg">
+          <div className="text-xs sm:text-sm font-medium text-white">
             ผู้ใหญ่{" "}
-            <span className="font-normal text-sm text-white/80 ml-2">
+            <span className="text-[11px] text-white/80 ml-1">
               ฿ {numeral(finalAdultPrice).format("0,0")} / คน
             </span>
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-1.5">
-          <div className="flex items-center gap-3 bg-white rounded-[10px] px-1 py-1 shadow-sm w-fit">
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-2 bg-white rounded-lg px-1 py-0.5 shadow-sm">
             <button
               onClick={() => setAdults((prev) => Math.max(1, prev - 1))}
-              className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
+              className="w-6 h-6 rounded bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors"
             >
-              <Minus size={16} className="stroke-[3]" />
+              <Minus size={14} className="stroke-[3]" />
             </button>
-            <div className="font-bold w-6 text-center text-[15px] text-black">{adults}</div>
+            <div className="font-bold w-5 text-center text-xs text-black">{adults}</div>
             <button
               onClick={() => setAdults((prev) => prev + 1)}
-              className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
+              className="w-6 h-6 rounded bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors"
             >
-              <Plus size={16} className="stroke-[3]" />
+              <Plus size={14} className="stroke-[3]" />
             </button>
           </div>
-          <div className="text-[#E7E298] font-bold text-[15px]">
-            ฿ {numeral(adultTotal).format("0,0")}
+          <div className="text-white font-bold text-[11px]">
+            ฿ {numeral(adultTotal).format("0,0")} / คน
           </div>
         </div>
       </div>
 
       {/* Children Section */}
       {finalChildPrice > 0 && (
-        <div className="flex items-start justify-between pt-4 border-t border-white/20">
+        <div className="flex items-center justify-between pt-3 border-t border-white/20">
           <div className="flex flex-col">
-            <div className="font-bold text-white text-[17px] md:text-lg">
+            <div className="text-xs sm:text-sm font-medium text-white">
               เด็ก{" "}
-              <span className="font-normal text-sm text-white/80 ml-2">
+              <span className="text-[11px] text-white/80 ml-1">
                 ฿ {numeral(finalChildPrice).format("0,0")} / คน
               </span>
             </div>
-            <div className="text-white/60 text-[12px] mt-0.5">อายุน้อยกว่า 12 ปี</div>
+            <div className="text-white/60 text-[10px]">อายุน้อยกว่า 12 ปี</div>
           </div>
 
-          <div className="flex flex-col items-end gap-1.5">
-            <div className="flex items-center gap-3 bg-white rounded-[10px] px-1 py-1 shadow-sm w-fit">
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-2 bg-white rounded-lg px-1 py-0.5 shadow-sm">
               <button
                 onClick={() => setChildren((prev) => Math.max(0, prev - 1))}
-                className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
+                className="w-6 h-6 rounded bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors"
               >
-                <Minus size={16} className="stroke-[3]" />
+                <Minus size={14} className="stroke-[3]" />
               </button>
-              <div className="font-bold w-6 text-center text-[15px] text-black">{children}</div>
+              <div className="font-bold w-5 text-center text-xs text-black">{children}</div>
               <button
                 onClick={() => setChildren((prev) => prev + 1)}
-                className="w-7 h-7 rounded-lg bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors border border-gray-100"
+                className="w-6 h-6 rounded bg-white text-gray-500 flex items-center justify-center hover:bg-gray-100 transition-colors"
               >
-                <Plus size={16} className="stroke-[3]" />
+                <Plus size={14} className="stroke-[3]" />
               </button>
             </div>
-            <div className="text-[#E7E298] font-bold text-[15px]">
+            <div className="text-white font-bold text-[11px]">
               ฿ {numeral(childTotal).format("0,0")}
             </div>
           </div>
@@ -113,39 +116,37 @@ export default function CourseBookingWidget({
       )}
 
       {/* Total Section */}
-      <div className="flex flex-col gap-2 pt-6 border-t border-white/20 mt-2">
-        <div className="flex items-center justify-between">
-          <div className="font-bold text-white text-lg">ราคา</div>
-          <div className="font-bold text-[#E7E298] text-[22px] md:text-3xl">
-            ฿ {numeral(totalPrice).format("0,0")}
-          </div>
+      <div className="flex flex-col gap-1.5 pt-3 border-t border-white/20">
+        <div className="flex items-center justify-between text-xs sm:text-sm text-white">
+          <span>ราคา</span>
+          <span className="font-bold">฿ {numeral(totalPrice).format("0,0")}</span>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="font-bold text-white text-lg">ราคา(รวม vat7%)</div>
-          <div className="font-bold text-[#E7E298] text-[22px] md:text-3xl">
+        <div className="flex items-center justify-between text-xs sm:text-sm text-white">
+          <span className="font-bold">ราคา (รวม vat7%)</span>
+          <span className="font-extrabold text-sm sm:text-base">
             ฿ {numeral(totalPrice * Vat).format("0,0.00")}
-          </div>
+          </span>
         </div>
       </div>
 
-      <div className="text-center text-white/60 text-[13px] font-medium -mt-2">
+      <div className="text-center text-white/70 text-[11px] font-medium -mt-1">
         มัดจำ 30% ยอดชำระเต็ม
       </div>
 
       {/* Confirm Button */}
       <button
         onClick={handleConfirm}
-        className="w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-4 rounded-xl font-bold text-[17px] transition-colors mt-2 shadow-md flex items-center justify-center gap-2"
+        className="w-full bg-[#F04E23] hover:bg-[#D4411C] text-white py-3 rounded-xl font-bold text-sm md:text-base transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer"
       >
         จองทริป &gt;
       </button>
 
       {/* Back Link */}
-      <div className="text-center mt-3">
+      <div className="text-center">
         <Link
           href="/"
-          className="text-white/80 hover:text-white underline text-sm transition-colors"
+          className="text-white/80 hover:text-white underline text-xs transition-colors"
         >
           กลับหน้าแรก
         </Link>
