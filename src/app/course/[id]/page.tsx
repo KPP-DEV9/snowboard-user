@@ -52,8 +52,18 @@ function formatThaiDate(dateStr?: string | Date): string {
   const d = new Date(dateStr)
   if (isNaN(d.getTime())) return ""
   const months = [
-    "ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
-    "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค.",
+    "ม.ค.",
+    "ก.พ.",
+    "มี.ค.",
+    "เม.ย.",
+    "พ.ค.",
+    "มิ.ย.",
+    "ก.ค.",
+    "ส.ค.",
+    "ก.ย.",
+    "ต.ค.",
+    "พ.ย.",
+    "ธ.ค.",
   ]
   return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`
 }
@@ -133,7 +143,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
           </div>
 
           {/* Hero Slider */}
-          <div className="relative w-full h-[260px] sm:h-[340px] md:h-[400px] rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-lg mb-5 bg-gray-900">
+          <div className="relative w-full aspect-[920/474] rounded-2xl md:rounded-[1.5rem] overflow-hidden shadow-lg mb-5 bg-gray-900">
             {allImages.length > 0 ? (
               <SlideImg images={allImages} alt={course.title} />
             ) : (
@@ -168,7 +178,9 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                     <CalendarDays size={20} />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="text-[11px] sm:text-xs text-gray-400 font-medium">วันเดินทาง</span>
+                    <span className="text-[11px] sm:text-xs text-gray-400 font-medium">
+                      วันเดินทาง
+                    </span>
                     <div className="text-xs sm:text-sm font-bold text-gray-900 leading-snug">
                       {startDateStr && endDateStr ? (
                         <>
@@ -193,7 +205,9 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                     <Award size={20} />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="text-[11px] sm:text-xs text-gray-400 font-medium">เหมาะสำหรับ</span>
+                    <span className="text-[11px] sm:text-xs text-gray-400 font-medium">
+                      เหมาะสำหรับ
+                    </span>
                     <span className="text-xs sm:text-sm font-bold text-gray-900 truncate">
                       {course.course_level || "Beginer"}
                     </span>
@@ -209,9 +223,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
 
               {/* Details Card */}
               <div className="bg-white rounded-[1.5rem] p-5 md:p-6 shadow-sm">
-                <h3 className="text-sm font-bold text-gray-400 mb-3 tracking-wide">
-                  รายละเอียด
-                </h3>
+                <h3 className="text-sm font-bold text-gray-400 mb-3 tracking-wide">รายละเอียด</h3>
                 <div className="text-xs sm:text-sm md:text-[14px] text-gray-700 leading-relaxed font-normal whitespace-pre-line max-h-[380px] overflow-y-auto pr-2 scrollbar-thin">
                   {course.description || "ไม่มีรายละเอียดเพิ่มเติม"}
                 </div>

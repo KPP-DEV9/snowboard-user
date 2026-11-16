@@ -222,7 +222,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
           <Card className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-none mb-6 text-black overflow-hidden">
             {/* Course Images Slider */}
             {course?.image_urls && course.image_urls.length > 0 && (
-              <div className="relative w-full h-[220px] md:h-[300px] overflow-hidden rounded-2xl mb-5 shadow-sm">
+              <div className="relative w-full aspect-[920/474] overflow-hidden rounded-2xl mb-5 shadow-sm bg-gray-900">
                 <SlideImg images={course.image_urls} alt={course.title} />
               </div>
             )}

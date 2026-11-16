@@ -7,9 +7,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 interface SlideImgProps {
   images: string[]
   alt?: string
+  className?: string
+  aspectRatio?: string
+  objectFit?: "cover" | "contain"
 }
 
-export default function SlideImg({ images, alt = "image" }: SlideImgProps) {
+export default function SlideImg({
+  images,
+  alt = "image",
+  className = "",
+  aspectRatio,
+  objectFit = "cover",
+}: SlideImgProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -41,27 +50,35 @@ export default function SlideImg({ images, alt = "image" }: SlideImgProps) {
 
   if (!images || images.length === 0) {
     return (
-      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+      <div
+        className={`w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 ${className}`}
+        style={aspectRatio ? { aspectRatio } : undefined}
+      >
         No image
       </div>
     )
   }
 
   return (
-    <div className="w-full h-full relative group">
+    <div
+      className={`w-full h-full relative group ${className}`}
+      style={aspectRatio ? { aspectRatio } : undefined}
+    >
       <div
         ref={scrollRef}
         className="flex w-full h-full overflow-x-auto snap-x snap-mandatory hide-scrollbar"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {images.map((url, idx) => (
-          <div key={idx} className="w-full h-full  flex-shrink-0 snap-center relative">
+          <div key={idx} className="w-full h-full flex-shrink-0 snap-center relative">
             <Image
               src={url}
               alt={`${alt} ${idx + 1}`}
               fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className={`${
+                objectFit === "contain" ? "object-contain" : "object-cover"
+              } group-hover:scale-105 transition-transform duration-500`}
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1024px"
               loading="lazy"
             />
           </div>

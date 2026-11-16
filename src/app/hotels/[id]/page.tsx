@@ -69,7 +69,7 @@ export default async function HotelDetailPage({ params }: HotelDetailPageProps) 
         {/* Hero Card */}
         <div className="bg-white rounded-3xl overflow-hidden shadow-2xl border border-gray-100 mb-8">
           {/* Main Image Slider */}
-          <div className="relative w-full h-[280px] sm:h-[360px] md:h-[420px] bg-gray-100">
+          <div className="relative w-full aspect-[920/474] bg-gray-100">
             {allImages.length > 0 ? (
               <SlideImg images={allImages} alt={hotel.name} />
             ) : (
