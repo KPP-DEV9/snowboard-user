@@ -49,17 +49,19 @@ export default async function ContactPage() {
     <LayoutPage isLicense={false}>
       <div className="min-h-screen pb-32 font-sans selection:bg-[#568759]/30 flex flex-col items-center">
         {/* Header Logo */}
-        <div className="pt-16 pb-8 flex justify-center w-full">
-          <Logo />
+        <div className="pt-12 md:pt-16 pb-8 flex flex-col items-center justify-center w-full relative max-w-md px-4">
+          <div className="hover:scale-105 transition-transform">
+            <Logo className="!w-[130px] md:!w-[150px]" />
+          </div>
         </div>
 
         {/* Contact Card */}
         <div className="w-full max-w-md px-4">
-          <div className="bg-white rounded-[2rem] p-8 shadow-xl">
-            <h2 className="text-[#798E75] text-2xl font-bold mb-1">ติดต่อเจ้าหน้าที่</h2>
-            <p className="text-gray-500 text-sm mb-6">ช่องทางติดต่อสอบถาม</p>
+          <div className="bg-[#0A1A28]/40 backdrop-blur-md border border-white/15 rounded-3xl p-6 md:p-8 shadow-2xl">
+            <h2 className="text-white text-2xl font-extrabold mb-1 tracking-tight">ติดต่อเจ้าหน้าที่</h2>
+            <p className="text-white/70 text-sm mb-6">ช่องทางติดต่อสอบถาม</p>
 
-            <div className="space-y-0">
+            <div className="space-y-1">
               {contactList.map((contact) => {
                 const contactName = contact.name?.toLowerCase()
 
@@ -68,16 +70,16 @@ export default async function ContactPage() {
                     <a
                       key={contact.id}
                       href={`tel:${contact.value.replace(/[^0-9+]/g, "")}`}
-                      className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-4 py-3.5 border-b border-white/10 hover:bg-white/5 transition-colors rounded-xl px-2 -mx-2"
                     >
-                      <div className="w-11 h-11 rounded-full bg-[#EAF3EA] flex items-center justify-center shrink-0">
-                        <Phone size={20} className="text-[#798E75] fill-[#798E75]" />
+                      <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+                        <Phone size={20} className="text-[#86EFAC]" />
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-[17px] mb-0.5">
+                        <div className="font-bold text-white text-[16px] mb-0.5">
                           {contact.value}
                         </div>
-                        <div className="text-gray-400 text-[13px]">เบอร์โทรศัพท์สำนักงาน</div>
+                        <div className="text-white/60 text-xs">เบอร์โทรศัพท์สำนักงาน</div>
                       </div>
                     </a>
                   )
@@ -94,16 +96,16 @@ export default async function ContactPage() {
                       }
                       target="_blank"
                       rel="noreferrer"
-                      className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-4 py-3.5 border-b border-white/10 hover:bg-white/5 transition-colors rounded-xl px-2 -mx-2"
                     >
-                      <div className="w-11 h-11 rounded-full flex items-center justify-center shrink-0">
-                        <Image src="/logo/line.png" alt="Line" width={120} height={120} />
+                      <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+                        <Image src="/logo/line.png" alt="Line" width={26} height={26} />
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-[17px] mb-0.5">
+                        <div className="font-bold text-white text-[16px] mb-0.5">
                           {contact.value}
                         </div>
-                        <div className="text-gray-400 text-[13px]">Line Official</div>
+                        <div className="text-white/60 text-xs">Line Official</div>
                       </div>
                     </a>
                   )
@@ -114,16 +116,16 @@ export default async function ContactPage() {
                     <a
                       key={contact.id}
                       href={`mailto:${contact.value}`}
-                      className="flex items-center gap-4 py-5 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      className="flex items-center gap-4 py-3.5 border-b border-white/10 hover:bg-white/5 transition-colors rounded-xl px-2 -mx-2"
                     >
-                      <div className="w-11 h-11 rounded-full bg-[#EAF3EA] flex items-center justify-center shrink-0">
-                        <Mail size={20} className="text-[#798E75]" />
+                      <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center shrink-0 shadow-inner">
+                        <Mail size={20} className="text-[#E86034]" />
                       </div>
                       <div>
-                        <div className="font-bold text-gray-900 text-[17px] mb-0.5">
+                        <div className="font-bold text-white text-[16px] mb-0.5">
                           {contact.value}
                         </div>
-                        <div className="text-gray-400 text-[13px]">อีเมล์</div>
+                        <div className="text-white/60 text-xs">อีเมล์</div>
                       </div>
                     </a>
                   )
@@ -135,8 +137,8 @@ export default async function ContactPage() {
 
             {/* Social */}
             {socialList.length > 0 && (
-              <div className="mt-8 mb-8">
-                <h3 className="font-bold text-gray-900 text-lg mb-4">Social</h3>
+              <div className="mt-8 mb-6">
+                <h3 className="font-bold text-white text-base mb-4">Social</h3>
                 <div className="flex items-center gap-3">
                   {socialList.map((link) => {
                     const socialName = link.name?.toLowerCase()
@@ -151,9 +153,10 @@ export default async function ContactPage() {
                           href={linkUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="hover:opacity-80 transition-opacity"
+                          className="w-11 h-11 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:scale-105"
+                          aria-label="Facebook"
                         >
-                          <svg viewBox="0 0 24 24" fill="#304B65" className="w-[42px] h-[42px]">
+                          <svg viewBox="0 0 24 24" fill="#3B82F6" className="w-6 h-6">
                             <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                           </svg>
                         </a>
@@ -167,9 +170,10 @@ export default async function ContactPage() {
                           href={linkUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="hover:opacity-80 transition-opacity"
+                          className="w-11 h-11 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:scale-105"
+                          aria-label="Instagram"
                         >
-                          <svg viewBox="0 0 24 24" className="w-[42px] h-[42px]">
+                          <svg viewBox="0 0 24 24" className="w-6 h-6">
                             <defs>
                               <linearGradient
                                 id={`ig-grad-${link.id}`}
@@ -188,7 +192,7 @@ export default async function ContactPage() {
                             <rect
                               width="24"
                               height="24"
-                              rx="12"
+                              rx="6"
                               fill={`url(#ig-grad-${link.id})`}
                             />
                             <path
@@ -208,10 +212,11 @@ export default async function ContactPage() {
                           href={linkUrl}
                           target="_blank"
                           rel="noreferrer"
-                          className="hover:opacity-80 transition-opacity"
+                          className="w-11 h-11 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center hover:bg-white/20 transition-all hover:scale-105"
+                          aria-label="TikTok"
                         >
-                          <svg viewBox="0 0 24 24" className="w-[42px] h-[42px]">
-                            <circle cx="12" cy="12" r="12" fill="#000" />
+                          <svg viewBox="0 0 24 24" className="w-6 h-6">
+                            <rect width="24" height="24" rx="6" fill="#000" />
                             <path
                               fill="#fff"
                               d="M12.53 4.5h2.51c.21 1.48 1.14 2.65 2.5 3.09v2.66c-1.03-.02-1.97-.33-2.77-.85v4.54c0 3.07-2.56 5.56-5.71 5.56S3.35 17.01 3.35 13.94c0-3.07 2.56-5.56 5.71-5.56h.05v2.85h-.05c-1.52 0-2.75 1.22-2.75 2.71s1.23 2.71 2.75 2.71 2.75-1.22 2.75-2.71V4.5z"
@@ -227,7 +232,7 @@ export default async function ContactPage() {
               </div>
             )}
 
-            <div className="mt-4 pt-4 text-center text-[11px] text-gray-400 font-medium">
+            <div className="mt-8 pt-4 border-t border-white/10 text-center text-[11px] text-white/40 font-medium">
               Snowvibes Co., Ltd. • Snowwhite by Snowvibes
             </div>
           </div>

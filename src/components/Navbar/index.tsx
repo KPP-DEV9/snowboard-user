@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Suspense, useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { Home, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import Logo from "../Logo"
 
 function NavbarContent() {
@@ -15,7 +15,6 @@ function NavbarContent() {
 
   const activeProgramType = searchParams.get("program_type")
   const activeCategory = searchParams.get("category")
-  const isHomeActive = pathname === "/" && !activeProgramType && !activeCategory
 
   useEffect(() => {
     setMounted(true)
@@ -39,11 +38,6 @@ function NavbarContent() {
   }, [isMobileMenuOpen])
 
   const menuItems = [
-    {
-      label: "Home",
-      href: "/",
-      isHome: true,
-    },
     {
       label: "Trips",
       href: "/all?program_type=TRIP",
@@ -69,10 +63,7 @@ function NavbarContent() {
       <header className="w-full sticky top-0 z-50 bg-[#1D2633]/95 backdrop-blur-md border-b border-white/10 transition-all">
         <div className="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 h-16 md:h-20 flex items-center justify-between gap-4">
           {/* Logo */}
-          <Link
-            href="/"
-            className="shrink-0 hover:opacity-90 transition-opacity flex items-center"
-          >
+          <Link href="/" className="shrink-0 hover:opacity-90 transition-opacity flex items-center">
             <Logo className="!w-[68px] md:!w-[74px] lg:!w-[84px]" />
           </Link>
 
@@ -80,7 +71,6 @@ function NavbarContent() {
           <nav className="hidden md:flex items-center gap-6 lg:gap-8 xl:gap-9 text-[13px] lg:text-[14px] font-semibold tracking-wide">
             {menuItems.map((item) => {
               const isActive =
-                (item.isHome && isHomeActive) ||
                 (item.programType && activeProgramType === item.programType) ||
                 (item.category && activeCategory === item.category) ||
                 (item.matchPath && pathname.startsWith(item.matchPath))
@@ -89,14 +79,14 @@ function NavbarContent() {
                 <Link
                   key={item.label}
                   href={item.href}
-                  aria-label={item.isHome ? "Home" : item.label}
+                  aria-label={item.label}
                   className={`transition-colors whitespace-nowrap py-2 flex items-center ${
                     isActive
                       ? "text-white font-extrabold underline underline-offset-8 decoration-2"
                       : "text-white/90 hover:text-white"
                   }`}
                 >
-                  {item.isHome ? <Home size={18} className="stroke-[2.2]" /> : item.label}
+                  {item.label}
                 </Link>
               )
             })}
@@ -165,7 +155,6 @@ function NavbarContent() {
               <nav className="flex flex-col gap-2">
                 {menuItems.map((item) => {
                   const isActive =
-                    (item.isHome && isHomeActive) ||
                     (item.programType && activeProgramType === item.programType) ||
                     (item.category && activeCategory === item.category) ||
                     (item.matchPath && pathname.startsWith(item.matchPath))
@@ -181,7 +170,6 @@ function NavbarContent() {
                           : "text-white/80 hover:bg-white/5 hover:text-white"
                       }`}
                     >
-                      {item.isHome && <Home size={20} className="stroke-[2.2]" />}
                       <span>{item.label}</span>
                     </Link>
                   )
@@ -211,9 +199,7 @@ function NavbarContent() {
 export default function Navbar() {
   return (
     <Suspense
-      fallback={
-        <header className="w-full h-16 md:h-20 bg-[#1D2633]/95 border-b border-white/10" />
-      }
+      fallback={<header className="w-full h-16 md:h-20 bg-[#1D2633]/95 border-b border-white/10" />}
     >
       <NavbarContent />
     </Suspense>
