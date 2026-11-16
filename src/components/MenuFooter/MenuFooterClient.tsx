@@ -11,7 +11,10 @@ export default function MenuFooterClient() {
 
   useEffect(() => {
     const checkFilter = () => {
-      setIsFilterOpen(document.body.classList.contains("filter-open"))
+      setIsFilterOpen(
+        document.body.classList.contains("filter-open") ||
+        document.body.classList.contains("modal-open")
+      )
     }
     checkFilter()
     const observer = new MutationObserver(checkFilter)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { createPortal } from "react-dom"
 import { User, UserProfile } from "@/types/model"
 import { updateUserProfile } from "@/app/actions/userProfile"
 import { X, CalendarDays, ScanLine, Transgender } from "lucide-react"
@@ -146,17 +147,24 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
   })
 
   const [isLoading, setIsLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (!isOpen) return
     const originalOverflow = document.body.style.overflow
     document.body.style.overflow = "hidden"
+    document.body.classList.add("modal-open")
     return () => {
       document.body.style.overflow = originalOverflow
+      document.body.classList.remove("modal-open")
     }
   }, [isOpen])
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -214,23 +222,25 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
     }
   }
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-x-hidden pt-20 pb-40">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] my-40">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="absolute inset-0" onClick={onClose} />
+      <div className="relative bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[88vh] animate-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 pb-2">
+        <div className="flex justify-between items-center p-6 pb-3 border-b border-gray-100 shrink-0">
           <h2 className="text-xl font-bold text-[#4F7354]">แก้ไขข้อมูลโปรไฟล์</h2>
           <button
+            type="button"
             onClick={onClose}
-            className="bg-black text-white rounded-full p-1.5 hover:opacity-80 transition-opacity"
+            className="bg-black text-white rounded-full p-1.5 hover:opacity-80 transition-opacity cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Form Content */}
-        <div className="p-6 overflow-y-auto overflow-x-hidden overscroll-contain touch-pan-y">
-          <form id="edit-profile-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+          {/* Form Content */}
+          <div className="p-6 overflow-y-auto overflow-x-hidden overscroll-contain touch-pan-y flex-1 min-h-0 flex flex-col gap-4">
             {/* ID Card */}
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-gray-900">เลขบัตรประชาชน</label>
@@ -607,30 +617,29 @@ export function EditProfileModal({ user, isOpen, onClose }: EditProfileModalProp
               </div>
             </div>
 
-            {/* Divider */}
-            <hr className="border-gray-200 mt-6 mb-2" />
+            </div>
 
             {/* Actions */}
-            <div className="flex gap-4">
+            <div className="p-4 md:p-5 border-t border-gray-100 bg-white flex gap-3 shrink-0">
               <button
                 type="button"
                 onClick={onClose}
                 disabled={isLoading}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-[#1C1F22] hover:bg-black transition-colors"
+                className="flex-1 py-3 rounded-xl font-bold text-white bg-[#1C1F22] hover:bg-black transition-colors cursor-pointer disabled:opacity-50"
               >
                 ยกเลิก
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-[#5D8E61] hover:bg-[#4F7354] transition-colors"
+                className="flex-1 py-3 rounded-xl font-bold text-white bg-[#5D8E61] hover:bg-[#4F7354] transition-colors cursor-pointer disabled:opacity-50"
               >
                 {isLoading ? "กำลังบันทึก..." : "บันทึก"}
               </button>
             </div>
           </form>
         </div>
-      </div>
-    </div>
-  )
+      </div>,
+      document.body,
+    )
 }
