@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -23,6 +23,134 @@ import { createEnrollment } from "@/app/actions/enrollment"
 import { Toast, ToastType } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 
+interface ConditionItem {
+  id: string
+  masterId: string
+  title?: string
+  content: string
+}
+
+function parseConditions(raw?: unknown): { title?: string; content: string }[] {
+  if (!raw) return []
+
+  if (Array.isArray(raw)) {
+    return raw.flatMap((item) => parseConditions(item))
+  }
+
+  if (typeof raw === "object") {
+    const obj = raw as Record<string, any>
+    if (obj.conditions) return parseConditions(obj.conditions)
+    if (obj.condition) return parseConditions(obj.condition)
+    if (obj.content) return parseConditions(obj.content)
+    if (obj.title || obj.detail) {
+      return [
+        {
+          title: obj.title ? String(obj.title) : undefined,
+          content: String(obj.detail || obj.title || ""),
+        },
+      ]
+    }
+    return [{ content: JSON.stringify(raw) }]
+  }
+
+  let str = typeof raw === "string" ? raw : String(raw)
+  str = str.trim()
+  if (!str) return []
+
+  try {
+    const parsed = JSON.parse(str)
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed.flatMap((item) => parseConditions(item))
+    }
+    if (typeof parsed === "object" && parsed !== null) {
+      return parseConditions(parsed)
+    }
+  } catch {}
+
+  if (str.includes("\n\n")) {
+    const blocks = str.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean)
+    if (blocks.length > 1) {
+      return blocks.map((block) => {
+        const lines = block.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
+        if (lines.length > 1 && lines[0].length < 60 && !lines[0].startsWith("กรณี")) {
+          return {
+            title: lines[0],
+            content: lines.slice(1).join("\n"),
+          }
+        }
+        return { content: block }
+      })
+    }
+  }
+
+  const lines = str.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
+  if (lines.length <= 1) {
+    return [{ content: str }]
+  }
+
+  const hasBulletsOrNumbers = lines.some((l) => /^[•\-\*]|\d+[\.\)]\s*|^ข้อ\s*\d+/i.test(l))
+  if (hasBulletsOrNumbers) {
+    const items: { title?: string; content: string }[] = []
+    let current: { title?: string; content: string } | null = null
+    for (const line of lines) {
+      if (/^[•\-\*]|\d+[\.\)]\s*|^ข้อ\s*\d+/i.test(line)) {
+        if (current) items.push(current)
+        current = {
+          content: line.replace(/^[•\-\*]\s*|^\d+[\.\)]\s*|^ข้อ\s*\d+[:\.\s]*/i, "").trim(),
+        }
+      } else {
+        if (current) {
+          current.content += "\n" + line
+        } else {
+          current = { content: line }
+        }
+      }
+    }
+    if (current) items.push(current)
+    if (items.length > 0) return items
+  }
+
+  const items: { title?: string; content: string }[] = []
+  let i = 0
+  while (i < lines.length) {
+    const line = lines[i]
+    if (
+      i + 1 < lines.length &&
+      line.length < 60 &&
+      !line.startsWith("กรณี") &&
+      !line.startsWith("หาก") &&
+      !line.includes("ขอสงวนสิทธิ์") &&
+      !line.endsWith("ได้") &&
+      !line.endsWith("กรณี")
+    ) {
+      const title = line
+      const contentLines = [lines[i + 1]]
+      i += 2
+      while (
+        i < lines.length &&
+        (lines[i].startsWith(" ") ||
+          lines[i].startsWith("-") ||
+          lines[i].startsWith("•") ||
+          lines[i].length > 60 ||
+          lines[i].startsWith("กรณี"))
+      ) {
+        contentLines.push(lines[i])
+        i += 1
+      }
+      items.push({
+        title,
+        content: contentLines.join("\n"),
+      })
+    } else {
+      items.push({
+        content: line,
+      })
+      i += 1
+    }
+  }
+  return items
+}
+
 interface TermsClientProps {
   course: Course
   roundId: string
@@ -40,6 +168,24 @@ export default function TermsClient({
 }: TermsClientProps) {
   const router = useRouter()
   const terms = course.terms_conditions_master || []
+
+  const items: ConditionItem[] = useMemo(() => {
+    const list: ConditionItem[] = []
+    terms.forEach((t: any) => {
+      const conditionVal = t?.conditions ?? t?.condition ?? t
+      const parsed = parseConditions(conditionVal)
+      parsed.forEach((p, idx) => {
+        list.push({
+          id: `${t?.id || "term"}-${idx}`,
+          masterId: t?.id || "term",
+          title: p.title,
+          content: p.content,
+        })
+      })
+    })
+    return list
+  }, [terms])
+
   const [agreedIds, setAgreedIds] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null)
@@ -52,7 +198,7 @@ export default function TermsClient({
 
   const selectedRound = course.rounds?.find((r) => r.id === roundId)
 
-  const isAllAgreed = terms.length > 0 && terms.every((t) => agreedIds.includes(t.id))
+  const isAllAgreed = items.length > 0 && items.every((t) => agreedIds.includes(t.id))
 
   const toggleAgree = (id: string) => {
     setAgreedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
@@ -64,7 +210,7 @@ export default function TermsClient({
     if (isAllAgreed) {
       setAgreedIds([])
     } else {
-      setAgreedIds(terms.map((t) => t.id))
+      setAgreedIds(items.map((t) => t.id))
     }
   }
 
@@ -118,12 +264,20 @@ export default function TermsClient({
       return true
     }
 
-    const payload = terms.map((t) => ({
-      user_id: user?.id,
-      terms_conditions_master_id: t.id,
-      accept: agreedIds.includes(t.id),
-      enrollment_id: enrollmentId,
-    }))
+    const payload = terms.map((t) => {
+      const related = items.filter((it) => it.masterId === t.id)
+      const isAccepted =
+        related.length > 0
+          ? related.every((it) => agreedIds.includes(it.id))
+          : agreedIds.includes(t.id)
+
+      return {
+        user_id: user?.id,
+        terms_conditions_master_id: t.id,
+        accept: isAccepted,
+        enrollment_id: enrollmentId,
+      }
+    })
 
     const termsRes = await createTermsConditions(payload)
     if (!termsRes.success) {
@@ -142,7 +296,7 @@ export default function TermsClient({
   }
 
   const handleProceed = async () => {
-    if (!isAllAgreed && terms.length > 0) return
+    if (!isAllAgreed && items.length > 0) return
     if (isSubmitting) return
 
     setIsSubmitting(true)
@@ -263,24 +417,24 @@ export default function TermsClient({
             <Square size={22} className="text-gray-400 shrink-0" />
           )}
           <span className="font-bold text-sm md:text-base">
-            ยอมรับข้อตกลงและเงื่อนไขทั้งหมด ({agreedIds.length}/{terms.length})
+            ยอมรับข้อตกลงและเงื่อนไขทั้งหมด ({agreedIds.length}/{items.length})
           </span>
         </div>
 
         {/* Terms List */}
         <div className="space-y-3">
-          {terms.map((term, index) => {
-            const isChecked = agreedIds.includes(term.id)
+          {items.map((item, index) => {
+            const isChecked = agreedIds.includes(item.id)
             return (
               <div
-                key={term.id}
-                onClick={() => toggleAgree(term.id)}
+                key={item.id}
+                onClick={() => toggleAgree(item.id)}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault()
-                    toggleAgree(term.id)
+                    toggleAgree(item.id)
                   }
                 }}
                 className={`p-4 md:p-5 rounded-xl border transition-all cursor-pointer flex items-start gap-3.5 ${
@@ -298,8 +452,13 @@ export default function TermsClient({
                 </div>
                 <div className="flex-1 space-y-1">
                   <div className="text-xs font-bold text-gray-400">ข้อที่ {index + 1}</div>
+                  {item.title && (
+                    <div className="text-gray-900 font-bold text-sm md:text-base leading-snug">
+                      {item.title}
+                    </div>
+                  )}
                   <div className="text-gray-800 text-sm md:text-[15px] leading-relaxed whitespace-pre-wrap font-medium">
-                    {term.conditions}
+                    {item.content}
                   </div>
                 </div>
               </div>
@@ -312,7 +471,7 @@ export default function TermsClient({
           <div className="flex items-center justify-between text-xs md:text-sm font-medium">
             <span className="text-gray-500">สถานะการยอมรับเงื่อนไข</span>
             <span className={`font-bold ${isAllAgreed ? "text-[#448651]" : "text-[#F04E23]"}`}>
-              ยอมรับแล้ว {agreedIds.length} / {terms.length} ข้อ
+              ยอมรับแล้ว {agreedIds.length} / {items.length} ข้อ
             </span>
           </div>
 
