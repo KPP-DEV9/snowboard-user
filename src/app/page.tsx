@@ -3,7 +3,7 @@
 import CourseTypeTabs from "@/components/CourseTypeTabs"
 import { MapPin, CalendarDays, User, ChevronLeft, ChevronRight } from "lucide-react"
 import SlideImg from "@/components/Ui/SlideImg"
-import Logo from "@/components/Logo"
+
 import HomeFilters, { SearchOverrides } from "@/components/HomeFilters"
 import CourseBox from "@/components/CourseBox"
 import { getCourses } from "./actions/course"
@@ -65,7 +65,7 @@ export default function MainPage() {
     try {
       const res = await getCourses({
         page: targetPage,
-        limit: 10,
+        limit: 20,
         nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
         province: effProvince.length > 0 ? effProvince : undefined,
         courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
@@ -218,7 +218,7 @@ export default function MainPage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
               {loading ? (
                 <div className="col-span-full text-center py-12 text-white/80 bg-black/10 rounded-2xl font-medium">
                   กำลังดึงข้อมูล...
@@ -242,9 +242,9 @@ export default function MainPage() {
                     <Link
                       href={`/course/${item.id}`}
                       key={i}
-                      className="bg-white rounded-[1.5rem] p-3.5 sm:p-4 shadow-md hover:shadow-xl transition-all duration-300 flex gap-4 cursor-pointer group"
+                      className="bg-white rounded-[1.5rem] p-3 sm:p-4 shadow-md hover:shadow-xl transition-all duration-300 flex gap-3 sm:gap-4 cursor-pointer group"
                     >
-                      <div className="relative w-[130px] sm:w-[150px] md:w-[160px] h-[120px] sm:h-[130px] shrink-0 rounded-2xl overflow-hidden bg-gray-100">
+                      <div className="relative w-[115px] sm:w-[130px] md:w-[135px] xl:w-[145px] h-[115px] sm:h-[125px] shrink-0 rounded-2xl overflow-hidden bg-gray-100">
                         {item.image_urls && item.image_urls.length > 0 ? (
                           <SlideImg images={item.image_urls} alt={item.title || "Course"} />
                         ) : (
@@ -271,14 +271,14 @@ export default function MainPage() {
                             </div>
                             <div className="flex items-center gap-1.5 text-gray-500 text-xs">
                               <CalendarDays size={13} className="text-gray-400 shrink-0" />
-                              <span>
+                              <span className="truncate">
                                 {RenderDate(item.start_date, "dd MMM yyyy")} {" - "}
                                 {RenderDate(item.end_date, "dd MMM yyyy")}
                               </span>
                             </div>
                             <div className="flex items-center gap-1.5 text-gray-500 text-xs">
                               <User size={13} className="text-gray-400 shrink-0" />
-                              <span>{item.course_level || "Beginner"}</span>
+                              <span className="truncate">{item.course_level || "Beginner"}</span>
                             </div>
                           </div>
                         </div>
