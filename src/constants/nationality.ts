@@ -182,3 +182,18 @@ export function normalizeNationality(val?: string | null): string {
   )
   return match ? match.nationalityEn : val
 }
+
+export function getCountryTh(val?: string | null): string {
+  if (!val) return ""
+  const query = val.trim().toLowerCase()
+  const match = NATIONALITIES.find(
+    (n) =>
+      n.code.toLowerCase() === query ||
+      n.codeAlpha3.toLowerCase() === query ||
+      n.countryEn.toLowerCase() === query ||
+      n.countryTh.toLowerCase() === query ||
+      n.nationalityEn.toLowerCase() === query ||
+      n.nationalityTh.toLowerCase() === query,
+  )
+  return match ? match.countryTh : val
+}

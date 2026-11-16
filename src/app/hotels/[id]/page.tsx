@@ -5,6 +5,8 @@ import LayoutPage from "@/components/Layout"
 import SlideImg from "@/components/Ui/SlideImg"
 import CourseBox from "@/components/CourseBox"
 import { getHotelById } from "@/app/actions/hotel"
+import { getLocationName } from "@/constants/location"
+import { NATIONALITIES, getCountryTh } from "@/constants/nationality"
 
 interface HotelDetailPageProps {
   params: Promise<{ id: string }>
@@ -46,8 +48,16 @@ export default async function HotelDetailPage({ params }: HotelDetailPageProps) 
     ]),
   ).filter(Boolean)
 
-  const locationText = [hotel.address, hotel.district, hotel.province, hotel.nation]
+  const { districtName, provinceName, nationName } = getLocationName(
+    hotel.province,
+    hotel.district,
+    hotel.nation,
+  )
+  const countryTh = getCountryTh(hotel.nation) || nationName
+
+  const locationText = [hotel.address, districtName, provinceName, countryTh]
     .filter(Boolean)
+    .filter((v, i, a) => a.indexOf(v) === i)
     .join(", ")
 
   return (

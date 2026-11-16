@@ -3,9 +3,23 @@
 import { Briefcase, Headset, Home, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState, useEffect } from "react"
 
 export default function MenuFooterClient() {
   const pathname = usePathname()
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  useEffect(() => {
+    const checkFilter = () => {
+      setIsFilterOpen(document.body.classList.contains("filter-open"))
+    }
+    checkFilter()
+    const observer = new MutationObserver(checkFilter)
+    observer.observe(document.body, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [])
+
+  if (isFilterOpen) return null
 
   const navItems = [
     { href: "/", label: "หน้าแรก", icon: Home },
@@ -15,7 +29,10 @@ export default function MenuFooterClient() {
   ]
 
   return (
-    <div className="fixed bottom-4 left-0 right-0 max-w-[360px] md:max-w-[420px] mx-auto bg-[#141F29]/90 backdrop-blur-md rounded-2xl md:rounded-3xl px-6 py-2.5 flex justify-between items-center shadow-2xl border border-white/10 z-50">
+    <div
+      id="menu-footer"
+      className="menu-footer fixed bottom-4 left-0 right-0 max-w-[360px] md:max-w-[420px] mx-auto bg-[#141F29]/90 backdrop-blur-md rounded-2xl md:rounded-3xl px-6 py-2.5 flex justify-between items-center shadow-2xl border border-white/10 z-50"
+    >
       {navItems.map((item) => {
         const Icon = item.icon
         const isActive = item.href === "/" ? pathname === "/" : pathname?.startsWith(item.href)

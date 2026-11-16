@@ -1,3 +1,5 @@
+import { NATIONALITIES, getCountryTh } from "./nationality"
+
 export const Nations = [
   {
     id: "JP",
@@ -547,8 +549,10 @@ export const getLocationName = (
   const districtData = provinceData?.cities?.find((c) => c.code === districtCode)
   const districtName = districtData?.name_th || districtCode || ""
 
-  const nationData = Nations.find((n) => n.id === (nationId || provinceData?.nation_id))
-  const nationName = nationData?.name_th || nationId || ""
+  const rawNation = nationId || provinceData?.nation_id
+  const matchedNat = rawNation ? getCountryTh(rawNation) : ""
+  const nationData = Nations.find((n) => n.id === rawNation)
+  const nationName = matchedNat || nationData?.name_th || nationId || ""
 
   return {
     provinceName,

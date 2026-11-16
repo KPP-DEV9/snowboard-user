@@ -5,6 +5,8 @@ import Link from "next/link"
 import { ArrowLeft, MapPin, Search, Bed, Users } from "lucide-react"
 import SlideImg from "@/components/Ui/SlideImg"
 import { HotelsMaster } from "@/types/model"
+import { getLocationName } from "@/constants/location"
+import { NATIONALITIES, getCountryTh } from "@/constants/nationality"
 
 interface HotelsClientProps {
   initialHotels: HotelsMaster[]
@@ -16,11 +18,25 @@ export default function HotelsClient({ initialHotels }: HotelsClientProps) {
   const filteredHotels = initialHotels.filter((hotel) => {
     if (!search.trim()) return true
     const query = search.toLowerCase()
+    const { districtName, provinceName, nationName } = getLocationName(
+      hotel.province,
+      hotel.district,
+      hotel.nation,
+    )
     const nameMatch = hotel.name?.toLowerCase().includes(query)
-    const provinceMatch = hotel.province?.toLowerCase().includes(query)
+    const provinceMatch =
+      hotel.province?.toLowerCase().includes(query) ||
+      provinceName?.toLowerCase().includes(query)
+    const districtMatch =
+      hotel.district?.toLowerCase().includes(query) ||
+      districtName?.toLowerCase().includes(query)
+    const countryTh = getCountryTh(hotel.nation)
+    const nationMatch =
+      hotel.nation?.toLowerCase().includes(query) ||
+      nationName?.toLowerCase().includes(query) ||
+      countryTh?.toLowerCase().includes(query)
     const addressMatch = hotel.address?.toLowerCase().includes(query)
-    const nationMatch = hotel.nation?.toLowerCase().includes(query)
-    return nameMatch || provinceMatch || addressMatch || nationMatch
+    return nameMatch || provinceMatch || districtMatch || nationMatch || addressMatch
   })
 
   return (
@@ -91,13 +107,22 @@ export default function HotelsClient({ initialHotels }: HotelsClientProps) {
                       </h3>
                     </Link>
 
-                    {(hotel.address || hotel.province || hotel.nation) && (
+                    {(hotel.address || hotel.province || hotel.nation || hotel.district) && (
                       <p className="text-xs text-gray-600 flex items-start gap-1.5">
                         <MapPin size={15} className="text-gray-400 shrink-0 mt-0.5" />
                         <span>
-                          {[hotel.address, hotel.district, hotel.province, hotel.nation]
-                            .filter(Boolean)
-                            .join(", ")}
+                          {(() => {
+                            const { districtName, provinceName, nationName } = getLocationName(
+                              hotel.province,
+                              hotel.district,
+                              hotel.nation,
+                            )
+                            const countryTh = getCountryTh(hotel.nation) || nationName
+                            return [hotel.address, districtName, provinceName, countryTh]
+                              .filter(Boolean)
+                              .filter((v, i, a) => a.indexOf(v) === i)
+                              .join(", ")
+                          })()}
                         </span>
                       </p>
                     )}

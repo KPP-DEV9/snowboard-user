@@ -5,6 +5,7 @@ import Link from "next/link"
 import CourseBookingWidget from "@/components/CourseBookingWidget"
 import LayoutPage from "@/components/Layout"
 import { getLocationName } from "@/constants/location"
+import { NATIONALITIES, getCountryTh } from "@/constants/nationality"
 import SlideImg from "@/components/Ui/SlideImg"
 import { HotelsMaster } from "@/types/model"
 import PackageInclusions from "./PackageInclusions"
@@ -78,11 +79,12 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
     return notFound()
   }
 
-  const { provinceName, districtName } = getLocationName(
+  const { provinceName, districtName, nationName } = getLocationName(
     course.province,
     course.district,
     course.nation,
   )
+  const countryTh = getCountryTh(course.nation) || nationName
 
   const courseAny = course as any
 
@@ -165,7 +167,10 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                 <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-500 font-medium">
                   <MapPin size={15} className="text-[#E86034] shrink-0" />
                   <span>
-                    {[districtName, provinceName, course.nation].filter(Boolean).join(", ")}
+                    {[districtName, provinceName, countryTh]
+                      .filter(Boolean)
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .join(", ")}
                   </span>
                 </div>
               </div>
