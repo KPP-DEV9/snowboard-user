@@ -29,6 +29,7 @@ export default function MainPage() {
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
   const [courseType, setCourseType] = useState<CategoryType>("SNOWBOARD") // Placeholder if needed in future
+  const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined)
   const [isPriceEnabled, setIsPriceEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState("0")
   const [maxPrice, setMaxPrice] = useState("50000")
@@ -62,19 +63,44 @@ export default function MainPage() {
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
     const effMaxPrice = overrides?.maxPrice !== undefined ? overrides.maxPrice : maxPrice
 
+    const rawDate = overrides?.date !== undefined ? overrides.date : selectedDate
+    const effDate = (() => {
+      if (!rawDate || rawDate === "ทั้งหมด") return undefined
+      if (rawDate === "soon") {
+        const d = new Date()
+        const yyyy = d.getFullYear()
+        const mm = String(d.getMonth() + 1).padStart(2, "0")
+        return `${yyyy}-${mm}`
+      }
+      if (/^\d{4}-\d{2}/.test(rawDate)) {
+        return rawDate.slice(0, 7)
+      }
+      return rawDate
+    })()
+
+    if (overrides?.date !== undefined) {
+      setSelectedDate(overrides.date)
+    }
+
+    const payload = {
+      page: targetPage,
+      limit: 20,
+      nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
+      province: effProvince.length > 0 ? effProvince : undefined,
+      courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
+      courseType: effType && effType !== "ทั้งหมด" ? effType : undefined,
+      program_type: effProgramType && effProgramType !== "ทั้งหมด" ? effProgramType : undefined,
+      search: effSearch && effSearch.trim() ? effSearch.trim() : undefined,
+      date: effDate,
+      minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
+      maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
+    }
+
+    console.log("[Filter Payload]:", payload)
+
     try {
-      const res = await getCourses({
-        page: targetPage,
-        limit: 20,
-        nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
-        province: effProvince.length > 0 ? effProvince : undefined,
-        courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
-        courseType: effType && effType !== "ทั้งหมด" ? effType : undefined,
-        program_type: effProgramType && effProgramType !== "ทั้งหมด" ? effProgramType : undefined,
-        search: effSearch && effSearch.trim() ? effSearch.trim() : undefined,
-        minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
-        maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
-      })
+      const res = await getCourses(payload)
+
       let courseList = (
         Array.isArray(res?.data?.data) ? res.data.data : Array.isArray(res?.data) ? res.data : []
       ) as Course[]

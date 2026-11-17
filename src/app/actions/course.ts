@@ -17,6 +17,7 @@ export interface GetCoursesParams {
   type?: string
   program_type?: string
   programType?: string
+  date?: string
   [key: string]: any
 }
 
@@ -24,6 +25,7 @@ export async function getCourses(params: GetCoursesParams = {}) {
   const { page = 1, limit = 10, instructorId, ...filters } = params
 
   try {
+    console.log("[getCourses Server Action Payload]:", { page, limit, instructorId, ...filters })
     const res = await api.course.getAll<any>(page, limit, filters)
     if (!res.success) {
       return {

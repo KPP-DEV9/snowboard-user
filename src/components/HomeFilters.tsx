@@ -180,11 +180,21 @@ export default function HomeFilters({
   }
 
   const applyFilters = () => {
+    const formattedDate = (() => {
+      if (!date || date === "ทั้งหมด") return undefined
+      if (date === "soon") {
+        const d = new Date()
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+      }
+      if (/^\d{4}-\d{2}/.test(date)) return date.slice(0, 7)
+      return date
+    })()
+
     handleSearch(1, undefined, {
       search: searchTerm.trim() || undefined,
       courseType: sport !== "ทั้งหมด" ? sport : undefined,
       program_type: tripType !== "ทั้งหมด" ? tripType : undefined,
-      date: date !== "ทั้งหมด" ? date : undefined,
+      date: formattedDate,
       availability: availability !== "ทั้งหมด" ? availability : undefined,
       nationID,
       province,

@@ -81,22 +81,42 @@ export default function AllCourseClient({
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
     const effMaxPrice = overrides?.maxPrice !== undefined ? overrides.maxPrice : maxPrice
 
+    const rawDate = overrides?.date !== undefined ? overrides.date : undefined
+    const effDate = (() => {
+      if (!rawDate || rawDate === "ทั้งหมด") return undefined
+      if (rawDate === "soon") {
+        const d = new Date()
+        const yyyy = d.getFullYear()
+        const mm = String(d.getMonth() + 1).padStart(2, "0")
+        return `${yyyy}-${mm}`
+      }
+      if (/^\d{4}-\d{2}/.test(rawDate)) {
+        return rawDate.slice(0, 7)
+      }
+      return rawDate
+    })()
+
+    const payload = {
+      page: targetPage,
+      limit: 12,
+      nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
+      province: effProvince.length > 0 ? effProvince : undefined,
+      courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
+      date: effDate,
+      minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
+      maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
+      ...initialParams,
+      ...(effType && effType !== "ทั้งหมด" ? { courseType: effType } : {}),
+      ...(effProgramType && effProgramType !== "ทั้งหมด"
+        ? { program_type: effProgramType }
+        : {}),
+      ...(effSearch && effSearch.trim() ? { search: effSearch.trim() } : {}),
+    }
+
+    console.log("[AllCourseClient Filter Payload]:", payload)
+
     try {
-      const res = await getCourses({
-        page: targetPage,
-        limit: 12,
-        nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
-        province: effProvince.length > 0 ? effProvince : undefined,
-        courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
-        minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
-        maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
-        ...initialParams,
-        ...(effType && effType !== "ทั้งหมด" ? { courseType: effType } : {}),
-        ...(effProgramType && effProgramType !== "ทั้งหมด"
-          ? { program_type: effProgramType }
-          : {}),
-        ...(effSearch && effSearch.trim() ? { search: effSearch.trim() } : {}),
-      })
+      const res = await getCourses(payload)
       if (res.success && res.data) {
         let courseList = (
           Array.isArray(res.data.data) ? res.data.data : Array.isArray(res.data) ? res.data : []

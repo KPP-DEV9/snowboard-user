@@ -172,8 +172,17 @@ export default function DesktopFilters({
 
   const handleDateSelect = (val: string) => {
     setSelectedDate(val)
+    const formattedDate = (() => {
+      if (!val || val === "ทั้งหมด") return undefined
+      if (val === "soon") {
+        const d = new Date()
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+      }
+      if (/^\d{4}-\d{2}/.test(val)) return val.slice(0, 7)
+      return val
+    })()
     handleSearch(1, undefined, {
-      date: val === "ทั้งหมด" ? undefined : val,
+      date: formattedDate,
     })
   }
 

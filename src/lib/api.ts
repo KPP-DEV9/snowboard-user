@@ -139,6 +139,7 @@ export const api = {
           }
         })
       }
+      console.log(`[api.course.getAll Request URL]: ${url}`)
       return fetchWrapper<T>(url, {
         ...options,
         method: "GET",
