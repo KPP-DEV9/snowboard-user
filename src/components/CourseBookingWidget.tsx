@@ -42,9 +42,7 @@ export default function CourseBookingWidget({
     <div
       className={`bg-[#798E75] rounded-[1.5rem] p-5 md:p-6 w-full shadow-lg flex flex-col gap-4 ${className || ""}`}
     >
-      <h2 className="text-center text-base md:text-lg font-bold text-white">
-        ระบุจำนวนผู้จอง
-      </h2>
+      <h2 className="text-center text-base md:text-lg font-bold text-white">ระบุจำนวนผู้จอง</h2>
 
       {/* Adult Section */}
       <div className="flex items-center justify-between">
@@ -128,10 +126,6 @@ export default function CourseBookingWidget({
             ฿ {numeral(totalPrice * Vat).format("0,0.00")}
           </span>
         </div>
-      </div>
-
-      <div className="text-center text-white/70 text-[11px] font-medium -mt-1">
-        มัดจำ 30% ยอดชำระเต็ม
       </div>
 
       {/* Confirm Button */}

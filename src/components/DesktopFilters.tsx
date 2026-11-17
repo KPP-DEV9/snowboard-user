@@ -233,7 +233,11 @@ export default function DesktopFilters({
         </button>
 
         {isOpen && (
-          <div className="absolute top-[calc(100%+4px)] left-0 min-w-full w-max max-w-[260px] bg-[#141A22] border border-white/10 rounded-lg shadow-2xl py-1 z-50">
+          <div
+            className={`absolute top-[calc(100%+4px)] ${
+              id === "availability" ? "right-0" : "left-0"
+            } min-w-full w-max max-w-[260px] bg-[#141A22] border border-white/10 rounded-lg shadow-2xl py-1 z-50`}
+          >
             {options.map((opt) => {
               const isSelected = currentValue === opt.value
               return (
@@ -292,8 +296,8 @@ export default function DesktopFilters({
   }
 
   return (
-    <div ref={containerRef} className="w-full">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4 w-full">
+    <div ref={containerRef} className="w-full max-w-5xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4 w-full">
         {/* 1. ค้นหา */}
         <div className="flex flex-col w-full">
           <label className="text-xs font-semibold text-white/90 mb-1.5 block">ค้นหา</label>
@@ -330,27 +334,7 @@ export default function DesktopFilters({
           handleDateSelect,
         )}
 
-        {/* 4. Sport */}
-        {/* {renderDropdown(
-          "sport",
-          "Sport",
-          selectedSport,
-          getSportDisplayLabel(),
-          sportOptions,
-          handleSportSelect,
-        )} */}
-
-        {/* 5. Trip type */}
-        {/* {renderDropdown(
-          "tripType",
-          "Trip type",
-          selectedTripType,
-          getTripTypeDisplayLabel(),
-          tripTypeOptions,
-          handleTripTypeSelect,
-        )} */}
-
-        {/* 6. Price */}
+        {/* 4. Price */}
         {renderDropdown(
           "price",
           "Price",
@@ -360,17 +344,15 @@ export default function DesktopFilters({
           handlePriceSelect,
         )}
 
-        {/* 7. Availability (Row 2, Column 1 on lg) */}
-        <div className="col-span-1">
-          {renderDropdown(
-            "availability",
-            "Availability",
-            selectedAvailability,
-            getAvailabilityDisplayLabel(),
-            availabilityOptions,
-            handleAvailabilitySelect,
-          )}
-        </div>
+        {/* 5. Availability */}
+        {renderDropdown(
+          "availability",
+          "Availability",
+          selectedAvailability,
+          getAvailabilityDisplayLabel(),
+          availabilityOptions,
+          handleAvailabilitySelect,
+        )}
       </div>
     </div>
   )

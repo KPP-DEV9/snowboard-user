@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import {  X, Search } from "lucide-react"
+import { X, Search } from "lucide-react"
 import { Nations, Provinces } from "@/constants/location"
 import DesktopFilters from "./DesktopFilters"
 
@@ -344,9 +344,9 @@ export default function HomeFilters({
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="text-xs text-white/80 hover:text-white underline px-1 py-1 whitespace-nowrap cursor-pointer font-medium"
+                className="text-xs text-white/80 hover:text-white underline pr-3 py-1 whitespace-nowrap cursor-pointer font-medium"
               >
-                ล้างทั้งหมด
+                X
               </button>
             </div>
           )}
