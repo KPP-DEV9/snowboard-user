@@ -24,9 +24,16 @@ export interface GetCoursesParams {
 export async function getCourses(params: GetCoursesParams = {}) {
   const { page = 1, limit = 10, instructorId, ...filters } = params
 
+  const cleanFilters: Record<string, any> = {}
+  Object.entries(filters).forEach(([k, v]) => {
+    if (v !== undefined && v !== null && v !== "" && v !== "ทั้งหมด") {
+      cleanFilters[k] = v
+    }
+  })
+
   try {
-    console.log("[getCourses Server Action Payload]:", { page, limit, instructorId, ...filters })
-    const res = await api.course.getAll<any>(page, limit, filters)
+    console.log("[getCourses Server Action Payload]:", { page, limit, instructorId, ...cleanFilters })
+    const res = await api.course.getAll<any>(page, limit, cleanFilters)
     if (!res.success) {
       return {
         success: false,

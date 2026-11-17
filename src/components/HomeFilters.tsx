@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { SlidersHorizontal, X, Search } from "lucide-react"
+import {  X, Search } from "lucide-react"
 import { Nations, Provinces } from "@/constants/location"
 import DesktopFilters from "./DesktopFilters"
 
@@ -148,7 +148,7 @@ export default function HomeFilters({
       search: undefined,
       courseType: undefined,
       program_type: undefined,
-      date: undefined,
+      date: "ทั้งหมด",
       availability: "ทั้งหมด",
       nationID: "ทั้งหมด",
       province: [],
@@ -251,7 +251,7 @@ export default function HomeFilters({
       label: dOpt?.label || date,
       onRemove: () => {
         setDate("ทั้งหมด")
-        handleSearch(1, undefined, { date: undefined })
+        handleSearch(1, undefined, { date: "ทั้งหมด" })
       },
     })
   }

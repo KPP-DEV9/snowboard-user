@@ -126,10 +126,10 @@ export const api = {
       let url = `v1/user/courses?page=${page}&limit=${limit}`
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
+          if (value !== undefined && value !== null && value !== "" && value !== "ทั้งหมด") {
             if (Array.isArray(value)) {
               value.forEach((v) => {
-                if (v !== undefined && v !== null && v !== "") {
+                if (v !== undefined && v !== null && v !== "" && v !== "ทั้งหมด") {
                   url += `&${key}=${v}`
                 }
               })

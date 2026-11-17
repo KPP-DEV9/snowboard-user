@@ -63,7 +63,8 @@ export default function MainPage() {
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
     const effMaxPrice = overrides?.maxPrice !== undefined ? overrides.maxPrice : maxPrice
 
-    const rawDate = overrides?.date !== undefined ? overrides.date : selectedDate
+    const hasDateOverride = Boolean(overrides && "date" in overrides)
+    const rawDate = hasDateOverride ? overrides?.date : selectedDate
     const effDate = (() => {
       if (!rawDate || rawDate === "ทั้งหมด") return undefined
       if (rawDate === "soon") {
@@ -78,8 +79,8 @@ export default function MainPage() {
       return rawDate
     })()
 
-    if (overrides?.date !== undefined) {
-      setSelectedDate(overrides.date)
+    if (hasDateOverride) {
+      setSelectedDate(effDate)
     }
 
     const payload = {

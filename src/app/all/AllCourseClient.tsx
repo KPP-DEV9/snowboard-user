@@ -81,7 +81,8 @@ export default function AllCourseClient({
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
     const effMaxPrice = overrides?.maxPrice !== undefined ? overrides.maxPrice : maxPrice
 
-    const rawDate = overrides?.date !== undefined ? overrides.date : undefined
+    const hasDateOverride = Boolean(overrides && "date" in overrides)
+    const rawDate = hasDateOverride ? overrides?.date : undefined
     const effDate = (() => {
       if (!rawDate || rawDate === "ทั้งหมด") return undefined
       if (rawDate === "soon") {
