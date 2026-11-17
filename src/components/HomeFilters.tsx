@@ -376,11 +376,12 @@ export default function HomeFilters({
         createPortal(
           <div
             id="filter-modal"
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200"
           >
-            <div className="bg-white w-full max-w-[450px] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+            <div className="absolute inset-0" onClick={() => setIsFilterOpen(false)} />
+            <div className="relative bg-white w-full max-w-[450px] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] max-h-[85dvh] animate-in zoom-in-95 duration-200">
               {/* Modal Header */}
-              <div className="flex justify-between items-center p-4 border-b border-gray-100">
+              <div className="flex justify-between items-center p-4 border-b border-gray-100 shrink-0">
                 <h2 className="text-[#354359] text-lg font-bold">ตัวกรองการค้นหา</h2>
                 <button
                   onClick={() => setIsFilterOpen(false)}
@@ -394,7 +395,7 @@ export default function HomeFilters({
               </div>
 
               {/* Modal Content */}
-              <div className="px-6 md:px-8 py-6 overflow-y-auto space-y-6">
+              <div className="px-5 sm:px-6 md:px-8 py-5 overflow-y-auto overscroll-contain flex-1 min-h-0 space-y-6">
                 {/* Search Keyword */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">ค้นหา</label>
