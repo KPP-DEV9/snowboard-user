@@ -29,12 +29,6 @@ export default function AllCourseClient({
   const [nationID, setNationID] = useState("ทั้งหมด")
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
-  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "full">(
-    () => {
-      const value = initialParams?.availability
-      return value === "available" || value === "full" ? value : "all"
-    },
-  )
   const [isPriceEnabled, setIsPriceEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState("0")
   const [maxPrice, setMaxPrice] = useState("50000")
@@ -86,20 +80,6 @@ export default function AllCourseClient({
       overrides?.isPriceEnabled !== undefined ? overrides.isPriceEnabled : isPriceEnabled
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
     const effMaxPrice = overrides?.maxPrice !== undefined ? overrides.maxPrice : maxPrice
-    const hasAvailabilityOverride = Boolean(overrides && "availability" in overrides)
-    const rawAvailability = hasAvailabilityOverride
-      ? overrides?.availability
-      : availabilityFilter
-    const effAvailability =
-      rawAvailability === "available" || rawAvailability === "full" ? rawAvailability : "all"
-
-    if (hasAvailabilityOverride) {
-      setAvailabilityFilter(
-        rawAvailability === "available" || rawAvailability === "full"
-          ? rawAvailability
-          : "all",
-      )
-    }
 
     const hasDateOverride = Boolean(overrides && "date" in overrides)
     const rawDate = hasDateOverride ? overrides?.date : undefined
@@ -132,7 +112,6 @@ export default function AllCourseClient({
         ? { program_type: effProgramType }
         : {}),
       ...(effSearch && effSearch.trim() ? { search: effSearch.trim() } : {}),
-      availability: effAvailability,
     }
 
     console.log("[AllCourseClient Filter Payload]:", payload)
@@ -152,6 +131,18 @@ export default function AllCourseClient({
               c.description?.toLowerCase().includes(q) ||
               c.detail?.toLowerCase().includes(q),
           )
+        }
+
+        if (overrides?.availability && overrides.availability !== "ทั้งหมด") {
+          if (overrides.availability === "available") {
+            courseList = courseList.filter(
+              (c: any) => c.is_active && (!c.max_students || c.total_user < c.max_students),
+            )
+          } else if (overrides.availability === "full") {
+            courseList = courseList.filter(
+              (c: any) => c.max_students && c.total_user >= c.max_students,
+            )
+          }
         }
 
         setCourses(courseList)

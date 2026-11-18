@@ -18,7 +18,6 @@ export interface GetCoursesParams {
   program_type?: string
   programType?: string
   date?: string
-  availability?: string
   [key: string]: any
 }
 
