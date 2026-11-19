@@ -377,21 +377,6 @@ export default function PaymentClient({
           {/* Divider */}
           <div className="border-t border-gray-100 my-4" />
 
-          {/* Deposit Instructions (Only shown when "ชำระมัดจำ" is selected and deposit not yet paid) */}
-          {!isDepositAlreadyPaid && paymentType === "deposit" && (
-            <div className="text-center py-2 mb-4">
-              <div className="text-gray-900 font-bold text-sm mb-1.5">
-                ชำระเงินเพื่อยืนยันการจอง 30% ของราคาทริป
-              </div>
-
-              <div className="text-gray-400 text-[11px] md:text-xs leading-relaxed space-y-0.5 font-normal">
-                <p>โดยส่วนที่เหลือจะต้องชำระก่อนวันเดินทาง 30 วัน โดยระบบ</p>
-                <p>จะทำการแจ้งเตือนให้ชำระเงินผ่าน Line</p>
-                <p className="pt-0.5">**กรณียกเลิกขอสงวนสิทธิ์ในการคืนมัดจำ</p>
-              </div>
-            </div>
-          )}
-
           {/* Slip Upload Section */}
           <div className="my-2 mb-4">
             <div className="flex items-center justify-between mb-2">
