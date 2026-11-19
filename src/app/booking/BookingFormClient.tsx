@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import {
   ArrowLeft,
   MapPin,
@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ChevronUp,
   AlertCircle,
+  CircleCheck,
 } from "lucide-react"
 import { Course, HotelsMaster, RoomMaster } from "@/types/model"
 import { RenderDate } from "@/lib/date"
@@ -235,7 +236,9 @@ export default function BookingFormClient({
   const [toast, setToast] = useState<{
     message: string
     type: "success" | "error" | "warning"
+    isModal?: boolean
   } | null>(null)
+  const closeToast = useCallback(() => setToast(null), [])
 
   useEffect(() => {
     // Push dummy history entry so browser back button triggers popstate before leaving
@@ -270,10 +273,10 @@ export default function BookingFormClient({
       if (currentEnrollmentId) {
         const res = await cancelEnrollment(currentEnrollmentId)
         if (res.success) {
-          setToast({ message: "ยกเลิกการจองสำเร็จ", type: "success" })
+          setToast({ message: "ยกเลิกการจองสำเร็จ", type: "success", isModal: true })
           setTimeout(() => {
             router.push(`/course/${course.id}/rounds`)
-          }, 1500)
+          }, 2500)
         } else {
           setToast({ message: "ยกเลิกการจองไม่สำเร็จ", type: "error" })
         }
@@ -401,6 +404,7 @@ export default function BookingFormClient({
       setToast({
         message: "อัปเดตการจองสำเร็จ! กำลังพาท่านไปยังหน้าชำระเงิน...",
         type: "success",
+        isModal: true,
       })
 
       setTimeout(() => {
@@ -409,7 +413,7 @@ export default function BookingFormClient({
             `/payment/?enrollment_id=${resultEnrollmentId}&course_id=${course.id}&round_id=${roundId}&adults=${adultsCount}&children=${childrenCount}&method=credit`,
           )
         }
-      }, 1000)
+      }, 2500)
     } catch (err: any) {
       isConfirmedRef.current = false
       setToast({ message: err?.message || "เกิดข้อผิดพลาดในการบันทึกการจอง", type: "error" })
@@ -525,7 +529,22 @@ export default function BookingFormClient({
         </button>
       </div>
 
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast?.isModal ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-sm rounded-3xl border border-emerald-100 bg-white px-7 py-8 text-center shadow-2xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <CircleCheck size={38} strokeWidth={2.5} />
+            </div>
+            <h2 className="text-xl font-extrabold text-gray-900">{toast.message}</h2>
+          </div>
+        </div>
+      ) : (
+        toast && <Toast message={toast.message} type={toast.type} onClose={closeToast} />
+      )}
 
       {/* Cancel Confirmation Modal */}
       {showCancelModal && (

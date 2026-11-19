@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Upload, X, Image as ImageIcon } from "lucide-react"
+import { ArrowLeft, Upload, X, Image as ImageIcon, CircleCheck } from "lucide-react"
 import numeral from "numeral"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
@@ -43,6 +43,7 @@ export default function PaymentClient({
     message: string
     type: "success" | "error" | "warning"
   } | null>(null)
+  const closeToast = useCallback(() => setToast(null), [])
 
   const [slipFile, setSlipFile] = useState<File | null>(null)
   const [slipPreview, setSlipPreview] = useState<string | null>(null)
@@ -211,7 +212,7 @@ export default function PaymentClient({
 
       setTimeout(() => {
         router.push("/mytrip")
-      }, 1000)
+      }, 2500)
     } catch (err: any) {
       setToast({
         message: err?.message || "เกิดข้อผิดพลาดในการชำระเงิน",
@@ -504,7 +505,25 @@ export default function PaymentClient({
         </div>
       </div>
 
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      {toast?.type === "success" ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+        >
+          <div className="w-full max-w-sm rounded-3xl border border-emerald-100 bg-white px-7 py-8 text-center shadow-2xl">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <CircleCheck size={38} strokeWidth={2.5} />
+            </div>
+            <h2 className="mb-2 text-xl font-extrabold text-gray-900">ชำระเงินสำเร็จ</h2>
+            <p className="text-sm font-medium leading-relaxed text-gray-600">
+              กำลังนำท่านไปยังหน้ารายการทริป...
+            </p>
+          </div>
+        </div>
+      ) : (
+        toast && <Toast message={toast.message} type={toast.type} onClose={closeToast} />
+      )}
     </div>
   )
 }
