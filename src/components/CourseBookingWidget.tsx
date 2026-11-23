@@ -7,12 +7,14 @@ import Link from "next/link"
 import numeral from "numeral"
 
 import { Vat } from "@/utils/Inv"
+import { VatType } from "@/types/model"
 
 interface CourseBookingWidgetProps {
   courseId: string
   adultPrice: number
   childPrice: number
   discount: number
+  vat?: VatType
   className?: string
 }
 
@@ -21,11 +23,14 @@ export default function CourseBookingWidget({
   adultPrice,
   childPrice,
   discount,
+  vat,
   className,
 }: CourseBookingWidgetProps) {
   const [adults, setAdults] = useState(1)
   const [children, setChildren] = useState(0)
   const router = useRouter()
+
+  const isVatIncluded = vat === "INCLUDE"
 
   const finalAdultPrice = Math.max(0, adultPrice - discount)
   const finalChildPrice = Math.max(0, childPrice)
@@ -120,12 +125,14 @@ export default function CourseBookingWidget({
           <span className="font-bold">฿ {numeral(totalPrice).format("0,0")}</span>
         </div>
 
-        <div className="flex items-center justify-between text-xs sm:text-sm text-white">
-          <span className="font-bold">ราคา (รวม vat7%)</span>
-          <span className="font-extrabold text-sm sm:text-base">
-            ฿ {numeral(totalPrice * Vat).format("0,0.00")}
-          </span>
-        </div>
+        {!isVatIncluded && (
+          <div className="flex items-center justify-between text-xs sm:text-sm text-white">
+            <span className="font-bold">ราคา (รวม vat7%)</span>
+            <span className="font-extrabold text-sm sm:text-base">
+              ฿ {numeral(totalPrice * Vat).format("0,0.00")}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Confirm Button */}

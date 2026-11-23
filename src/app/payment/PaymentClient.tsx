@@ -136,8 +136,12 @@ export default function PaymentClient({
       ? enrollment.deposit_amount
       : totalAmount * 0.3
 
-  const totalAmountWithVat = totalAmount * 1.07
-  const depositWithVat = depositAmount * 1.07
+  const isVatIncluded = course?.vat === "INCLUDE"
+  const vatMultiplier = isVatIncluded ? 1 : 1.07
+  const vatRate = isVatIncluded ? 0 : 0.07
+
+  const totalAmountWithVat = totalAmount * vatMultiplier
+  const depositWithVat = depositAmount * vatMultiplier
 
   // ยอดคงเหลือ
   const remainingAmount = Math.max(0, totalAmountWithVat - depositWithVat)
@@ -308,17 +312,19 @@ export default function PaymentClient({
                 </span>
               </div>
 
-              <div className="flex justify-between items-center text-gray-500 text-sm">
-                <span>ภาษี Vat 7%</span>
-                <span className="font-medium text-gray-800 tabular-nums">
-                  ฿ {numeral(totalAmount * 0.07).format("0,0.00")}
-                </span>
-              </div>
+              {!isVatIncluded && (
+                <div className="flex justify-between items-center text-gray-500 text-sm">
+                  <span>ภาษี Vat 7%</span>
+                  <span className="font-medium text-gray-800 tabular-nums">
+                    ฿ {numeral(totalAmount * vatRate).format("0,0.00")}
+                  </span>
+                </div>
+              )}
 
               <div className="flex justify-between items-center pt-2.5 mt-2 border-t border-gray-100">
                 <span className="font-bold text-gray-900 text-base">ยอดรวมทั้งสิ้น</span>
                 <span className="font-extrabold text-xl text-gray-900 tabular-nums">
-                  ฿ {numeral(totalAmount * 1.07).format("0,0.00")}
+                  ฿ {numeral(totalAmountWithVat).format("0,0.00")}
                 </span>
               </div>
             </div>
@@ -347,7 +353,7 @@ export default function PaymentClient({
                   <span className="text-gray-900 font-medium text-sm">ชำระมัดจำ</span>
                 </div>
                 <span className="text-gray-900 font-medium text-sm">
-                  ฿ {numeral(depositAmount * 1.07).format("0,0.00")}
+                  ฿ {numeral(depositWithVat).format("0,0.00")}
                 </span>
               </label>
             )}
@@ -367,7 +373,7 @@ export default function PaymentClient({
               </div>
               <span className="text-gray-900 font-medium text-sm">
                 ฿{" "}
-                {numeral(isDepositAlreadyPaid ? remainingAmount : totalAmount * 1.07).format(
+                {numeral(isDepositAlreadyPaid ? remainingAmount : totalAmountWithVat).format(
                   "0,0.00",
                 )}
               </span>

@@ -299,6 +299,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                   adultPrice={course.price}
                   childPrice={course.child_price}
                   discount={course.discount || 0}
+                  vat={course.vat}
                 />
               </div>
             </div>
@@ -310,6 +311,7 @@ export default async function CourseDetailsPage({ params }: CourseDetailsPagePro
                 adultPrice={course.price}
                 childPrice={course.child_price}
                 discount={course.discount || 0}
+                vat={course.vat}
               />
               <PackageInclusions inclusions={inclusions} />
               <PackageExclusions exclusions={exclusions} />

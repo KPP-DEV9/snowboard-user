@@ -21,23 +21,11 @@ export type BookingStatus =
   | "CANCELLED"
 
 export type ContactCategory = "contact" | "social"
-export type ContactName =
-  | "phone"
-  | "line"
-  | "email"
-  | "facebook"
-  | "instagram"
-  | "tiktok"
+export type ContactName = "phone" | "line" | "email" | "facebook" | "instagram" | "tiktok"
 
 export type ProgramType = "TRIP" | "CLASS" | "PRIVATE_COACHING" | "PARK_AND_FREESTYLE"
 export type CourseTypes = "SKI" | "SNOWBOARD"
-export type CourseLevel =
-  | "Beginner"
-  | "Level 1"
-  | "Level 2"
-  | "Level 3"
-  | "Level 4"
-  | "Level 5"
+export type CourseLevel = "Beginner" | "Level 1" | "Level 2" | "Level 3" | "Level 4" | "Level 5"
 
 export type EnrollmentStatus =
   | "pending_payment"
@@ -54,8 +42,7 @@ export const CategoryStatus = {
   TRANSPORT: "TRANSPORT",
 } as const
 
-export type CategoryStatus =
-  (typeof CategoryStatus)[keyof typeof CategoryStatus]
+export type CategoryStatus = (typeof CategoryStatus)[keyof typeof CategoryStatus]
 
 export const PaymentMethod = [
   {
@@ -80,12 +67,7 @@ export const PaymentMethod = [
   },
 ] as const
 
-export type PaymentMethod =
-  | "QR"
-  | "CREDIT_CARD"
-  | "CASH"
-  | "BANK_TRANSFER"
-  | "MANUAL_SLIP"
+export type PaymentMethod = "QR" | "CREDIT_CARD" | "CASH" | "BANK_TRANSFER" | "MANUAL_SLIP"
 
 export const PaymentTransactionsStatus = {
   PendingReview: "pending_review",
@@ -118,8 +100,7 @@ export const UploadImageFolders = {
   Course: "course_sv",
 } as const
 
-export type UploadImageFolders =
-  (typeof UploadImageFolders)[keyof typeof UploadImageFolders]
+export type UploadImageFolders = (typeof UploadImageFolders)[keyof typeof UploadImageFolders]
 export type UploadVideoFolders = "video_sv"
 
 // ==========================================
@@ -358,6 +339,8 @@ export interface Contact {
 // models/course.go
 // ==========================================
 
+export type VatType = "EXCLUDE" | "INCLUDE"
+
 export interface Course {
   id: string
   title: string
@@ -366,6 +349,7 @@ export interface Course {
   max_students?: number
   price: number
   deposit?: number
+  vat: VatType
   course_cover?: string
   images_cover?: string[]
   banner_cover?: string[]
@@ -1114,16 +1098,9 @@ export type Token = string
 
 export type PaymentMethodType = PaymentMethod
 
-export type PaymentStatus =
-  | "PENDING_PAYMENT"
-  | "DEPOSIT_PAID"
-  | "PAID"
-  | "CANCELLED"
+export type PaymentStatus = "PENDING_PAYMENT" | "DEPOSIT_PAID" | "PAID" | "CANCELLED"
 
-export const PaymentTransactionsStatusLabels: Record<
-  PaymentTransactionsStatus,
-  string
-> = {
+export const PaymentTransactionsStatusLabels: Record<PaymentTransactionsStatus, string> = {
   [PaymentTransactionsStatus.PendingReview]: "กำลังรอการตรวจสอบ",
   [PaymentTransactionsStatus.InvalidSlip]: "สลิปไม่ถูกต้อง หรือใช้งานไม่ได้",
   [PaymentTransactionsStatus.WrongAmount]: "ยอดเงินโอนไม่ตรงกับยอดที่ต้องชำระ",
@@ -1570,4 +1547,3 @@ export interface Rating {
   created_at: string
   updated_at: string
 }
-

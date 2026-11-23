@@ -107,13 +107,17 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       ? courseBasePrice * adultCount + courseChildPrice * childCount
       : Number(course?.price) || Number(enrollment.course_amount) || 0
 
+  const isVatIncluded = course?.vat === "INCLUDE"
+  const vatMultiplier = isVatIncluded ? 1 : 1.07
+  const vatRate = isVatIncluded ? 0 : 0.07
+
   const rawCoursePrice = courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
   const rawTotal = rawCoursePrice + extrasSubtotal
-  const totalAmount = rawTotal * 1.07
-  const vatAmount = rawTotal * 0.07
+  const totalAmount = rawTotal * vatMultiplier
+  const vatAmount = rawTotal * vatRate
   const displayTotal = totalAmount
   const depositAmount = enrollment.deposit_amount
-    ? Number(enrollment.deposit_amount) * 1.07
+    ? Number(enrollment.deposit_amount) * vatMultiplier
     : totalAmount * 0.3
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
@@ -127,7 +131,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       tx.status === PaymentTransactionsStatus.GatewaySuccess,
   )
   const verifiedTotal = verifiedTransactions.reduce(
-    (sum, tx) => sum + (Number(tx.amount) || 0) * 1.07,
+    (sum, tx) => sum + (Number(tx.amount) || 0) * vatMultiplier,
     0,
   )
 
@@ -354,7 +358,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                         ) : null}
                       </div>
                       <span className="text-gray-900 font-bold">
-                        ฿ {numeral(displayTotal / 1.07).format("0,0.00")}
+                        ฿ {numeral(displayTotal / vatMultiplier).format("0,0.00")}
                       </span>
                     </div>
                   ) : null}
@@ -384,7 +388,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                           </span>
                         </div>
                         <span className="text-gray-900 font-bold">
-                          ฿ {numeral(Number(tx.amount) * 1.07).format("0,0.00")}
+                          ฿ {numeral(Number(tx.amount) * vatMultiplier).format("0,0.00")}
                         </span>
                       </div>
                     )
@@ -415,7 +419,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                     </span>
                   </div>
                   <span className="text-gray-900 font-bold">
-                    ฿ {numeral(totalAmount / 1.07).format("0,0.00")}
+                    ฿ {numeral(totalAmount / vatMultiplier).format("0,0.00")}
                   </span>
                 </div>
               ) : isCancelled ? (
@@ -427,7 +431,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                     </span>
                   </div>
                   <span className="text-gray-900 font-bold">
-                    ฿ {numeral(totalAmount / 1.07).format("0,0.00")}
+                    ฿ {numeral(totalAmount / vatMultiplier).format("0,0.00")}
                   </span>
                 </div>
               ) : isDepositPaid ? (
@@ -482,12 +486,14 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             </div>
 
             {/* VAT Row */}
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span>
-              <span className="font-bold text-gray-900">
-                ฿ {numeral(vatAmount).format("0,0.00")}
-              </span>
-            </div>
+            {!isVatIncluded && (
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span>
+                <span className="font-bold text-gray-900">
+                  ฿ {numeral(vatAmount).format("0,0.00")}
+                </span>
+              </div>
+            )}
 
             <div className="flex justify-between items-center pt-1">
               <span className="font-bold text-gray-900 text-base">ราคารวมทั้งหมด</span>

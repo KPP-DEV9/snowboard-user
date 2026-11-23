@@ -34,6 +34,7 @@ export default function BookingButton({
   const selectedRound = course.rounds?.find((r) => r.id === roundId)
 
   const totalPrice = adults * adultPrice + children * childPrice
+  const isVatIncluded = course?.vat === "INCLUDE"
 
   const handleConfirm = () => {
     if (course?.id) {
@@ -131,12 +132,14 @@ export default function BookingButton({
                 </div>
               </div>
 
-              <div className="flex items-center justify-between py-2">
-                <div className="font-bold text-black text-[17px]">ราคารวม(vat)</div>
-                <div className="font-bold text-[#448651] text-[22px]">
-                  ฿ {numeral(totalPrice * Vat).format("0,0.00")}
+              {!isVatIncluded && (
+                <div className="flex items-center justify-between py-2">
+                  <div className="font-bold text-black text-[17px]">ราคารวม(vat)</div>
+                  <div className="font-bold text-[#448651] text-[22px]">
+                    ฿ {numeral(totalPrice * Vat).format("0,0.00")}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Confirm Button */}
               <button

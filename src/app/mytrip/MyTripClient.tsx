@@ -240,13 +240,16 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                   : Number(enrollment.req_total) ||
                     (Number(enrollment.option_amount) || 0) + (Number(enrollment.asset_amount) || 0)
 
+              const isVatIncluded = course?.vat === "INCLUDE"
+              const vatMultiplier = isVatIncluded ? 1 : 1.07
+
               const rawCoursePrice =
                 courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
               const rawTotal = rawCoursePrice + extrasSubtotal
-              const totalAmount = rawTotal * 1.07
+              const totalAmount = rawTotal * vatMultiplier
               const displayTotal = totalAmount
               const depositAmount = enrollment.deposit_amount
-                ? Number(enrollment.deposit_amount) * 1.07
+                ? Number(enrollment.deposit_amount) * vatMultiplier
                 : totalAmount * 0.3
 
               const transactions = enrollment.payment_transactions || []
@@ -257,7 +260,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                   tx.status === PaymentTransactionsStatus.GatewaySuccess,
               )
               const verifiedTotal = verifiedTransactions.reduce(
-                (sum, tx) => sum + (Number(tx.amount) || 0) * 1.07,
+                (sum, tx) => sum + (Number(tx.amount) || 0) * vatMultiplier,
                 0,
               )
 
@@ -455,7 +458,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                                 </span>
                               </div>
                               <span className="text-gray-900 font-bold">
-                                ฿ {numeral(Number(tx.amount) * 1.07).format("0,0.00")}
+                                ฿ {numeral(Number(tx.amount) * vatMultiplier).format("0,0.00")}
                               </span>
                             </div>
                           )
