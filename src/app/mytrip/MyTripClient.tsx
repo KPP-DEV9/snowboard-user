@@ -266,16 +266,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 )
               }
 
-              const verifiedTransactions = transactions.filter(
-                (tx) =>
-                  tx.status === PaymentTransactionsStatus.Verified ||
-                  tx.status === PaymentTransactionsStatus.GatewaySuccess,
-              )
-              const verifiedTotal = verifiedTransactions.reduce(
-                (sum, tx) => sum + (Number(tx.amount) || 0) * (isDepositTx(tx) ? 1 : vatMultiplier),
-                0,
-              )
-
               const statusLower = (enrollment.status || "").toLowerCase()
               const isPaid =
                 statusLower === "paid" ||
@@ -299,7 +289,6 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                 s === PaymentTransactionsStatus.GatewaySuccess ||
                 s === PaymentTransactionsStatus.PendingReview
 
-
               // มีรายการมัดจำ
               const hasDepositPaid =
                 statusLower === "deposit_paid" ||
@@ -308,6 +297,26 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                   transactions.some((tx) => isDepositTx(tx) && isSubmittedOrPaid(tx.status)))
 
               const isDepositPaid = hasDepositPaid
+
+              const getTxDisplayAmount = (tx: (typeof transactions)[0], isDeposit: boolean) => {
+                if (isDeposit) {
+                  return Number(tx.amount) || depositAmount
+                }
+                if (isVatExclude && isDepositPaid) {
+                  return Math.max(0, displayTotal - depositAmount)
+                }
+                return (Number(tx.amount) || 0) * vatMultiplier
+              }
+
+              const verifiedTransactions = transactions.filter(
+                (tx) =>
+                  tx.status === PaymentTransactionsStatus.Verified ||
+                  tx.status === PaymentTransactionsStatus.GatewaySuccess,
+              )
+              const verifiedTotal = verifiedTransactions.reduce(
+                (sum, tx) => sum + getTxDisplayAmount(tx, isDepositTx(tx)),
+                0,
+              )
 
               // มีรายการชำระยอดคงเหลือ
               const hasRemainingPaid =
@@ -444,6 +453,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                             tx.name,
                             tx.enrollment_status,
                           )
+                          const isDeposit = isDepositTx(tx) || badge.label === "มัดจำแล้ว"
                           return (
                             <div
                               key={tx.id || `${tx.name}-${idx}`}
@@ -464,13 +474,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                                 </span>
                               </div>
                               <span className="text-gray-900 font-bold">
-                                ฿{" "}
-                                {numeral(
-                                  Number(tx.amount) *
-                                    (isDepositTx(tx) || badge.label === "มัดจำแล้ว"
-                                      ? 1
-                                      : vatMultiplier),
-                                ).format("0,0.00")}
+                                ฿ {numeral(getTxDisplayAmount(tx, isDeposit)).format("0,0.00")}
                               </span>
                             </div>
                           )
