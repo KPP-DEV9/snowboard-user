@@ -137,9 +137,10 @@ export default function PaymentClient({
       ? enrollment.deposit_amount
       : totalAmount * 0.3
 
-  const isVatIncluded = course?.vat === "INCLUDE"
-  const vatMultiplier = isVatIncluded ? 1 : 1.07
-  const vatRate = isVatIncluded ? 0 : 0.07
+  const isVatExclude = course?.vat === "EXCLUDE"
+  const isVatInclude = course?.vat === "INCLUDE"
+  const vatMultiplier = isVatExclude ? 1.07 : 1
+  const vatRate = isVatExclude ? 0.07 : 0
 
   const totalAmountWithVat = totalAmount * vatMultiplier
   const depositWithVat = depositAmount * vatMultiplier
@@ -313,7 +314,7 @@ export default function PaymentClient({
                 </span>
               </div>
 
-              {!isVatIncluded && (
+              {isVatExclude && (
                 <div className="flex justify-between items-center text-gray-500 text-sm">
                   <span>ภาษี Vat 7%</span>
                   <span className="font-medium text-gray-800 tabular-nums">
@@ -323,7 +324,9 @@ export default function PaymentClient({
               )}
 
               <div className="flex justify-between items-center pt-2.5 mt-2 border-t border-gray-100">
-                <span className="font-bold text-gray-900 text-base">ยอดรวมทั้งสิ้น</span>
+                <span className="font-bold text-gray-900 text-base">
+                  {isVatInclude ? "ยอดรวมทั้งสิ้น (รวม vat7%)" : "ยอดรวมทั้งสิ้น"}
+                </span>
                 <span className="font-extrabold text-xl text-gray-900 tabular-nums">
                   ฿ {numeral(totalAmountWithVat).format("0,0.00")}
                 </span>

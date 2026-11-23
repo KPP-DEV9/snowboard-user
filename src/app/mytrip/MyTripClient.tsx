@@ -240,8 +240,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                   : Number(enrollment.req_total) ||
                     (Number(enrollment.option_amount) || 0) + (Number(enrollment.asset_amount) || 0)
 
-              const isVatIncluded = course?.vat === "INCLUDE"
-              const vatMultiplier = isVatIncluded ? 1 : 1.07
+              const isVatExclude = course?.vat === "EXCLUDE"
+              const isVatInclude = course?.vat === "INCLUDE"
+              const vatMultiplier = isVatExclude ? 1.07 : 1
 
               const rawCoursePrice =
                 courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
@@ -413,7 +414,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                         {/* Summary / Total Row (when multiple transactions or deposit paid with balance) */}
                         {transactions.length > 1 || (isDepositPaid && remainingAmount > 0) ? (
                           <div className="flex justify-between items-center">
-                            <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                            <span className="text-gray-700 font-medium">
+                              {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                            </span>
                             <div className="flex items-center gap-2">
                               <span className="text-gray-900 font-bold">
                                 ฿ {numeral(displayTotal).format("0,0.00")}
@@ -498,7 +501,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     ) : /* Fallback for enrollments without payment_transactions */
                     isPaid ? (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                        <span className="text-gray-700 font-medium">
+                          {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                        </span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
@@ -510,7 +515,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                       </div>
                     ) : isCancelled ? (
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                        <span className="text-gray-700 font-medium">
+                          {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                        </span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
@@ -523,7 +530,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     ) : isDepositPaid ? (
                       <>
                         <div className="flex justify-between items-center">
-                          <span className="text-gray-700 font-medium">ยอดทั้งหมด</span>
+                          <span className="text-gray-700 font-medium">
+                            {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                          </span>
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}
                           </span>

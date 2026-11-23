@@ -339,7 +339,7 @@ export interface Contact {
 // models/course.go
 // ==========================================
 
-export type VatType = "EXCLUDE" | "INCLUDE"
+export type VatType = "EXCLUDE" | "INCLUDE" | "NONE"
 
 export interface Course {
   id: string

@@ -107,9 +107,10 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       ? courseBasePrice * adultCount + courseChildPrice * childCount
       : Number(course?.price) || Number(enrollment.course_amount) || 0
 
-  const isVatIncluded = course?.vat === "INCLUDE"
-  const vatMultiplier = isVatIncluded ? 1 : 1.07
-  const vatRate = isVatIncluded ? 0 : 0.07
+  const isVatExclude = course?.vat === "EXCLUDE"
+  const isVatInclude = course?.vat === "INCLUDE"
+  const vatMultiplier = isVatExclude ? 1.07 : 1
+  const vatRate = isVatExclude ? 0.07 : 0
 
   const rawCoursePrice = courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
   const rawTotal = rawCoursePrice + extrasSubtotal
@@ -487,7 +488,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             </div>
 
             {/* VAT Row */}
-            {!isVatIncluded && (
+            {isVatExclude && (
               <div className="flex justify-between text-sm text-gray-600">
                 <span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span>
                 <span className="font-bold text-gray-900">
@@ -497,7 +498,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             )}
 
             <div className="flex justify-between items-center pt-1">
-              <span className="font-bold text-gray-900 text-base">ราคารวมทั้งหมด</span>
+              <span className="font-bold text-gray-900 text-base">
+                {isVatInclude ? "ราคารวมทั้งหมด (รวม vat7%)" : "ราคารวมทั้งหมด"}
+              </span>
               <span className="font-bold text-[#448651] text-2xl">
                 ฿ {numeral(Number(displayTotal)).format("0,0.00")}
               </span>
