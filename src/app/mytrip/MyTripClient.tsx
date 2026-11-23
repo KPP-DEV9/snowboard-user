@@ -417,7 +417,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                         {transactions.length > 1 || (isDepositPaid && remainingAmount > 0) ? (
                           <div className="flex justify-between items-center">
                             <span className="text-gray-700 font-medium">
-                              {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                              {isVatExclude || isVatInclude ? "ราคารวม (vat 7%)" : "ราคา"}
                             </span>
                             <div className="flex items-center gap-2">
                               <span className="text-gray-900 font-bold">
@@ -504,7 +504,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     isPaid ? (
                       <div className="flex justify-between items-center">
                         <span className="text-gray-700 font-medium">
-                          {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                          {isVatExclude || isVatInclude ? "ราคารวม (vat 7%)" : "ราคา"}
                         </span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
@@ -518,7 +518,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     ) : isCancelled ? (
                       <div className="flex justify-between items-center">
                         <span className="text-gray-700 font-medium">
-                          {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                          {isVatExclude || isVatInclude ? "ราคารวม (vat 7%)" : "ราคา"}
                         </span>
                         <div className="flex items-center gap-2">
                           <span className="text-gray-900 font-bold">
@@ -533,7 +533,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                       <>
                         <div className="flex justify-between items-center">
                           <span className="text-gray-700 font-medium">
-                            {isVatInclude ? "ยอดทั้งหมด (รวม vat7%)" : "ยอดทั้งหมด"}
+                            {isVatExclude || isVatInclude ? "ราคารวม (vat 7%)" : "ราคา"}
                           </span>
                           <span className="text-gray-900 font-bold">
                             ฿ {numeral(totalAmount).format("0,0.00")}

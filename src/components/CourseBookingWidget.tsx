@@ -122,15 +122,24 @@ export default function CourseBookingWidget({
       {/* Total Section */}
       <div className="flex flex-col gap-1.5 pt-3 border-t border-white/20">
         <div className="flex items-center justify-between text-xs sm:text-sm text-white">
-          <span>{isVatInclude ? "ราคา (รวม vat7%)" : "ราคา"}</span>
+          <span>ราคา</span>
           <span className="font-bold">฿ {numeral(totalPrice).format("0,0")}</span>
         </div>
 
         {isVatExclude && (
           <div className="flex items-center justify-between text-xs sm:text-sm text-white">
-            <span className="font-bold">ราคา (รวม vat7%)</span>
+            <span>vat 7%</span>
+            <span className="font-bold">
+              ฿ {numeral(totalPrice * 0.07).format("0,0.00")}
+            </span>
+          </div>
+        )}
+
+        {(isVatExclude || isVatInclude) && (
+          <div className="flex items-center justify-between text-xs sm:text-sm text-white">
+            <span className="font-bold">ราคารวม (vat 7%)</span>
             <span className="font-extrabold text-sm sm:text-base">
-              ฿ {numeral(totalPrice * Vat).format("0,0.00")}
+              ฿ {numeral(isVatExclude ? totalPrice * 1.07 : totalPrice).format("0,0.00")}
             </span>
           </div>
         )}

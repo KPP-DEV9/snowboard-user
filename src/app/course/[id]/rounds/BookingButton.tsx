@@ -127,9 +127,7 @@ export default function BookingButton({
 
               {/* Total Price */}
               <div className="flex items-center justify-between py-2 border-t border-gray-100 pt-6">
-                <div className="font-bold text-black text-[17px]">
-                  {isVatInclude ? "ราคารวม (รวม vat7%)" : "ราคารวม"}
-                </div>
+                <div className="font-bold text-black text-[17px]">ราคา</div>
                 <div className="font-bold text-[#448651] text-[22px]">
                   ฿ {totalPrice.toLocaleString()}
                 </div>
@@ -137,9 +135,18 @@ export default function BookingButton({
 
               {isVatExclude && (
                 <div className="flex items-center justify-between py-2">
-                  <div className="font-bold text-black text-[17px]">ราคารวม(vat)</div>
+                  <div className="font-bold text-black text-[17px]">vat 7%</div>
                   <div className="font-bold text-[#448651] text-[22px]">
-                    ฿ {numeral(totalPrice * Vat).format("0,0.00")}
+                    ฿ {numeral(totalPrice * 0.07).format("0,0.00")}
+                  </div>
+                </div>
+              )}
+
+              {(isVatExclude || isVatInclude) && (
+                <div className="flex items-center justify-between py-2">
+                  <div className="font-bold text-black text-[17px]">ราคารวม (vat 7%)</div>
+                  <div className="font-bold text-[#448651] text-[22px]">
+                    ฿ {numeral(isVatExclude ? totalPrice * 1.07 : totalPrice).format("0,0.00")}
                   </div>
                 </div>
               )}

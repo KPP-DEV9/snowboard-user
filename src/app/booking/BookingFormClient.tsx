@@ -469,13 +469,19 @@ export default function BookingFormClient({
           </div>
         </div>
         <div className="flex justify-between font-bold text-[#448651] text-lg border-t border-gray-100 pt-4">
-          <span>{isVatInclude ? "ราคารวม (รวม vat7%)" : "ราคารวม"}</span>
+          <span>ราคา</span>
           <span>฿ {baseTotal.toLocaleString()}</span>
         </div>
         {isVatExclude && (
-          <div className="flex justify-between font-bold text-[#448651] text-lg pt-2">
-            <span>ราคารวม(vat)</span>
-            <span>฿ {numeral(baseTotal * Vat).format("0,0.00")}</span>
+          <div className="flex justify-between font-bold text-[#448651] pt-2">
+            <span>vat 7%</span>
+            <span>฿ {numeral(baseTotal * 0.07).format("0,0.00")}</span>
+          </div>
+        )}
+        {(isVatExclude || isVatInclude) && (
+          <div className="flex justify-between font-bold text-[#448651] pt-2">
+            <span>ราคารวม (vat 7%)</span>
+            <span>฿ {numeral(isVatExclude ? baseTotal * 1.07 : baseTotal).format("0,0.00")}</span>
           </div>
         )}
       </div>

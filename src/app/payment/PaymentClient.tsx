@@ -310,7 +310,7 @@ export default function PaymentClient({
             {/* Divider */}
             <div className="border-t border-dashed border-gray-200 pt-3 mt-3 space-y-2">
               <div className="flex justify-between items-center text-gray-500 text-sm">
-                <span>รายการทั้งหมด</span>
+                <span>ราคา</span>
                 <span className="font-medium text-gray-800 tabular-nums">
                   ฿ {numeral(subtotal).format("0,0.00")}
                 </span>
@@ -318,21 +318,21 @@ export default function PaymentClient({
 
               {isVatExclude && (
                 <div className="flex justify-between items-center text-gray-500 text-sm">
-                  <span>ภาษี Vat 7%</span>
+                  <span>vat 7%</span>
                   <span className="font-medium text-gray-800 tabular-nums">
-                    ฿ {numeral(totalAmount * vatRate).format("0,0.00")}
+                    ฿ {numeral(totalAmount * 0.07).format("0,0.00")}
                   </span>
                 </div>
               )}
 
-              <div className="flex justify-between items-center pt-2.5 mt-2 border-t border-gray-100">
-                <span className="font-bold text-gray-900 text-base">
-                  {isVatInclude ? "ยอดรวมทั้งสิ้น (รวม vat7%)" : "ยอดรวมทั้งสิ้น"}
-                </span>
-                <span className="font-extrabold text-xl text-gray-900 tabular-nums">
-                  ฿ {numeral(totalAmountWithVat).format("0,0.00")}
-                </span>
-              </div>
+              {(isVatExclude || isVatInclude) && (
+                <div className="flex justify-between items-center pt-2.5 mt-2 border-t border-gray-100">
+                  <span className="font-bold text-gray-900 text-base">ราคารวม (vat 7%)</span>
+                  <span className="font-extrabold text-xl text-gray-900 tabular-nums">
+                    ฿ {numeral(totalAmountWithVat).format("0,0.00")}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>

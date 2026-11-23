@@ -415,7 +415,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               isPaid ? (
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-700 font-medium">ราคารวม(ทริป/อุปกรณ์/บริการ)</span>
+                    <span className="text-gray-700 font-medium">ราคา</span>
                     {/* <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                       ชำระแล้ว
                     </span> */}
@@ -427,7 +427,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               ) : isCancelled ? (
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <span className="text-gray-700 font-medium">ราคารวม(ทริป/อุปกรณ์/บริการ)</span>
+                    <span className="text-gray-700 font-medium">ราคา</span>
                     <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                       ยกเลิก
                     </span>
@@ -490,21 +490,21 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
             {/* VAT Row */}
             {isVatExclude && (
               <div className="flex justify-between text-sm text-gray-600">
-                <span>ภาษีมูลค่าเพิ่ม (VAT 7%)</span>
+                <span>vat 7%</span>
                 <span className="font-bold text-gray-900">
                   ฿ {numeral(vatAmount).format("0,0.00")}
                 </span>
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-1">
-              <span className="font-bold text-gray-900 text-base">
-                {isVatInclude ? "ราคารวมทั้งหมด (รวม vat7%)" : "ราคารวมทั้งหมด"}
-              </span>
-              <span className="font-bold text-[#448651] text-2xl">
-                ฿ {numeral(Number(displayTotal)).format("0,0.00")}
-              </span>
-            </div>
+            {(isVatExclude || isVatInclude) && (
+              <div className="flex justify-between items-center pt-1">
+                <span className="font-bold text-gray-900 text-base">ราคารวม (vat 7%)</span>
+                <span className="font-bold text-[#448651] text-2xl">
+                  ฿ {numeral(Number(displayTotal)).format("0,0.00")}
+                </span>
+              </div>
+            )}
 
             {/* Pending / Remaining Payment Action */}
             {canPay && (
