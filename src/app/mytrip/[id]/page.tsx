@@ -126,13 +126,24 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
 
   const transactions = enrollment.payment_transactions || []
 
+  const isDepositTx = (tx: (typeof transactions)[0]) => {
+    const name = (tx.name || "").toLowerCase()
+    const enrollmentStatus = (tx.enrollment_status || "").toLowerCase()
+    return (
+      name.includes("มัดจำ") ||
+      name.includes("deposit") ||
+      enrollmentStatus === "deposit_paid" ||
+      enrollmentStatus.includes("มัดจำ")
+    )
+  }
+
   const verifiedTransactions = transactions.filter(
     (tx) =>
       tx.status === PaymentTransactionsStatus.Verified ||
       tx.status === PaymentTransactionsStatus.GatewaySuccess,
   )
   const verifiedTotal = verifiedTransactions.reduce(
-    (sum, tx) => sum + (Number(tx.amount) || 0) * vatMultiplier,
+    (sum, tx) => sum + (Number(tx.amount) || 0) * (isDepositTx(tx) ? 1 : vatMultiplier),
     0,
   )
 
@@ -159,12 +170,6 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     s === PaymentTransactionsStatus.GatewaySuccess ||
     s === PaymentTransactionsStatus.PendingReview
 
-  const isDepositTx = (tx: (typeof transactions)[0]) => {
-    const name = (tx.name || "").toLowerCase()
-    return (
-      name.includes("มัดจำ") || name.includes("deposit") || tx.enrollment_status === "deposit_paid"
-    )
-  }
 
   // มีรายการมัดจำ
   const hasDepositPaid =
@@ -390,7 +395,13 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                           </span>
                         </div>
                         <span className="text-gray-900 font-bold">
-                          ฿ {numeral(Number(tx.amount) * vatMultiplier).format("0,0.00")}
+                          ฿{" "}
+                          {numeral(
+                            Number(tx.amount) *
+                              (isDepositTx(tx) || badge.label === "มัดจำแล้ว"
+                                ? 1
+                                : vatMultiplier),
+                          ).format("0,0.00")}
                         </span>
                       </div>
                     )
