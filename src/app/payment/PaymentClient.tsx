@@ -99,8 +99,10 @@ export default function PaymentClient({
     enrollment?.status?.toLowerCase()?.includes("มัดจำ"),
   )
 
+  const hasDepositOption = !isDepositAlreadyPaid && Number(course?.down_price || 0) > 0
+
   const [paymentType, setPaymentType] = useState<"deposit" | "full">(
-    isDepositAlreadyPaid ? "full" : "deposit",
+    hasDepositOption ? "deposit" : "full",
   )
 
   // Calculate prices
@@ -131,11 +133,11 @@ export default function PaymentClient({
   // ยอดทั้งหมด (Grand Total)
   const totalAmount = subtotal
 
-  // มัดจำ ดึงมาจาก Course.down_price (หรือ fallback ยอดเดิม/30%)
+  // มัดจำ ดึงมาจาก Course.down_price
   const depositAmount =
     enrollment?.deposit_amount && enrollment.deposit_amount > 0
       ? enrollment.deposit_amount
-      : Number(course?.down_price) || totalAmount * 0.3
+      : Number(course?.down_price || 0)
 
   const isVatExclude = course?.vat === "EXCLUDE"
   const isVatInclude = course?.vat === "INCLUDE"
@@ -150,7 +152,7 @@ export default function PaymentClient({
 
   const currentPayAmount = isDepositAlreadyPaid
     ? remainingAmount
-    : paymentType === "deposit"
+    : hasDepositOption && paymentType === "deposit"
       ? depositWithVat
       : totalAmountWithVat
 
@@ -180,7 +182,7 @@ export default function PaymentClient({
       }
 
       const uploadedSlipUrl = uploadRes.data.url
-      const isDeposit = paymentType === "deposit" ? true : false
+      const isDeposit = hasDepositOption && paymentType === "deposit"
       const newStatus = isDeposit ? "deposit_paid" : "paid"
       const effectiveAdults = Number(enrollment?.adult_count || adultsCount || 1)
       const effectiveChildren = Number(enrollment?.child_count ?? childrenCount ?? 0)
@@ -342,8 +344,8 @@ export default function PaymentClient({
 
           {/* Radio Options List */}
           <div className="space-y-2.5">
-            {/* If deposit is NOT paid yet, show "ชำระมัดจำ" option */}
-            {!isDepositAlreadyPaid && (
+            {/* If deposit option is available and not already paid, show "ชำระมัดจำ" option */}
+            {hasDepositOption && (
               <label className="flex items-center justify-between cursor-pointer py-1">
                 <div className="flex items-center gap-3">
                   <input
