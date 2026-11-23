@@ -251,7 +251,9 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
               const displayTotal = totalAmount
               const depositAmount = enrollment.deposit_amount
                 ? Number(enrollment.deposit_amount) * vatMultiplier
-                : totalAmount * 0.3
+                : (Number(course?.down_price)
+                    ? Number(course?.down_price) * vatMultiplier
+                    : totalAmount * 0.3)
 
               const transactions = enrollment.payment_transactions || []
 

@@ -131,11 +131,11 @@ export default function PaymentClient({
   // ยอดทั้งหมด (Grand Total)
   const totalAmount = subtotal
 
-  // มัดจำ 30% ของยอดทั้งหมด
+  // มัดจำ ดึงมาจาก Course.down_price (หรือ fallback ยอดเดิม/30%)
   const depositAmount =
     enrollment?.deposit_amount && enrollment.deposit_amount > 0
       ? enrollment.deposit_amount
-      : totalAmount * 0.3
+      : Number(course?.down_price) || totalAmount * 0.3
 
   const isVatExclude = course?.vat === "EXCLUDE"
   const isVatInclude = course?.vat === "INCLUDE"
