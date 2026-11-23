@@ -23,6 +23,8 @@ import { CreateEnrollmentRequest, Enrollment } from "@/types/model"
 import { Toast } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
 import { format } from "date-fns"
+import numeral from "numeral"
+import { Vat } from "@/utils/Inv"
 import { getLocationName } from "@/constants/location"
 import { NATIONALITIES, normalizeNationality } from "@/constants/nationality"
 import { GLOVE_SIZE_OPTIONS, HAT_SIZE_OPTIONS, SHOE_SIZE_OPTIONS } from "@/constants/asset"
@@ -97,6 +99,9 @@ export default function BookingFormClient({
   const adultsTotal = adultsCount * adultPrice
   const childrenTotal = childrenCount * childPrice
   const baseTotal = adultsTotal + childrenTotal
+
+  const isVatExclude = course?.vat === "EXCLUDE"
+  const isVatInclude = course?.vat === "INCLUDE"
 
   // Extract hotels and rooms from course
   const hotelsList: HotelsMaster[] =
@@ -464,9 +469,15 @@ export default function BookingFormClient({
           </div>
         </div>
         <div className="flex justify-between font-bold text-[#448651] text-lg border-t border-gray-100 pt-4">
-          <span>ราคารวม</span>
+          <span>{isVatInclude ? "ราคารวม (รวม vat7%)" : "ราคารวม"}</span>
           <span>฿ {baseTotal.toLocaleString()}</span>
         </div>
+        {isVatExclude && (
+          <div className="flex justify-between font-bold text-[#448651] text-lg pt-2">
+            <span>ราคารวม(vat)</span>
+            <span>฿ {numeral(baseTotal * Vat).format("0,0.00")}</span>
+          </div>
+        )}
       </div>
 
       {/* Participant Accordions */}
