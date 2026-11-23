@@ -118,8 +118,8 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
   const vatAmount = rawTotal * vatRate
   const displayTotal = totalAmount
   const depositAmount = enrollment.deposit_amount
-    ? Number(enrollment.deposit_amount) * vatMultiplier
-    : (Number(course?.down_price) ? Number(course?.down_price) * vatMultiplier : totalAmount * 0.3)
+    ? Number(enrollment.deposit_amount)
+    : Number(course?.down_price || 0)
 
   const programType = course?.course_type?.toLowerCase()?.includes("ski") ? "Ski" : "Snowboard"
   const tagColor = programType === "Ski" ? "bg-[#F59E0B]" : "bg-[#304B65]"

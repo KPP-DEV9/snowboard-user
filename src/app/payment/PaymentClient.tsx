@@ -145,15 +145,14 @@ export default function PaymentClient({
   const vatRate = isVatExclude ? 0.07 : 0
 
   const totalAmountWithVat = totalAmount * vatMultiplier
-  const depositWithVat = depositAmount * vatMultiplier
 
-  // ยอดคงเหลือ
-  const remainingAmount = Math.max(0, totalAmountWithVat - depositWithVat)
+  // ยอดคงเหลือ (มัดจำไม่ต้องบวก vat)
+  const remainingAmount = Math.max(0, totalAmountWithVat - depositAmount)
 
   const currentPayAmount = isDepositAlreadyPaid
     ? remainingAmount
     : hasDepositOption && paymentType === "deposit"
-      ? depositWithVat
+      ? depositAmount
       : totalAmountWithVat
 
   const handleConfirmPayment = async () => {
@@ -359,7 +358,7 @@ export default function PaymentClient({
                   <span className="text-gray-900 font-medium text-sm">ชำระมัดจำ</span>
                 </div>
                 <span className="text-gray-900 font-medium text-sm">
-                  ฿ {numeral(depositWithVat).format("0,0.00")}
+                  ฿ {numeral(depositAmount).format("0,0.00")}
                 </span>
               </label>
             )}
