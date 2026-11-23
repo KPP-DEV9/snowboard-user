@@ -351,11 +351,12 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                           <span className="bg-[#FEE2E2] text-[#EF4444] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                             ยกเลิก
                           </span>
-                        ) : allPaid ? (
-                          <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
-                            ชำระแล้ว
-                          </span>
-                        ) : null}
+                        ) : // : allPaid ? (
+                        //   <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                        //     ชำระแล้ว
+                        //   </span>
+                        // )
+                        null}
                       </div>
                       <span className="text-gray-900 font-bold">
                         ฿ {numeral(displayTotal / vatMultiplier).format("0,0.00")}
@@ -414,9 +415,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <span className="text-gray-700 font-medium">ราคารวม(ทริป/อุปกรณ์/บริการ)</span>
-                    <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
+                    {/* <span className="bg-[#DCFCE7] text-[#16A34A] px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold">
                       ชำระแล้ว
-                    </span>
+                    </span> */}
                   </div>
                   <span className="text-gray-900 font-bold">
                     ฿ {numeral(totalAmount / vatMultiplier).format("0,0.00")}

@@ -134,7 +134,7 @@ export default function BookingButton({
 
               {!isVatIncluded && (
                 <div className="flex items-center justify-between py-2">
-                  <div className="font-bold text-black text-[17px]">ราคารวม(vat)</div>
+                  <div className="font-bold text-black text-[17px]">vat)</div>
                   <div className="font-bold text-[#448651] text-[22px]">
                     ฿ {numeral(totalPrice * Vat).format("0,0.00")}
                   </div>
