@@ -419,27 +419,6 @@ export default function HomeFilters({
                   </div>
                 </div>
 
-                {/* Sport (กีฬา) */}
-                <div>
-                  <label className="block text-sm font-bold text-gray-900 mb-2.5">กีฬา</label>
-                  <div className="flex flex-wrap gap-2">
-                    {sportOptions.map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setSport(opt.value)}
-                        className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-colors cursor-pointer ${
-                          sport === opt.value
-                            ? "bg-[#354359] text-white border-[#354359]"
-                            : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
-                        }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Trip Type (ประเภททริป) */}
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2.5">ประเภททริป</label>
