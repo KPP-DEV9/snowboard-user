@@ -6,7 +6,6 @@ import { X, CalendarDays, Clock } from "lucide-react"
 import { Course } from "@/types/model"
 import { RenderDate, RenderTimeSeven } from "@/lib/date"
 import numeral from "numeral"
-import { Vat } from "@/utils/Inv"
 
 interface BookingButtonProps {
   course: Course
@@ -34,8 +33,6 @@ export default function BookingButton({
   const selectedRound = course.rounds?.find((r) => r.id === roundId)
 
   const totalPrice = adults * adultPrice + children * childPrice
-  const isVatExclude = course?.vat === "EXCLUDE"
-  const isVatInclude = course?.vat === "INCLUDE"
 
   const handleConfirm = () => {
     if (course?.id) {
@@ -127,29 +124,11 @@ export default function BookingButton({
 
               {/* Total Price */}
               <div className="flex items-center justify-between py-2 border-t border-gray-100 pt-6">
-                <div className="font-bold text-black text-[17px]">ราคา</div>
+                <div className="font-bold text-black text-[17px]">ราคารวม</div>
                 <div className="font-bold text-[#448651] text-[22px]">
                   ฿ {totalPrice.toLocaleString()}
                 </div>
               </div>
-
-              {isVatExclude && (
-                <div className="flex items-center justify-between py-2">
-                  <div className="font-bold text-black text-[17px]">vat 7%</div>
-                  <div className="font-bold text-[#448651] text-[22px]">
-                    ฿ {numeral(totalPrice * 0.07).format("0,0.00")}
-                  </div>
-                </div>
-              )}
-
-              {(isVatExclude || isVatInclude) && (
-                <div className="flex items-center justify-between py-2">
-                  <div className="font-bold text-black text-[17px]">ราคารวม (vat 7%)</div>
-                  <div className="font-bold text-[#448651] text-[22px]">
-                    ฿ {numeral(isVatExclude ? totalPrice * 1.07 : totalPrice).format("0,0.00")}
-                  </div>
-                </div>
-              )}
 
               {/* Confirm Button */}
               <button

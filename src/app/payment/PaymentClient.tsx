@@ -139,21 +139,14 @@ export default function PaymentClient({
       ? enrollment.deposit_amount
       : Number(course?.down_price || 0)
 
-  const isVatExclude = course?.vat === "EXCLUDE"
-  const isVatInclude = course?.vat === "INCLUDE"
-  const vatMultiplier = isVatExclude ? 1.07 : 1
-  const vatRate = isVatExclude ? 0.07 : 0
-
-  const totalAmountWithVat = totalAmount * vatMultiplier
-
-  // ยอดคงเหลือ (มัดจำไม่ต้องบวก vat)
-  const remainingAmount = Math.max(0, totalAmountWithVat - depositAmount)
+  // ยอดคงเหลือ
+  const remainingAmount = Math.max(0, totalAmount - depositAmount)
 
   const currentPayAmount = isDepositAlreadyPaid
     ? remainingAmount
     : hasDepositOption && paymentType === "deposit"
       ? depositAmount
-      : totalAmountWithVat
+      : totalAmount
 
   const handleConfirmPayment = async () => {
     try {
@@ -308,30 +301,12 @@ export default function PaymentClient({
 
             {/* Divider */}
             <div className="border-t border-dashed border-gray-200 pt-3 mt-3 space-y-2">
-              <div className="flex justify-between items-center text-gray-500 text-sm">
-                <span>ราคา</span>
-                <span className="font-medium text-gray-800 tabular-nums">
-                  ฿ {numeral(subtotal).format("0,0.00")}
+              <div className="flex justify-between items-center pt-2.5 mt-2 border-t border-gray-100">
+                <span className="font-bold text-gray-900 text-base">ยอดรวมทั้งสิ้น</span>
+                <span className="font-extrabold text-xl text-gray-900 tabular-nums">
+                  ฿ {numeral(totalAmount).format("0,0.00")}
                 </span>
               </div>
-
-              {isVatExclude && (
-                <div className="flex justify-between items-center text-gray-500 text-sm">
-                  <span>vat 7%</span>
-                  <span className="font-medium text-gray-800 tabular-nums">
-                    ฿ {numeral(totalAmount * 0.07).format("0,0.00")}
-                  </span>
-                </div>
-              )}
-
-              {(isVatExclude || isVatInclude) && (
-                <div className="flex justify-between items-center pt-2.5 mt-2 border-t border-gray-100">
-                  <span className="font-bold text-gray-900 text-base">ราคารวม (vat 7%)</span>
-                  <span className="font-extrabold text-xl text-gray-900 tabular-nums">
-                    ฿ {numeral(totalAmountWithVat).format("0,0.00")}
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -377,10 +352,7 @@ export default function PaymentClient({
                 <span className="text-gray-900 font-medium text-sm">ชำระเต็มจำนวน</span>
               </div>
               <span className="text-gray-900 font-medium text-sm">
-                ฿{" "}
-                {numeral(isDepositAlreadyPaid ? remainingAmount : totalAmountWithVat).format(
-                  "0,0.00",
-                )}
+                ฿ {numeral(isDepositAlreadyPaid ? remainingAmount : totalAmount).format("0,0.00")}
               </span>
             </label>
           </div>

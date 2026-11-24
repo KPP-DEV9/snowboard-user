@@ -6,15 +6,11 @@ import { Minus, Plus } from "lucide-react"
 import Link from "next/link"
 import numeral from "numeral"
 
-import { Vat } from "@/utils/Inv"
-import { VatType } from "@/types/model"
-
 interface CourseBookingWidgetProps {
   courseId: string
   adultPrice: number
   childPrice: number
   discount: number
-  vat?: VatType
   className?: string
 }
 
@@ -23,15 +19,11 @@ export default function CourseBookingWidget({
   adultPrice,
   childPrice,
   discount,
-  vat,
   className,
 }: CourseBookingWidgetProps) {
   const [adults, setAdults] = useState(1)
   const [children, setChildren] = useState(0)
   const router = useRouter()
-
-  const isVatExclude = vat === "EXCLUDE"
-  const isVatInclude = vat === "INCLUDE"
 
   const finalAdultPrice = Math.max(0, adultPrice - discount)
   const finalChildPrice = Math.max(0, childPrice)
@@ -120,29 +112,9 @@ export default function CourseBookingWidget({
       )}
 
       {/* Total Section */}
-      <div className="flex flex-col gap-1.5 pt-3 border-t border-white/20">
-        <div className="flex items-center justify-between text-xs sm:text-sm text-white">
-          <span>ราคา</span>
-          <span className="font-bold">฿ {numeral(totalPrice).format("0,0")}</span>
-        </div>
-
-        {isVatExclude && (
-          <div className="flex items-center justify-between text-xs sm:text-sm text-white">
-            <span>vat 7%</span>
-            <span className="font-bold">
-              ฿ {numeral(totalPrice * 0.07).format("0,0.00")}
-            </span>
-          </div>
-        )}
-
-        {(isVatExclude || isVatInclude) && (
-          <div className="flex items-center justify-between text-xs sm:text-sm text-white">
-            <span className="font-bold">ราคารวม (vat 7%)</span>
-            <span className="font-extrabold text-sm sm:text-base">
-              ฿ {numeral(isVatExclude ? totalPrice * 1.07 : totalPrice).format("0,0.00")}
-            </span>
-          </div>
-        )}
+      <div className="flex items-center justify-between text-xs sm:text-sm text-white pt-3 border-t border-white/20">
+        <span>ราคา</span>
+        <span className="font-bold">฿ {numeral(totalPrice).format("0,0")}</span>
       </div>
 
       {/* Confirm Button */}

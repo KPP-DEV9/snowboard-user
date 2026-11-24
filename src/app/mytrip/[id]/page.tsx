@@ -107,15 +107,9 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       ? courseBasePrice * adultCount + courseChildPrice * childCount
       : Number(course?.price) || Number(enrollment.course_amount) || 0
 
-  const isVatExclude = course?.vat === "EXCLUDE"
-  const isVatInclude = course?.vat === "INCLUDE"
-  const vatMultiplier = isVatExclude ? 1.07 : 1
-  const vatRate = isVatExclude ? 0.07 : 0
-
   const rawCoursePrice = courseSubtotal > 0 ? courseSubtotal : Number(enrollment.total_amount) || 0
   const rawTotal = rawCoursePrice + extrasSubtotal
-  const totalAmount = rawTotal * vatMultiplier
-  const vatAmount = rawTotal * vatRate
+  const totalAmount = rawTotal
   const displayTotal = totalAmount
   const depositAmount = enrollment.deposit_amount
     ? Number(enrollment.deposit_amount)
@@ -173,10 +167,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     if (isDeposit) {
       return Number(tx.amount) || depositAmount
     }
-    if (isVatExclude && isDepositPaid) {
-      return Math.max(0, displayTotal - depositAmount)
-    }
-    return (Number(tx.amount) || 0) * vatMultiplier
+    return Number(tx.amount) || 0
   }
 
   const verifiedTransactions = transactions.filter(
@@ -374,7 +365,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                         null}
                       </div>
                       <span className="text-gray-900 font-bold">
-                        ฿ {numeral(displayTotal / vatMultiplier).format("0,0.00")}
+                        ฿ {numeral(displayTotal).format("0,0.00")}
                       </span>
                     </div>
                   ) : null}
@@ -436,7 +427,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                     </span> */}
                   </div>
                   <span className="text-gray-900 font-bold">
-                    ฿ {numeral(totalAmount / vatMultiplier).format("0,0.00")}
+                    ฿ {numeral(totalAmount).format("0,0.00")}
                   </span>
                 </div>
               ) : isCancelled ? (
@@ -448,7 +439,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                     </span>
                   </div>
                   <span className="text-gray-900 font-bold">
-                    ฿ {numeral(totalAmount / vatMultiplier).format("0,0.00")}
+                    ฿ {numeral(totalAmount).format("0,0.00")}
                   </span>
                 </div>
               ) : isDepositPaid ? (
@@ -502,26 +493,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               )}
             </div>
 
-            {/* VAT Row */}
-            {isVatExclude && (
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>vat 7%</span>
-                <span className="font-bold text-gray-900">
-                  ฿ {numeral(vatAmount).format("0,0.00")}
-                </span>
-              </div>
-            )}
-
-            {(isVatExclude || isVatInclude) && (
-              <div className="flex justify-between items-center pt-1">
-                <span className="font-bold text-gray-900 text-base">ราคารวม (vat 7%)</span>
-                <span className="font-bold text-[#448651] text-2xl">
-                  ฿ {numeral(Number(displayTotal)).format("0,0.00")}
-                </span>
-              </div>
-            )}
-
-            {/* Pending / Remaining Payment Action */}
+              {/* Pending / Remaining Payment Action */}
             {canPay && (
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <Link
