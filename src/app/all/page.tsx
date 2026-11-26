@@ -21,14 +21,7 @@ export default async function AllCoursePage({ searchParams }: AllCoursePageProps
 
   let courseType = cleanParams.courseType || cleanParams.type
 
-  if (
-    cleanParams.program_type === "CLASS" ||
-    cleanParams.program_type === "TRIP" ||
-    cleanParams.category === "trips" ||
-    cleanParams.category === "classes_training"
-  ) {
-    courseType = cleanParams.courseType || "SNOWBOARD"
-  } else if (cleanParams.category === "ski_resorts") {
+  if (cleanParams.category === "ski_resorts") {
     courseType = cleanParams.courseType || "SKI"
   }
   courseType = courseType || "all"

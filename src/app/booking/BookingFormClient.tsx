@@ -10,9 +10,10 @@ import {
   ChevronUp,
   AlertCircle,
   CircleCheck,
+  Clock,
 } from "lucide-react"
 import { Course, HotelsMaster, RoomMaster } from "@/types/model"
-import { RenderDate } from "@/lib/date"
+import { RenderDate, RenderTimeSeven } from "@/lib/date"
 import { useRouter, useSearchParams } from "next/navigation"
 import { User } from "@/types/model"
 
@@ -84,6 +85,7 @@ export default function BookingFormClient({
   const searchParams = useSearchParams()
   const enrollmentIdParam = searchParams.get("enrollment_id")
   const currentEnrollmentId = enrollment?.id || enrollmentIdParam || undefined
+  const selectedRound = course.rounds?.find((round) => round.id === roundId)
 
   const { provinceName, districtName } = getLocationName(
     course.province,
@@ -445,9 +447,23 @@ export default function BookingFormClient({
             {provinceName}
           </div>
           <div className="flex items-center gap-2">
-            <CalendarDays size={16} /> {RenderDate(course.start_date, "d MMMM yyyy")} -{" "}
-            {RenderDate(course.end_date, "d MMMM yyyy")}
+            <CalendarDays size={16} />
+            {selectedRound ? (
+              <>วันที่ {RenderDate(selectedRound.start_date, "d MMMM yyyy")}</>
+            ) : (
+              <>
+                {RenderDate(course.start_date, "d MMMM yyyy")} -{" "}
+                {RenderDate(course.end_date, "d MMMM yyyy")}
+              </>
+            )}
           </div>
+          {selectedRound && (
+            <div className="flex items-center gap-2">
+              <Clock size={16} />
+              เวลา {RenderTimeSeven(selectedRound.start_date, "HH:mm")} -{" "}
+              {RenderTimeSeven(selectedRound.end_date, "HH:mm")}
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <UserIcon size={16} /> {course.course_level || "Beginner"}
           </div>
