@@ -500,7 +500,6 @@ export default function BookingFormClient({
                   <ParticipantForm
                     data={p}
                     onChange={(field, val) => handleParticipantChange(p.id, field, val)}
-                    assets={assets}
                     options={options}
                   />
                 </div>
@@ -589,12 +588,10 @@ const HEIGHT_OPTIONS = Array.from({ length: 131 }, (_, i) => (i + 90).toString()
 function ParticipantForm({
   data,
   onChange,
-  assets,
   options,
 }: {
   data: ParticipantData
   onChange: (field: keyof ParticipantData, value: any) => void
-  assets: AssetMaster[]
   options: OptionMaster[]
 }) {
   return (
@@ -927,45 +924,6 @@ function ParticipantForm({
               ))}
             </select>
           </div>
-        </div>
-      </div>
-
-      {/* Equipment Rental */}
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <div className="flex justify-between items-center mb-2">
-          <h4 className="text-sm font-bold text-gray-900">เช่าอุปกรณ์</h4>
-        </div>
-        <p className="text-[11px] text-gray-400 mb-3">
-          (การเช่าอุปกรณ์สามารถจ่ายได้ในวันเดินทาง และค่าอุปกรณ์ที่ระบุเป็นต่อชิ้น
-          อาจมีการเปลี่ยนแปลง)
-        </p>
-        <div className="space-y-2">
-          {assets.map((asset) => (
-            <label key={asset.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={!!data.rentedAssets?.[asset.id]}
-                  onChange={(e) => {
-                    const newRented = { ...data.rentedAssets, [asset.id]: e.target.checked }
-                    onChange("rentedAssets", newRented)
-                  }}
-                  className="text-blue-500"
-                />{" "}
-                <label
-                  htmlFor={`opt-${asset.id}`}
-                  className="block min-w-0 flex-1 overflow-x-auto whitespace-nowrap text-sm text-black cursor-pointer select-none"
-                >
-                  {asset.name}
-                </label>
-              </div>
-
-              {/* ฝั่งขวา: ราคาล็อกไม่ให้โดนเบียด */}
-              <span className="text-sm font-medium text-black shrink-0 pl-2">
-                ฿{asset.price.toLocaleString()}
-              </span>
-            </label>
-          ))}
         </div>
       </div>
 
