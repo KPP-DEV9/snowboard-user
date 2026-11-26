@@ -336,14 +336,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   {childCount > 0 ? `, เด็ก ${childCount}` : ""})
                 </span>
               </div>
-              {/* {extrasSubtotal > 0 && (
-                <div className="flex justify-between text-gray-600">
-                  <span>อุปกรณ์และบริการเสริม</span>
-                  <span className="font-bold text-gray-900">
-                    ฿ {numeral(extrasSubtotal).format("0,0.00")}
-                  </span>
-                </div>
-              )} */}
+
               {transactions.length > 0 ? (
                 <>
                   {/* Summary / Total Row (when multiple transactions or deposit paid with balance) */}
@@ -493,7 +486,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               )}
             </div>
 
-              {/* Pending / Remaining Payment Action */}
+            {/* Pending / Remaining Payment Action */}
             {canPay && (
               <div className="mt-6 pt-4 border-t border-gray-100">
                 <Link
