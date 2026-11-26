@@ -31,6 +31,7 @@ export default async function AllCoursePage({ searchParams }: AllCoursePageProps
   } else if (cleanParams.category === "ski_resorts") {
     courseType = cleanParams.courseType || "SKI"
   }
+  courseType = courseType || "all"
 
   const page = cleanParams.page ? parseInt(cleanParams.page) : 1
   const limit = cleanParams.limit ? parseInt(cleanParams.limit) : 12

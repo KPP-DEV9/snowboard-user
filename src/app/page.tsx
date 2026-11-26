@@ -28,7 +28,7 @@ export default function MainPage() {
   const [nationID, setNationID] = useState("ทั้งหมด")
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
-  const [courseType, setCourseType] = useState<CategoryType>("SNOWBOARD") // Placeholder if needed in future
+  const [courseType, setCourseType] = useState<CategoryType | "all">("SNOWBOARD")
   const [searchFilter, setSearchFilter] = useState("")
   const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined)
   const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "full">(
@@ -53,12 +53,16 @@ export default function MainPage() {
     const effNation = overrides?.nationID !== undefined ? overrides.nationID : nationID
     const effProvince = overrides?.province !== undefined ? overrides.province : province
     const effLevel = overrides?.courseLevel !== undefined ? overrides.courseLevel : courseLevel
-    const effType =
-      overrides?.courseType !== undefined
-        ? overrides.courseType
-        : overrides?.type !== undefined
-          ? overrides.type
-          : type || courseType
+    const hasCourseTypeOverride = Boolean(overrides && "courseType" in overrides)
+    const effType = hasCourseTypeOverride
+      ? overrides?.courseType
+      : overrides?.type !== undefined
+        ? overrides.type
+        : type || courseType
+
+    if (hasCourseTypeOverride) {
+      setCourseType(effType || "all")
+    }
     const effProgramType =
       overrides?.program_type !== undefined ? overrides.program_type : undefined
     const hasSearchOverride = Boolean(overrides && "search" in overrides)
@@ -113,7 +117,7 @@ export default function MainPage() {
       nationID: effNation !== "ทั้งหมด" ? effNation : undefined,
       province: effProvince.length > 0 ? effProvince : undefined,
       courseLevel: effLevel !== "ทั้งหมด" ? effLevel : undefined,
-      courseType: effType && effType !== "ทั้งหมด" ? effType : undefined,
+      courseType: effType && effType !== "ทั้งหมด" ? effType : "all",
       program_type: effProgramType && effProgramType !== "ทั้งหมด" ? effProgramType : undefined,
       search: effSearch && effSearch.trim() ? effSearch.trim() : undefined,
       date: effDate,
@@ -154,7 +158,12 @@ export default function MainPage() {
   }
 
   useEffect(() => {
-    handleSearch()
+    if (window.matchMedia("(max-width: 767px)").matches) {
+      void handleSearch(1, "SNOWBOARD")
+      return
+    }
+
+    void handleSearch(1, undefined, { courseType: "all" })
   }, [])
 
   return (
@@ -169,7 +178,12 @@ export default function MainPage() {
             </h2>
 
             {/* Category Tabs */}
-            <CourseTypeTabs setCourseType={setCourseType} handleSearch={handleSearch} page={page} />
+            <CourseTypeTabs
+              courseType={courseType}
+              setCourseType={setCourseType}
+              handleSearch={handleSearch}
+              page={page}
+            />
 
             {/* Filters */}
             <HomeFilters
@@ -187,6 +201,7 @@ export default function MainPage() {
               setMaxPrice={setMaxPrice}
               isPriceEnabled={isPriceEnabled}
               setIsPriceEnabled={setIsPriceEnabled}
+              courseType={courseType}
               handleSearch={handleSearch}
             />
           </div>
@@ -237,7 +252,11 @@ export default function MainPage() {
                   </div>
                 ) : (
                   course?.map((item, i) => (
-                    <CourseBox key={item.id || i} course={item} courseType={courseType} />
+                    <CourseBox
+                      key={item.id || i}
+                      course={item}
+                      courseType={courseType === "all" ? undefined : courseType}
+                    />
                   ))
                 )}
               </div>
@@ -248,7 +267,9 @@ export default function MainPage() {
           <div className="w-full flex flex-col mb-8">
             <div className="flex justify-between items-end mb-4 px-1">
               <h3 className="text-white text-xl md:text-2xl font-bold tracking-wide">
-                ทริป {courseType === "SKI" ? "Ski" : "Snowboard"}
+                {courseType === "all"
+                  ? "ทริป Ski / Snowboard"
+                  : `ทริป ${courseType === "SKI" ? "Ski" : "Snowboard"}`}
               </h3>
               <Link
                 href="/all"
@@ -265,7 +286,9 @@ export default function MainPage() {
                 </div>
               ) : course?.length === 0 ? (
                 <div className="col-span-full text-center py-12 text-white/80 bg-black/10 rounded-2xl font-medium">
-                  ไม่พบข้อมูลทริป {courseType === "SKI" ? "Ski" : "Snowboard"}
+                  {courseType === "all"
+                    ? "ไม่พบข้อมูลทริป Ski / Snowboard"
+                    : `ไม่พบข้อมูลทริป ${courseType === "SKI" ? "Ski" : "Snowboard"}`}
                 </div>
               ) : (
                 course?.map((item, i) => {
@@ -293,7 +316,13 @@ export default function MainPage() {
                           </div>
                         )}
                         <div className="absolute top-2.5 left-2.5 bg-[#1E5BB1] text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full shadow-sm z-10">
-                          {courseType === "SKI" ? "Ski" : "Snowboard"}
+                          {courseType === "all"
+                            ? item.course_type === "SKI"
+                              ? "Ski"
+                              : "Snowboard"
+                            : courseType === "SKI"
+                              ? "Ski"
+                              : "Snowboard"}
                         </div>
                       </div>
 

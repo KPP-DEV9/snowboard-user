@@ -136,7 +136,7 @@ export default function AllCourseClient({
       minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
       maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
       ...initialParams,
-      ...(effType && effType !== "ทั้งหมด" ? { courseType: effType } : {}),
+      courseType: effType && effType !== "ทั้งหมด" ? effType : "all",
       ...(effProgramType && effProgramType !== "ทั้งหมด"
         ? { program_type: effProgramType }
         : {}),
@@ -213,6 +213,9 @@ export default function AllCourseClient({
           setMaxPrice={setMaxPrice}
           isPriceEnabled={isPriceEnabled}
           setIsPriceEnabled={setIsPriceEnabled}
+          courseType={
+            typeof initialParams?.courseType === "string" ? initialParams.courseType : "all"
+          }
           handleSearch={handleSearch}
         />
       </div>

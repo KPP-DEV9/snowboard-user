@@ -36,6 +36,7 @@ interface Props {
   setMaxPrice: (maxPrice: string) => void
   isPriceEnabled: boolean
   setIsPriceEnabled: (isPriceEnabled: boolean) => void
+  courseType?: string
   handleSearch: (
     targetPage?: number,
     type?: any,
@@ -58,6 +59,7 @@ export default function HomeFilters({
   setMaxPrice,
   isPriceEnabled,
   setIsPriceEnabled,
+  courseType,
   handleSearch,
 }: Props) {
   // Mobile filter states mirroring Desktop options
@@ -68,6 +70,14 @@ export default function HomeFilters({
   const [date, setDate] = useState("ทั้งหมด")
   const [availability, setAvailability] = useState("ทั้งหมด")
   const [selectedPricePreset, setSelectedPricePreset] = useState("ทั้งหมด")
+
+  useEffect(() => {
+    if (courseType === "SNOWBOARD" || courseType === "SKI") {
+      setSport(courseType)
+    } else {
+      setSport("ทั้งหมด")
+    }
+  }, [courseType])
 
   useEffect(() => {
     setMounted(true)
@@ -146,7 +156,7 @@ export default function HomeFilters({
     handleClear()
     handleSearch(1, undefined, {
       search: undefined,
-      courseType: undefined,
+      courseType: "all",
       program_type: undefined,
       date: "ทั้งหมด",
       availability: "ทั้งหมด",
@@ -192,7 +202,7 @@ export default function HomeFilters({
 
     handleSearch(1, undefined, {
       search: searchTerm.trim() || undefined,
-      courseType: sport !== "ทั้งหมด" ? sport : undefined,
+      courseType: sport !== "ทั้งหมด" ? sport : "all",
       program_type: tripType !== "ทั้งหมด" ? tripType : undefined,
       date: formattedDate,
       availability: availability !== "ทั้งหมด" ? availability : undefined,
@@ -227,7 +237,7 @@ export default function HomeFilters({
       label: sOpt?.label || sport,
       onRemove: () => {
         setSport("ทั้งหมด")
-        handleSearch(1, undefined, { courseType: undefined })
+        handleSearch(1, undefined, { courseType: "all" })
       },
     })
   }
