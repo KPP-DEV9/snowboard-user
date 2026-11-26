@@ -232,19 +232,11 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
       transactions.every((tx) => isSubmittedOrPaid(tx.status)) &&
       verifiedTotal >= displayTotal - 1)
 
-  const allPaid = !isCancelled && (hasDepositAndRemaining || isFullPaid)
-
   const remainingAmount = Math.max(
     0,
     verifiedTotal > 0 ? displayTotal - verifiedTotal : displayTotal - depositAmount,
   )
 
-  // ไม่แสดงปุ่มจ่ายเงินในกรณี:
-  // - มัดจำ && ชำระยอดคงเหลือ
-  // - ชำระเต็มจำนวน
-  // - ยกเลิก
-  // - ปฏิเสธ (rejected)
-  // นอกเหนือจากนี้ต้องแสดงปุ่มจ่ายเงิน
   const canPay = !isCancelled && !hasDepositAndRemaining && !isFullPaid && !isRejected
 
   return (
