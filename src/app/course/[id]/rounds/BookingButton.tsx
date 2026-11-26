@@ -72,12 +72,15 @@ export default function BookingButton({
                   <div className="mt-2.5 text-xs md:text-[13px] text-gray-600 space-y-1 bg-gray-50 p-2.5 rounded-xl border border-gray-100">
                     <div className="flex items-center justify-center gap-1.5 font-bold text-gray-800">
                       <CalendarDays size={15} className="text-[#304B65]" />
-                      <span>วันที่ {RenderDate(selectedRound.start_date, "d MMMM yyyy")}</span>
+                      <span>
+                        เริ่ม {RenderDate(selectedRound.start_date, "d MMMM yyyy")}{" "}
+                        {RenderTimeSeven(selectedRound.start_date, "HH:mm")}
+                      </span>
                     </div>
                     <div className="flex items-center justify-center gap-1.5 font-bold text-[#798E75]">
                       <Clock size={15} />
                       <span>
-                        เวลา {RenderTimeSeven(selectedRound.start_date, "HH:mm")} -{" "}
+                        สิ้นสุด {RenderDate(selectedRound.end_date, "d MMMM yyyy")}{" "}
                         {RenderTimeSeven(selectedRound.end_date, "HH:mm")}
                       </span>
                     </div>

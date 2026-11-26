@@ -247,10 +247,15 @@ export default function TermsClient({
           {selectedRound && (
             <div className="bg-white/10 rounded-xl p-3 text-xs md:text-sm flex flex-col gap-1 border border-white/10 shrink-0">
               <div className="text-white/70">รอบเวลาที่เลือก:</div>
-              <div className="font-bold text-[#E7E298]">
-                {RenderDate(selectedRound.start_date, "d MMM yyyy")} (
-                {RenderTimeSeven(selectedRound.start_date, "HH:mm")} -{" "}
-                {RenderTimeSeven(selectedRound.end_date, "HH:mm")})
+              <div className="font-bold text-[#E7E298] flex flex-col gap-1">
+                <span>
+                  เริ่ม {RenderDate(selectedRound.start_date, "d MMM yyyy")}{" "}
+                  {RenderTimeSeven(selectedRound.start_date, "HH:mm")}
+                </span>
+                <span>
+                  สิ้นสุด {RenderDate(selectedRound.end_date, "d MMM yyyy")}{" "}
+                  {RenderTimeSeven(selectedRound.end_date, "HH:mm")}
+                </span>
               </div>
               <div className="text-white/80 flex items-center gap-1.5 mt-0.5">
                 <Users size={14} /> ผู้ใหญ่ {adults} ท่าน

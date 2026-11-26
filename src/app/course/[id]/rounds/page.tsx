@@ -2,7 +2,7 @@ import { getCourseById } from "@/app/actions/course"
 import { notFound } from "next/navigation"
 import { Card } from "@/components/Ui/Card/Card"
 import { CalendarDays, MapPin, ArrowLeft, Users, User, Clock } from "lucide-react"
-import { RenderDate } from "@/lib/date"
+import { RenderDate, RenderTimeSeven } from "@/lib/date"
 import Link from "next/link"
 import CalendarCourseRoundsFilter from "./CalendarCourseRoundsFilter"
 import { format } from "date-fns"
@@ -131,12 +131,13 @@ export default async function CourseRoundsPage({ params, searchParams }: CourseR
                       >
                         <div className="space-y-1.5">
                           <div className="text-[#798E75] font-bold text-[17px] md:text-[19px]">
-                            เวลา {RenderDate(round.start_date, "HH:mm")}-
-                            {RenderDate(round.end_date, "HH:mm")}
+                            เวลา {RenderTimeSeven(round.start_date, "HH:mm")}-
+                            {RenderTimeSeven(round.end_date, "HH:mm")}
                           </div>
                           <div className="flex items-center gap-2 text-gray-800 font-medium text-xs md:text-sm">
                             <CalendarDays size={16} className="text-gray-700" /> วันที่{" "}
-                            {RenderDate(round.start_date, "d MMMM yyyy")}
+                            {RenderDate(round.start_date, "d MMMM yyyy")} -{" "}
+                            {RenderDate(round.end_date, "d MMMM yyyy")}
                           </div>
                           <div className="flex items-center gap-2 text-gray-800 font-medium text-xs md:text-sm">
                             <Users size={16} className="text-gray-700" /> จำนวนที่รับ {round.total}{" "}

@@ -10,7 +10,6 @@ import {
   ChevronUp,
   AlertCircle,
   CircleCheck,
-  Clock,
 } from "lucide-react"
 import { Course, HotelsMaster, RoomMaster } from "@/types/model"
 import { RenderDate, RenderTimeSeven } from "@/lib/date"
@@ -85,7 +84,10 @@ export default function BookingFormClient({
   const searchParams = useSearchParams()
   const enrollmentIdParam = searchParams.get("enrollment_id")
   const currentEnrollmentId = enrollment?.id || enrollmentIdParam || undefined
-  const selectedRound = course.rounds?.find((round) => round.id === roundId)
+  const selectedRound =
+    course.rounds?.find((round) => round.id === roundId) ??
+    course.round?.find((round) => round.id === roundId) ??
+    (enrollment?.round?.id === roundId ? enrollment.round : undefined)
 
   const { provinceName, districtName } = getLocationName(
     course.province,
@@ -449,7 +451,12 @@ export default function BookingFormClient({
           <div className="flex items-center gap-2">
             <CalendarDays size={16} />
             {selectedRound ? (
-              <>วันที่ {RenderDate(selectedRound.start_date, "d MMMM yyyy")}</>
+              <>
+                {RenderDate(selectedRound.start_date, "d MMMM yyyy")}{" "}
+                {RenderTimeSeven(selectedRound.start_date, "HH:mm")} -{" "}
+                {RenderDate(selectedRound.end_date, "d MMMM yyyy")}{" "}
+                {RenderTimeSeven(selectedRound.end_date, "HH:mm")}
+              </>
             ) : (
               <>
                 {RenderDate(course.start_date, "d MMMM yyyy")} -{" "}
@@ -457,13 +464,6 @@ export default function BookingFormClient({
               </>
             )}
           </div>
-          {selectedRound && (
-            <div className="flex items-center gap-2">
-              <Clock size={16} />
-              เวลา {RenderTimeSeven(selectedRound.start_date, "HH:mm")} -{" "}
-              {RenderTimeSeven(selectedRound.end_date, "HH:mm")}
-            </div>
-          )}
           <div className="flex items-center gap-2">
             <UserIcon size={16} /> {course.course_level || "Beginner"}
           </div>
