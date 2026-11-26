@@ -29,6 +29,7 @@ export default function MainPage() {
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
   const [courseType, setCourseType] = useState<CategoryType | "all">("SNOWBOARD")
+  const [programTypeCategoryFilter, setProgramTypeCategoryFilter] = useState<string | undefined>()
   const [searchFilter, setSearchFilter] = useState("")
   const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined)
   const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "full">(
@@ -63,8 +64,16 @@ export default function MainPage() {
     if (hasCourseTypeOverride) {
       setCourseType(effType || "all")
     }
+    const hasProgramTypeOverride = Boolean(overrides && "program_type" in overrides)
+    const rawProgramType = hasProgramTypeOverride
+      ? overrides?.program_type
+      : programTypeCategoryFilter
     const effProgramType =
-      overrides?.program_type !== undefined ? overrides.program_type : undefined
+      typeof rawProgramType === "string" ? rawProgramType : undefined
+
+    if (hasProgramTypeOverride) {
+      setProgramTypeCategoryFilter(effProgramType)
+    }
     const hasSearchOverride = Boolean(overrides && "search" in overrides)
     const rawSearch = hasSearchOverride ? overrides?.search : searchFilter
     const effSearch = typeof rawSearch === "string" ? rawSearch : undefined

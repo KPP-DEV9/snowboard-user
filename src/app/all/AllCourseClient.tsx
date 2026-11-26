@@ -32,6 +32,10 @@ export default function AllCourseClient({
   const [searchFilter, setSearchFilter] = useState(
     () => (typeof initialParams?.search === "string" ? initialParams.search : ""),
   )
+  const [programTypeCategoryFilter, setProgramTypeCategoryFilter] = useState<string | undefined>(
+    () =>
+      typeof initialParams?.program_type === "string" ? initialParams.program_type : undefined,
+  )
   const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "full">(
     () => {
       const value = initialParams?.availability
@@ -80,10 +84,16 @@ export default function AllCourseClient({
       overrides?.courseType !== undefined
         ? overrides.courseType
         : initialParams?.courseType
+    const hasProgramTypeOverride = Boolean(overrides && "program_type" in overrides)
+    const rawProgramType = hasProgramTypeOverride
+      ? overrides?.program_type
+      : programTypeCategoryFilter
     const effProgramType =
-      overrides?.program_type !== undefined
-        ? overrides.program_type
-        : initialParams?.program_type
+      typeof rawProgramType === "string" ? rawProgramType : undefined
+
+    if (hasProgramTypeOverride) {
+      setProgramTypeCategoryFilter(effProgramType)
+    }
     const hasSearchOverride = Boolean(overrides && "search" in overrides)
     const rawSearch = hasSearchOverride ? overrides?.search : searchFilter
     const effSearch = typeof rawSearch === "string" ? rawSearch : undefined
@@ -137,9 +147,8 @@ export default function AllCourseClient({
       maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
       ...initialParams,
       courseType: effType && effType !== "ทั้งหมด" ? effType : "all",
-      ...(effProgramType && effProgramType !== "ทั้งหมด"
-        ? { program_type: effProgramType }
-        : {}),
+      program_type:
+        effProgramType && effProgramType !== "ทั้งหมด" ? effProgramType : undefined,
       ...(effSearch && effSearch.trim() ? { search: effSearch.trim() } : {}),
       availability: effAvailability,
     }
