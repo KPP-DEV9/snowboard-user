@@ -4,7 +4,6 @@ import type { NextRequest } from "next/server"
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("token")?.value
   const { pathname } = request.nextUrl
-
   // const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTERNANCE === "TRUE"
 
   // if (isMaintenanceMode) {
