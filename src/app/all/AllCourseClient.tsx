@@ -29,6 +29,9 @@ export default function AllCourseClient({
   const [nationID, setNationID] = useState("ทั้งหมด")
   const [province, setProvince] = useState<string[]>([])
   const [courseLevel, setCourseLevel] = useState("ทั้งหมด")
+  const [searchFilter, setSearchFilter] = useState(
+    () => (typeof initialParams?.search === "string" ? initialParams.search : ""),
+  )
   const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "full">(
     () => {
       const value = initialParams?.availability
@@ -81,7 +84,13 @@ export default function AllCourseClient({
       overrides?.program_type !== undefined
         ? overrides.program_type
         : initialParams?.program_type
-    const effSearch = overrides?.search !== undefined ? overrides.search : undefined
+    const hasSearchOverride = Boolean(overrides && "search" in overrides)
+    const rawSearch = hasSearchOverride ? overrides?.search : searchFilter
+    const effSearch = typeof rawSearch === "string" ? rawSearch : undefined
+
+    if (hasSearchOverride) {
+      setSearchFilter(effSearch || "")
+    }
     const effPriceEnabled =
       overrides?.isPriceEnabled !== undefined ? overrides.isPriceEnabled : isPriceEnabled
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
