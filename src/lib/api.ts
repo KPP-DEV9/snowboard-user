@@ -163,6 +163,14 @@ export const api = {
     //     cache: "no-store",
     //   }),
   },
+  programTypeCategory: {
+    getAll: <T>(options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>("v1/user/program-type-category", {
+        ...options,
+        method: "GET",
+        cache: "no-store",
+      }),
+  },
   credit: {
     get: <T>(options?: Omit<RequestInit, "method" | "body">) =>
       fetchWrapper<T>(`v1/user/credits/me`, {

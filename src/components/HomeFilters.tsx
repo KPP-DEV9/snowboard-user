@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { X, Search } from "lucide-react"
 import { Nations, Provinces } from "@/constants/location"
+import { getProgramTypeCategories } from "@/app/actions/programTypeCategory"
 import DesktopFilters from "./DesktopFilters"
 
 export interface SearchOverrides {
@@ -44,6 +45,12 @@ interface Props {
   ) => void | Promise<void>
 }
 
+type TripTypeOption = {
+  label: string
+  value: string
+  programTypeCategoryId?: string
+}
+
 export default function HomeFilters({
   isFilterOpen,
   setIsFilterOpen,
@@ -67,6 +74,10 @@ export default function HomeFilters({
   const [searchTerm, setSearchTerm] = useState("")
   const [sport, setSport] = useState("ทั้งหมด")
   const [tripType, setTripType] = useState("ทั้งหมด")
+  const [tripTypeOptions, setTripTypeOptions] = useState<TripTypeOption[]>([
+    { label: "ทั้งหมด", value: "ทั้งหมด" },
+  ])
+  const [tripTypeError, setTripTypeError] = useState<string | null>(null)
   const [date, setDate] = useState("ทั้งหมด")
   const [availability, setAvailability] = useState("ทั้งหมด")
   const [selectedPricePreset, setSelectedPricePreset] = useState("ทั้งหมด")
@@ -78,6 +89,31 @@ export default function HomeFilters({
       setSport("ทั้งหมด")
     }
   }, [courseType])
+
+  useEffect(() => {
+    let active = true
+
+    void getProgramTypeCategories().then((result) => {
+      if (!active) return
+      if (!result.success) {
+        setTripTypeError(result.error)
+        return
+      }
+
+      setTripTypeOptions([
+        { label: "ทั้งหมด", value: "ทั้งหมด" },
+        ...result.data.map((category) => ({
+          label: category.name,
+          value: String(category.id),
+          programTypeCategoryId: String(category.id),
+        })),
+      ])
+    })
+
+    return () => {
+      active = false
+    }
+  }, [])
 
   useEffect(() => {
     setMounted(true)
@@ -101,16 +137,6 @@ export default function HomeFilters({
     { label: "ทั้งหมด", value: "ทั้งหมด" },
     { label: "Snowboard", value: "SNOWBOARD" },
     { label: "Ski", value: "SKI" },
-  ]
-
-  const tripTypeOptions = [
-    { label: "ทั้งหมด", value: "ทั้งหมด" },
-    { label: "Trips", value: "TRIP" },
-    { label: "Classes & Training", value: "CLASS" },
-    { label: "Park & Freestyle", value: "PARK_AND_FREESTYLE" },
-    { label: "Prep. Camp", value: "PREP_CAMP" },
-    { label: "Private Class", value: "PRIVATE_COACHING" },
-    { label: "Group Trip", value: "GROUP_TRIP" },
   ]
 
   const dateOptions = [
@@ -203,7 +229,8 @@ export default function HomeFilters({
     handleSearch(1, undefined, {
       search: searchTerm.trim() || undefined,
       courseType: sport !== "ทั้งหมด" ? sport : "all",
-      program_type: tripType !== "ทั้งหมด" ? tripType : undefined,
+      program_type:
+        tripTypeOptions.find((option) => option.value === tripType)?.programTypeCategoryId,
       date: formattedDate,
       availability: availability !== "ทั้งหมด" ? availability : undefined,
       nationID,
@@ -448,6 +475,11 @@ export default function HomeFilters({
                       </button>
                     ))}
                   </div>
+                  {tripTypeError && (
+                    <p role="alert" className="mt-2 text-sm text-red-600">
+                      โหลดประเภททริปไม่สำเร็จ: {tripTypeError}
+                    </p>
+                  )}
                 </div>
 
                 {/* Date (ช่วงเวลาเดินทาง) */}
