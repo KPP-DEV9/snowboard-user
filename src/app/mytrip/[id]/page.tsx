@@ -103,6 +103,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
     }))
   })
   const displayedTerms = masterTerms.length > 0 ? masterTerms : acceptedTerms
+  const termsAcceptedAt = displayedTerms.find((term) => term.acceptedAt)?.acceptedAt
 
   // Normalize guests from enrollment.guest, enrollment.guests, or enrollment.participants
   const rawGuests = enrollment.guest || enrollment.guests || enrollment.participants || []
@@ -735,9 +736,16 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                   <ShieldCheck size={20} className="text-[#304B65]" />
                   ข้อตกลงและเงื่อนไข (Terms & Conditions)
                 </h3>
-                <span className="flex items-center w-fit gap-1 bg-green-50 text-[#448651] text-xs font-bold px-3 py-1 rounded-full border border-green-200">
-                  <CheckCircle2 size={14} /> ยอมรับแล้ว
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="flex items-center w-fit gap-1 bg-green-50 text-[#448651] text-xs font-bold px-3 py-1 rounded-full border border-green-200">
+                    <CheckCircle2 size={14} /> ยอมรับแล้ว
+                  </span>
+                  {termsAcceptedAt && (
+                    <span className="text-xs text-gray-400">
+                      ยอมรับเมื่อ {RenderDate(termsAcceptedAt, "d MMM yyyy HH:mm")}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="space-y-3">
@@ -746,14 +754,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
                     key={term.id}
                     className="p-4 bg-gray-50/80 rounded-2xl border border-gray-100 text-xs md:text-sm text-gray-800 space-y-1"
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-gray-500 text-xs">ข้อที่ {index + 1}</span>
-                      {term.acceptedAt && (
-                        <span className="text-[11px] text-gray-400">
-                          ยอมรับเมื่อ {RenderDate(term.acceptedAt, "d MMM yyyy HH:mm")}
-                        </span>
-                      )}
-                    </div>
+                    <span className="font-bold text-gray-500 text-xs">ข้อที่ {index + 1}</span>
                     {term.title && <div className="font-bold">{term.title}</div>}
                     <div className="leading-relaxed whitespace-pre-wrap text-xs">
                       {term.content}
