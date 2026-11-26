@@ -22,133 +22,13 @@ import { createTermsConditions } from "@/app/actions/termsConditions"
 import { createEnrollment } from "@/app/actions/enrollment"
 import { Toast, ToastType } from "@/components/Ui/Toast/Toast"
 import { Spinner } from "@/components/Ui/Loading/Spinner"
+import { parseConditions } from "@/lib/termsConditions"
 
 interface ConditionItem {
   id: string
   masterId: string
   title?: string
   content: string
-}
-
-function parseConditions(raw?: unknown): { title?: string; content: string }[] {
-  if (!raw) return []
-
-  if (Array.isArray(raw)) {
-    return raw.flatMap((item) => parseConditions(item))
-  }
-
-  if (typeof raw === "object") {
-    const obj = raw as Record<string, any>
-    if (obj.conditions) return parseConditions(obj.conditions)
-    if (obj.condition) return parseConditions(obj.condition)
-    if (obj.content) return parseConditions(obj.content)
-    if (obj.title || obj.detail) {
-      return [
-        {
-          title: obj.title ? String(obj.title) : undefined,
-          content: String(obj.detail || obj.title || ""),
-        },
-      ]
-    }
-    return [{ content: JSON.stringify(raw) }]
-  }
-
-  let str = typeof raw === "string" ? raw : String(raw)
-  str = str.trim()
-  if (!str) return []
-
-  try {
-    const parsed = JSON.parse(str)
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed.flatMap((item) => parseConditions(item))
-    }
-    if (typeof parsed === "object" && parsed !== null) {
-      return parseConditions(parsed)
-    }
-  } catch {}
-
-  if (str.includes("\n\n")) {
-    const blocks = str.split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean)
-    if (blocks.length > 1) {
-      return blocks.map((block) => {
-        const lines = block.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
-        if (lines.length > 1 && lines[0].length < 60 && !lines[0].startsWith("กรณี")) {
-          return {
-            title: lines[0],
-            content: lines.slice(1).join("\n"),
-          }
-        }
-        return { content: block }
-      })
-    }
-  }
-
-  const lines = str.split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
-  if (lines.length <= 1) {
-    return [{ content: str }]
-  }
-
-  const hasBulletsOrNumbers = lines.some((l) => /^[•\-\*]|\d+[\.\)]\s*|^ข้อ\s*\d+/i.test(l))
-  if (hasBulletsOrNumbers) {
-    const items: { title?: string; content: string }[] = []
-    let current: { title?: string; content: string } | null = null
-    for (const line of lines) {
-      if (/^[•\-\*]|\d+[\.\)]\s*|^ข้อ\s*\d+/i.test(line)) {
-        if (current) items.push(current)
-        current = {
-          content: line.replace(/^[•\-\*]\s*|^\d+[\.\)]\s*|^ข้อ\s*\d+[:\.\s]*/i, "").trim(),
-        }
-      } else {
-        if (current) {
-          current.content += "\n" + line
-        } else {
-          current = { content: line }
-        }
-      }
-    }
-    if (current) items.push(current)
-    if (items.length > 0) return items
-  }
-
-  const items: { title?: string; content: string }[] = []
-  let i = 0
-  while (i < lines.length) {
-    const line = lines[i]
-    if (
-      i + 1 < lines.length &&
-      line.length < 60 &&
-      !line.startsWith("กรณี") &&
-      !line.startsWith("หาก") &&
-      !line.includes("ขอสงวนสิทธิ์") &&
-      !line.endsWith("ได้") &&
-      !line.endsWith("กรณี")
-    ) {
-      const title = line
-      const contentLines = [lines[i + 1]]
-      i += 2
-      while (
-        i < lines.length &&
-        (lines[i].startsWith(" ") ||
-          lines[i].startsWith("-") ||
-          lines[i].startsWith("•") ||
-          lines[i].length > 60 ||
-          lines[i].startsWith("กรณี"))
-      ) {
-        contentLines.push(lines[i])
-        i += 1
-      }
-      items.push({
-        title,
-        content: contentLines.join("\n"),
-      })
-    } else {
-      items.push({
-        content: line,
-      })
-      i += 1
-    }
-  }
-  return items
 }
 
 interface TermsClientProps {

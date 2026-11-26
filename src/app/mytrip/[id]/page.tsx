@@ -21,10 +21,11 @@ import { RenderDate } from "@/lib/date"
 import numeral from "numeral"
 import { Card } from "@/components/Ui/Card/Card"
 import LayoutPage from "@/components/Layout"
-import { PaymentTransactionsStatus } from "@/types/model"
+import { PaymentTransactionsStatus, TermsConditions } from "@/types/model"
 import { getTransactionStatusBadge, getEnrollmentStatusLabel } from "@/lib/payment"
 import { getLocationName } from "@/constants/location"
 import SlideImg from "@/components/Ui/SlideImg"
+import { parseConditions } from "@/lib/termsConditions"
 
 interface MyTripDetailPageProps {
   params: Promise<{ id: string }>
@@ -71,6 +72,37 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
   const rawTerms = enrollment.terms_conditions || []
   const termsConditions = Array.isArray(rawTerms) ? rawTerms : rawTerms ? [rawTerms] : []
   const courseTermsMaster = course?.terms_conditions_master || []
+  const acceptedTermRecords = termsConditions as (TermsConditions & {
+    conditions?: unknown
+    condition?: unknown
+  })[]
+  const masterTerms = courseTermsMaster.flatMap((master) => {
+    const acceptedTerm = acceptedTermRecords.find(
+      (term) =>
+        term.terms_conditions_master_id === master.id ||
+        term.terms_conditions_master?.id === master.id,
+    )
+
+    return parseConditions(master.conditions).map((condition, index) => ({
+      id: `${master.id}-${index}`,
+      ...condition,
+      acceptedAt: acceptedTerm?.created_at,
+    }))
+  })
+  const acceptedTerms = acceptedTermRecords.flatMap((term) => {
+    const conditionSource =
+      term.terms_conditions_master?.conditions ||
+      term.conditions ||
+      term.condition ||
+      "ยอมรับข้อตกลงและเงื่อนไขการจองคอร์ส"
+
+    return parseConditions(conditionSource).map((condition, index) => ({
+      id: `${term.id}-${index}`,
+      ...condition,
+      acceptedAt: term.created_at,
+    }))
+  })
+  const displayedTerms = masterTerms.length > 0 ? masterTerms : acceptedTerms
 
   // Normalize guests from enrollment.guest, enrollment.guests, or enrollment.participants
   const rawGuests = enrollment.guest || enrollment.guests || enrollment.participants || []
@@ -696,8 +728,7 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
           )}
 
           {/* Terms & Conditions Card */}
-          {((termsConditions && termsConditions.length > 0) ||
-            (courseTermsMaster && courseTermsMaster.length > 0)) && (
+          {displayedTerms.length > 0 && (
             <Card className="bg-white rounded-3xl p-6 md:p-8 shadow-xl border-none mb-8 text-black">
               <div className="border-b border-gray-100 pb-3 mb-4">
                 <h3 className="font-bold text-gray-900 flex items-center mb-3">
@@ -710,46 +741,25 @@ export default async function MyTripDetailPage({ params }: MyTripDetailPageProps
               </div>
 
               <div className="space-y-3">
-                {termsConditions && termsConditions.length > 0
-                  ? termsConditions.map((term: any, idx: number) => {
-                      const conditionText =
-                        term.terms_conditions_master?.conditions ||
-                        term.conditions ||
-                        term.condition ||
-                        "ยอมรับข้อตกลงและเงื่อนไขการจองคอร์ส"
-
-                      return (
-                        <div
-                          key={term.id || idx}
-                          className="p-4 bg-gray-50/80 rounded-2xl border border-gray-100 text-xs md:text-sm text-gray-800 space-y-1"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-gray-500 text-xs">
-                              ข้อที่ {idx + 1}
-                            </span>
-                            {term.created_at && (
-                              <span className="text-[11px] text-gray-400">
-                                ยอมรับเมื่อ {RenderDate(term.created_at, "d MMM yyyy HH:mm")}
-                              </span>
-                            )}
-                          </div>
-                          <div className="leading-relaxed whitespace-pre-wrap text-xs">
-                            {conditionText}
-                          </div>
-                        </div>
-                      )
-                    })
-                  : courseTermsMaster.map((master: any, idx: number) => (
-                      <div
-                        key={master.id || idx}
-                        className="p-4 bg-gray-50/80 rounded-2xl border border-gray-100 text-xs text-gray-800 space-y-1"
-                      >
-                        <div className="font-bold text-gray-500 text-xs">ข้อที่ {idx + 1}</div>
-                        <div className="leading-relaxed whitespace-pre-wrap font-medium text-xs">
-                          {master.conditions}
-                        </div>
-                      </div>
-                    ))}
+                {displayedTerms.map((term, index) => (
+                  <div
+                    key={term.id}
+                    className="p-4 bg-gray-50/80 rounded-2xl border border-gray-100 text-xs md:text-sm text-gray-800 space-y-1"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-gray-500 text-xs">ข้อที่ {index + 1}</span>
+                      {term.acceptedAt && (
+                        <span className="text-[11px] text-gray-400">
+                          ยอมรับเมื่อ {RenderDate(term.acceptedAt, "d MMM yyyy HH:mm")}
+                        </span>
+                      )}
+                    </div>
+                    {term.title && <div className="font-bold">{term.title}</div>}
+                    <div className="leading-relaxed whitespace-pre-wrap text-xs">
+                      {term.content}
+                    </div>
+                  </div>
+                ))}
               </div>
             </Card>
           )}

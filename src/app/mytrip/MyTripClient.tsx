@@ -208,7 +208,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
         </div>
 
         {/* Trips List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+        <div className="grid grid-cols-1 gap-5 md:gap-6">
           {filteredEnrollments.length === 0 ? (
             <div className="col-span-full text-center py-16 text-white/80 bg-black/15 rounded-3xl font-medium">
               ไม่พบรายการทริป
@@ -381,7 +381,7 @@ export default function MyTripClient({ enrollments }: MyTripClientProps) {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-gray-900 font-extrabold text-[16px] leading-snug mb-2 line-clamp-2 group-hover:text-[#2D455D] transition-colors">
+                    <h3 className="text-gray-900 font-extrabold text-[16px] leading-snug mb-2 truncate group-hover:text-[#2D455D] transition-colors">
                       {course?.title || "ทริปสโนว์บอร์ด โตเกียว สำหรับผู้เริ่มต้น 6 วัน 5 คืน"}
                     </h3>
 
