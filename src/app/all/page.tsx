@@ -21,8 +21,11 @@ export default async function AllCoursePage({ searchParams }: AllCoursePageProps
 
   let courseType = cleanParams.courseType || cleanParams.type
 
+  const queryParams = { ...cleanParams }
+
   if (cleanParams.category === "ski_resorts") {
     courseType = cleanParams.courseType || "SKI"
+    delete queryParams.category
   }
   courseType = courseType || "all"
 
@@ -32,7 +35,7 @@ export default async function AllCoursePage({ searchParams }: AllCoursePageProps
   const res = await getCourses({
     page,
     limit,
-    ...cleanParams,
+    ...queryParams,
     courseType,
   })
   const initialCourses = (

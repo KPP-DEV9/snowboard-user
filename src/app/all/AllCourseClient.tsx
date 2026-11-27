@@ -136,6 +136,11 @@ export default function AllCourseClient({
       return rawDate
     })()
 
+    const sanitizedInitialParams = { ...initialParams }
+    if (sanitizedInitialParams.category === "ski_resorts") {
+      delete sanitizedInitialParams.category
+    }
+
     const payload = {
       page: targetPage,
       limit: 12,
@@ -145,7 +150,7 @@ export default function AllCourseClient({
       date: effDate,
       minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
       maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
-      ...initialParams,
+      ...sanitizedInitialParams,
       courseType: effType && effType !== "ทั้งหมด" ? effType : "all",
       program_type:
         effProgramType && effProgramType !== "ทั้งหมด" ? effProgramType : undefined,
