@@ -504,6 +504,14 @@ export const api = {
       })
     },
   },
+  hotels: {
+    getAll: <T>(options?: Omit<RequestInit, "method" | "body">) =>
+      fetchWrapper<T>(`v1/user/hotels`, {
+        ...options,
+        method: "GET",
+        cache: "no-store",
+      }),
+  },
   terms_conditions: {
     create: <T>(
       body: {

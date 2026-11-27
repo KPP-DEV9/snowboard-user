@@ -16,7 +16,11 @@ export default async function HotelDetailPage({ params }: HotelDetailPageProps) 
   const resolvedParams = await params
   const { id } = resolvedParams
 
-  const { success, data: hotel, relatedCourses = [] } = await getHotelById(id)
+  const { success, data: hotel, relatedCourses = [], error } = await getHotelById(id)
+
+  if (error) {
+    throw new Error(error)
+  }
 
   if (!success || !hotel) {
     return (

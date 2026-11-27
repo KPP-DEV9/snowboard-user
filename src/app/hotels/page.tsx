@@ -3,11 +3,14 @@ import LayoutPage from "@/components/Layout"
 import HotelsClient from "./HotelsClient"
 
 export default async function HotelsPage() {
-  const { data: hotels = [] } = await getHotels()
+  const result = await getHotels()
+  if (!result.success) {
+    throw new Error(result.error)
+  }
 
   return (
     <LayoutPage>
-      <HotelsClient initialHotels={hotels} />
+      <HotelsClient initialHotels={result.data} />
     </LayoutPage>
   )
 }
