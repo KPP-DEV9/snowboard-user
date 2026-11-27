@@ -32,9 +32,7 @@ export default function MainPage() {
   const [programTypeCategoryFilter, setProgramTypeCategoryFilter] = useState<string | undefined>()
   const [searchFilter, setSearchFilter] = useState("")
   const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined)
-  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "full">(
-    "all",
-  )
+  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "available" | "full">("all")
   const [isPriceEnabled, setIsPriceEnabled] = useState(false)
   const [minPrice, setMinPrice] = useState("0")
   const [maxPrice, setMaxPrice] = useState("50000")
@@ -68,8 +66,7 @@ export default function MainPage() {
     const rawProgramType = hasProgramTypeOverride
       ? overrides?.program_type
       : programTypeCategoryFilter
-    const effProgramType =
-      typeof rawProgramType === "string" ? rawProgramType : undefined
+    const effProgramType = typeof rawProgramType === "string" ? rawProgramType : undefined
 
     if (hasProgramTypeOverride) {
       setProgramTypeCategoryFilter(effProgramType)
@@ -86,17 +83,13 @@ export default function MainPage() {
     const effMinPrice = overrides?.minPrice !== undefined ? overrides.minPrice : minPrice
     const effMaxPrice = overrides?.maxPrice !== undefined ? overrides.maxPrice : maxPrice
     const hasAvailabilityOverride = Boolean(overrides && "availability" in overrides)
-    const rawAvailability = hasAvailabilityOverride
-      ? overrides?.availability
-      : availabilityFilter
+    const rawAvailability = hasAvailabilityOverride ? overrides?.availability : availabilityFilter
     const effAvailability =
       rawAvailability === "available" || rawAvailability === "full" ? rawAvailability : "all"
 
     if (hasAvailabilityOverride) {
       setAvailabilityFilter(
-        rawAvailability === "available" || rawAvailability === "full"
-          ? rawAvailability
-          : "all",
+        rawAvailability === "available" || rawAvailability === "full" ? rawAvailability : "all",
       )
     }
 
@@ -134,8 +127,6 @@ export default function MainPage() {
       minPrice: effPriceEnabled ? effMinPrice.replace(/,/g, "") : undefined,
       maxPrice: effPriceEnabled ? effMaxPrice.replace(/,/g, "") : undefined,
     }
-
-    console.log("[Filter Payload]:", payload)
 
     try {
       const res = await getCourses(payload)
