@@ -124,7 +124,8 @@ export default function MyCalendar({
 
             const dayRounds = rounds?.filter((r) => isSameDay(new Date(r.start_date), day))
             const hasRound = dayRounds?.length > 0
-            const isFullyBooked = hasRound && dayRounds?.every((r) => r.total === 0)
+            const isFullyBooked =
+              hasRound && dayRounds?.every((r) => Number(r.total_user) === 0 || r.total === 0)
 
             const isPastDate = day < new Date(new Date().setHours(0, 0, 0, 0))
             const isUnavailable = !hasRound || isPastDate
@@ -144,6 +145,10 @@ export default function MyCalendar({
                   programType !== "PARK_AND_FREESTYLE")
 
             const getDayStyle = () => {
+              if (isFullyBooked) {
+                return "bg-gray-100 text-gray-400 font-medium cursor-not-allowed"
+              }
+
               if (isSpecialProgram) {
                 if (isUnavailable) {
                   return isToday(day) ? "border border-gold text-gold" : "text-gray-400"
@@ -191,13 +196,15 @@ export default function MyCalendar({
                     isSpecialProgram ? "rounded-lg" : "rounded-full"
                   } text-[14px] transition-all ${getDayStyle()}`}
                 >
-                  <span className={isFullyBooked ? "line-through opacity-50" : ""}>
-                    {format(day, "d")}
-                  </span>
+                  <span>{format(day, "d")}</span>
                 </div>
-                <div className="h-1.5 mt-1 flex items-center justify-center gap-1">
-                  {isAvailable &&
-                    !isFullyBooked &&
+                <div className="h-2.5 mt-0.5 flex items-center justify-center gap-1">
+                  {isFullyBooked ? (
+                    <span className="text-[9px] font-bold text-gray-400 scale-90 leading-none">
+                      เต็ม
+                    </span>
+                  ) : (
+                    isAvailable &&
                     (isSpecialProgram ? (
                       <>
                         {hasPrivate && (
@@ -210,7 +217,8 @@ export default function MyCalendar({
                       </>
                     ) : (
                       <span className="w-1.5 h-1.5 bg-[#4F7354] rounded-full"></span>
-                    ))}
+                    ))
+                  )}
                 </div>
               </button>
             )

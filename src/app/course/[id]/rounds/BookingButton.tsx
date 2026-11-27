@@ -42,10 +42,6 @@ export default function BookingButton({
     }
   }
 
-  // router.push(
-  //   `/booking?course_id=${courseId}&round_id=${roundId}&adults=${adults}&children=${children}`,
-  // )
-
   return (
     <>
       <button

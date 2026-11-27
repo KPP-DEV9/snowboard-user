@@ -31,6 +31,16 @@ export default function CalendarCourseRoundsFilter({ course }: Props) {
     .map((r) => new Date(r.start_date))
     .filter((d) => !isNaN(d.getTime()))
 
+  const availableRounds = rounds.filter((r) => Number(r.total_user) > 0)
+  const availableRoundDates = availableRounds
+    .map((r) => new Date(r.start_date))
+    .filter((d) => !isNaN(d.getTime()))
+
+  const firstAvailableRoundDate =
+    availableRoundDates.length > 0
+      ? new Date(Math.min(...availableRoundDates.map((d) => d.getTime())))
+      : null
+
   const minRoundDate =
     roundStartDates.length > 0
       ? new Date(Math.min(...roundStartDates.map((d) => d.getTime())))
@@ -45,7 +55,7 @@ export default function CalendarCourseRoundsFilter({ course }: Props) {
 
   const initialDate = defaultDate
     ? new Date(defaultDate)
-    : minRoundDate || (course?.start_date ? new Date(course.start_date) : new Date())
+    : firstAvailableRoundDate || minRoundDate || (course?.start_date ? new Date(course.start_date) : new Date())
 
   const [currentMonth, setCurrentMonth] = useState(initialDate)
 

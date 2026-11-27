@@ -9,7 +9,6 @@ import {
   ShieldCheck,
   CheckSquare,
   Square,
-  CalendarDays,
   MapPin,
   Users,
 } from "lucide-react"
@@ -236,11 +235,11 @@ export default function TermsClient({
                 <MapPin size={15} /> {districtName ? `${districtName}, ` : ""}
                 {provinceName}
               </div>
-              <div>•</div>
+              {/* <div>•</div>
               <div className="flex items-center gap-1">
                 <CalendarDays size={15} /> {RenderDate(course.start_date, "d MMM")} -{" "}
                 {RenderDate(course.end_date, "d MMM yyyy")}
-              </div>
+              </div> */}
             </div>
           </div>
 
