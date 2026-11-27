@@ -1,5 +1,13 @@
 import Link from "next/link"
-import { ArrowLeft, Compass, Award, Building2, Users2, ShieldCheck, HeartHandshake } from "lucide-react"
+import {
+  ArrowLeft,
+  Compass,
+  Award,
+  Building2,
+  Users2,
+  ShieldCheck,
+  HeartHandshake,
+} from "lucide-react"
 import LayoutPage from "@/components/Layout"
 import Logo from "@/components/Logo"
 
@@ -7,6 +15,8 @@ export const metadata = {
   title: "เกี่ยวกับ SNOWVIBES | About SNOWVIBES",
   description: "รู้จักกับ SNOWVIBES ทริปและคอร์สเรียนสโนว์บอร์ด สกี ครบวงจร",
 }
+
+//triger
 
 export default function AboutPage() {
   const highlights = [
@@ -69,8 +79,9 @@ export default function AboutPage() {
           </h2>
           <p className="text-white/85 text-sm md:text-base max-w-2xl leading-relaxed">
             <span className="font-semibold text-white">SNOWVIBES</span>{" "}
-            คือพื้นที่สำหรับผู้ที่หลงใหลในเสน่ห์ของฤดูหนาวและกีฬาหิมะ เรามุ่งมั่นสร้างสรรค์ประสบการณ์การเดินทาง
-            คอร์สเรียน และทริปสกี-สโนว์บอร์ดที่ตอบโจทย์ทุกคน ไม่ว่าจะเป็นผู้เริ่มต้นหัดเล่นครั้งแรก
+            คือพื้นที่สำหรับผู้ที่หลงใหลในเสน่ห์ของฤดูหนาวและกีฬาหิมะ
+            เรามุ่งมั่นสร้างสรรค์ประสบการณ์การเดินทาง คอร์สเรียน
+            และทริปสกี-สโนว์บอร์ดที่ตอบโจทย์ทุกคน ไม่ว่าจะเป็นผู้เริ่มต้นหัดเล่นครั้งแรก
             หรือผู้เล่นระดับแอดวานซ์ที่ต้องการพัฒนาทักษะสู่ระดับสูงสุด
           </p>
         </div>
@@ -82,7 +93,8 @@ export default function AboutPage() {
               <span>🎯</span> วิสัยทัศน์ของเรา (Our Vision)
             </h3>
             <p className="text-white/80 text-sm md:text-base leading-relaxed">
-              เปิดโอกาสให้ทุกคนเข้าถึงกีฬาหิมะได้อย่างสนุกสนาน มั่นใจ และปลอดภัย สร้างมาตรฐานใหม่ให้กับการท่องเที่ยวและการฝึกสอนกีฬาฤดูหนาวในประเทศไทย
+              เปิดโอกาสให้ทุกคนเข้าถึงกีฬาหิมะได้อย่างสนุกสนาน มั่นใจ และปลอดภัย
+              สร้างมาตรฐานใหม่ให้กับการท่องเที่ยวและการฝึกสอนกีฬาฤดูหนาวในประเทศไทย
             </p>
           </div>
 
@@ -91,7 +103,8 @@ export default function AboutPage() {
               <span>❄️</span> พันธกิจของเรา (Our Mission)
             </h3>
             <p className="text-white/80 text-sm md:text-base leading-relaxed">
-              ส่งมอบการบริการที่ครบวงจร ตั้งแต่คำปรึกษาการเลือกอุปกรณ์ แคมป์ฝึกอบรม คอร์สส่วนตัว ไปจนถึงทริปท่องเที่ยวพร้อมที่พักคุณภาพสูง เพื่อความสุขและความปลอดภัยของทุกคน
+              ส่งมอบการบริการที่ครบวงจร ตั้งแต่คำปรึกษาการเลือกอุปกรณ์ แคมป์ฝึกอบรม คอร์สส่วนตัว
+              ไปจนถึงทริปท่องเที่ยวพร้อมที่พักคุณภาพสูง เพื่อความสุขและความปลอดภัยของทุกคน
             </p>
           </div>
         </div>
@@ -147,4 +160,3 @@ export default function AboutPage() {
     </LayoutPage>
   )
 }
-
